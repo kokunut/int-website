@@ -1,0 +1,1217 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>인트 | 인공지능융합대학 학생회</title>
+<meta name="description" content="세종대학교 인공지능융합대학 학생회 인트">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+/* ===================================================================
+   색상 미정 → 전부 회색 토큰. 색이 정해지면 :root 값만 교체하면 됨
+   =================================================================== */
+:root{
+  --bg:#ffffff;
+  --surface:#f6f6f7;      /* 캘린더 우측 패널, hover 배경 */
+  --surface-2:#ececee;    /* 배너·이미지 자리 */
+  --line:#e3e3e6;
+  --text:#17171a;
+  --text-2:#55565c;
+  --text-3:#9b9ca2;
+  --accent:#17171a;       /* 주요 버튼·선택 날짜·진행바 → 브랜드 컬러 자리 */
+  --accent-ink:#ffffff;
+  --sun:var(--text);      /* 일요일 (이미지에선 빨강) */
+  --sat:var(--text);      /* 토요일 (이미지에선 파랑) */
+  --cat-academic:var(--text);   /* 캘린더 카테고리 색 → 지금은 모양으로 구분 */
+  --cat-event:var(--text-2);
+  --cat-contest:var(--text);
+  --radius:14px;
+  --container:1200px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--text);background:var(--bg);line-height:1.55;-webkit-font-smoothing:antialiased;word-break:keep-all}
+a{color:inherit;text-decoration:none}
+button,select,input{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+ul,ol{list-style:none}
+img{display:block;max-width:100%}
+.container{max-width:var(--container);margin:0 auto;padding:0 20px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---------- 상단 네비게이션 ---------- */
+.gnb{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--line)}
+.gnb-inner{height:68px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.logo{display:flex;align-items:baseline;gap:10px}
+.logo-mark{font-size:30px;font-weight:900;letter-spacing:-.05em;line-height:1}
+.logo-sub{font-size:13px;color:var(--text-2)}
+.menu{display:flex;gap:2px}
+.menu>li{position:relative}
+.menu-top{display:block;padding:10px 18px;font-weight:600;border-radius:10px}
+.menu-top:hover,.menu>li:focus-within>.menu-top{background:var(--surface)}
+.menu-top.active{box-shadow:inset 0 -2px 0 var(--text);border-radius:10px 10px 0 0}
+.sub{position:absolute;top:100%;left:50%;transform:translateX(-50%);min-width:180px;padding:8px;background:var(--bg);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.08);opacity:0;visibility:hidden;transition:opacity .15s,visibility .15s}
+.menu>li:hover .sub,.menu>li:focus-within .sub{opacity:1;visibility:visible}
+.sub a{display:flex;justify-content:space-between;gap:12px;padding:9px 12px;border-radius:8px;font-size:15px;color:var(--text-2)}
+.sub a:hover{background:var(--surface);color:var(--text)}
+.ext::after{content:'↗';font-size:12px;color:var(--text-3)}
+.burger{display:none;width:42px;height:42px;align-items:center;justify-content:center;border-radius:10px}
+.burger span,.burger span::before,.burger span::after{display:block;width:20px;height:2px;background:var(--text);position:relative;transition:.2s}
+.burger span::before,.burger span::after{content:'';position:absolute;left:0}
+.burger span::before{top:-6px}.burger span::after{top:6px}
+.gnb.open .burger span{background:transparent}
+.gnb.open .burger span::before{top:0;transform:rotate(45deg)}
+.gnb.open .burger span::after{top:0;transform:rotate(-45deg)}
+
+@media (max-width:860px){
+  .burger{display:flex}
+  .logo-sub{display:none}
+  .gnb nav{position:fixed;inset:68px 0 0 0;background:var(--bg);overflow:auto;padding:8px 20px 48px;display:none}
+  .gnb.open nav{display:block}
+  .menu{flex-direction:column;gap:0}
+  .menu-top{padding:16px 2px 8px;font-size:19px;border-radius:0}
+  .menu-top.active{box-shadow:none;text-decoration:underline;text-underline-offset:6px}
+  .sub{position:static;transform:none;opacity:1;visibility:visible;box-shadow:none;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:0 0 12px}
+  .sub a{padding:10px 2px}
+}
+
+/* ---------- 공통 ---------- */
+.section{margin-top:72px}
+.sec-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+.sec-head h2{font-size:26px;font-weight:800;letter-spacing:-.03em}
+.more{font-size:14px;color:var(--text-2);white-space:nowrap}
+.more:hover{color:var(--text)}
+.card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:48px;padding:0 22px;border-radius:12px;background:var(--accent);color:var(--accent-ink);font-weight:700;white-space:nowrap}
+.btn:hover{opacity:.88}
+.btn.ghost{background:var(--bg);color:var(--text);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--surface);opacity:1}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:3px 8px;border-radius:6px;border:1px solid var(--line);color:var(--text-2);white-space:nowrap}
+.badge.solid{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.placeholder{display:grid;place-items:center;background:var(--surface-2);color:var(--text-3);font-size:14px;text-align:center}
+.note{font-size:13px;color:var(--text-3)}
+
+/* ---------- 배너 ---------- */
+.banner{margin-top:28px;border-radius:18px;overflow:hidden;background:var(--surface-2)}
+.banner-track{display:flex;transition:transform .55s ease}
+.slide{flex:0 0 100%;display:block;aspect-ratio:4.1/1}
+.slide img{width:100%;height:100%;object-fit:cover}
+.bn-tpl{height:100%;display:flex;justify-content:space-between;gap:24px;padding:clamp(20px,3vw,40px) clamp(20px,3.2vw,44px)}
+.bn-left{flex:1;min-width:0;display:flex;flex-direction:column}
+.bn-word{font-family:'Times New Roman',Georgia,serif;font-size:clamp(44px,7.6vw,100px);font-weight:900;line-height:.86;letter-spacing:-.02em}
+.bn-word::after{content:'.';}
+.bn-slogan{font-size:clamp(16px,2.3vw,30px);font-weight:800;letter-spacing:-.03em;margin-top:clamp(10px,1.4vw,18px)}
+.bn-lines{margin-top:auto;display:grid;gap:clamp(8px,1.1vw,14px);padding-top:16px}
+.bn-lines i{display:block;height:1px;background:var(--text-3)}
+.bn-place{margin-top:clamp(8px,1vw,12px);font-size:clamp(12px,1.15vw,16px)}
+.bn-place b,.bn-right>b{display:block;font-weight:800;letter-spacing:.02em}
+.bn-right{display:flex;flex-direction:column;justify-content:flex-end;gap:clamp(4px,.7vw,10px);text-align:right;font-size:clamp(11px,1.1vw,15px)}
+.bn-right div b{display:block;font-weight:700}
+.bn-right div span{color:var(--text-2)}
+.banner-ctrl{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.dots-row{display:flex;gap:6px}
+.dots-row button{width:8px;height:8px;border-radius:999px;background:var(--line);transition:width .2s}
+.dots-row button.on{width:24px;background:var(--text)}
+.arrows{display:flex;align-items:center;gap:4px;font-size:14px;color:var(--text-2)}
+.arrows button{width:34px;height:34px;border-radius:999px;border:1px solid var(--line);font-size:16px}
+.arrows button:hover{background:var(--surface)}
+.arrows .count{min-width:44px;text-align:center;font-variant-numeric:tabular-nums}
+
+@media (max-width:720px){
+  .slide{aspect-ratio:auto}
+  .slide.is-img{aspect-ratio:16/9}
+  .bn-tpl{flex-direction:column;min-height:300px}
+  .bn-right{text-align:left;flex-direction:row;flex-wrap:wrap;gap:8px 18px}
+  .bn-right>b{width:100%}
+}
+
+/* ---------- 캘린더 (학사일정 이미지 레이아웃) ---------- */
+.cal-tools{display:flex;align-items:center;gap:14px}
+.select{position:relative}
+.select select{appearance:none;-webkit-appearance:none;height:46px;min-width:170px;padding:0 44px 0 18px;border:1px solid var(--line);border-radius:4px;background:var(--bg);font-size:16px;cursor:pointer}
+.select::after{content:'';position:absolute;right:18px;top:50%;width:8px;height:8px;border-right:2px solid var(--text-3);border-bottom:2px solid var(--text-3);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.plus{width:40px;height:40px;display:grid;place-items:center;font-size:32px;font-weight:200;line-height:1;border-radius:8px}
+.plus:hover{background:var(--surface)}
+.cal{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:28px}
+.cal-grid-wrap{border:1px solid var(--line);border-radius:12px;padding:18px 0 10px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;padding:0 24px 14px;border-bottom:1px solid var(--line)}
+.cal-title{font-size:24px;font-weight:700;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.cal-nav{display:flex;gap:2px}
+.cal-nav button{width:34px;height:34px;border-radius:8px;font-size:24px;line-height:1;color:var(--text-2)}
+.cal-nav button:hover{background:var(--surface)}
+.cal-week,.cal-days{display:grid;grid-template-columns:repeat(7,1fr);padding:0 8px}
+.cal-week span{text-align:center;font-weight:600;padding:14px 0 6px}
+.cal-week .sun,.day.sun:not(.out){color:var(--sun)}
+.cal-week .sat,.day.sat:not(.out){color:var(--sat)}
+.day{position:relative;height:50px;display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--text-2);font-variant-numeric:tabular-nums}
+.day .num{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;transition:background .12s}
+.day:hover .num{background:var(--surface)}
+.day.out{color:var(--text-3);opacity:.45}
+.day.today .num{box-shadow:inset 0 0 0 1.5px var(--text)}
+.day.sel .num,.day.sel:hover .num{background:var(--accent);color:var(--accent-ink)}
+.day .dots{position:absolute;bottom:1px;left:50%;transform:translateX(-50%);display:flex;gap:4px}
+.mk{display:inline-block;width:6px;height:6px;flex:none}
+.mk-academic{border-radius:50%;background:var(--cat-academic)}
+.mk-event{border-radius:1px;background:var(--cat-event)}
+.mk-contest{transform:rotate(45deg) scale(.9);box-shadow:inset 0 0 0 1.5px var(--cat-contest)}
+.cal-legend{display:flex;flex-wrap:wrap;gap:6px 16px;padding:12px 24px 4px;font-size:13px;color:var(--text-2)}
+.cal-legend span{display:flex;align-items:center;gap:6px}
+.cal-panel{background:var(--surface);border-radius:12px;padding:28px 34px}
+.cal-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px}
+.cal-panel-title{font-size:15px;font-weight:700;color:var(--text-2)}
+.link-btn{font-size:13px;color:var(--text-2);text-decoration:underline;text-underline-offset:3px}
+.ev{display:flex;gap:16px;padding:16px 0}
+.ev .mk{margin-top:10px}
+.ev strong{display:block;font-size:19px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.ev p{font-size:16px;color:var(--text-2);margin-top:4px}
+.ev small{display:inline-block;margin-top:6px;font-size:12px;color:var(--text-3)}
+a.ev:hover p{color:var(--text);text-decoration:underline;text-underline-offset:3px}
+.cal-empty{padding:40px 0;color:var(--text-3);text-align:center}
+@media (max-width:860px){
+  .cal{grid-template-columns:1fr;gap:16px}
+  .cal-panel{padding:22px 22px}
+  .select select{min-width:140px;height:42px}
+}
+@media (max-width:400px){
+  .day{height:46px;font-size:15px}
+  .day .num{width:36px;height:36px}
+}
+
+/* ---------- 홈 상단: 캘린더 + 페이백 ---------- */
+.home-top{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:stretch}
+.home-top #home-cal{display:flex;flex-direction:column}
+.home-top .cal{flex:1}
+.home-top .sec-head{min-height:42px}
+.home-pb{display:flex;flex-direction:column;align-self:stretch}
+
+/* 컴팩트 캘린더 (홈) */
+.cal-compact .select select{height:40px;min-width:130px;font-size:15px;padding:0 40px 0 14px}
+.cal-compact .select::after{right:15px}
+.cal-compact .plus{width:36px;height:36px;font-size:28px}
+.cal-compact .cal{grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:16px}
+.cal-compact .cal-grid-wrap{padding:14px 0 6px}
+.cal-compact .cal-head{padding:0 16px 10px}
+.cal-compact .cal-title{font-size:19px}
+.cal-compact .cal-nav button{width:30px;height:30px;font-size:20px}
+.cal-compact .cal-week,.cal-compact .cal-days{padding:0 6px}
+.cal-compact .cal-week span{padding:10px 0 4px;font-size:13px}
+.cal-compact .day{height:40px;font-size:14px}
+.cal-compact .day .num{width:32px;height:32px}
+.cal-compact .day .dots{gap:3px}
+.cal-compact .mk{width:5px;height:5px}
+.cal-compact .cal-legend{padding:8px 16px 4px;font-size:12px;gap:4px 12px}
+.cal-compact .cal-panel{padding:18px 20px;display:flex;flex-direction:column;min-height:0}
+.cal-compact .cal-list{flex:1;overflow:auto;margin-right:-8px;padding-right:8px}
+@media (min-width:561px){.cal-compact .cal-list{max-height:330px}}
+.cal-compact .ev{gap:12px;padding:11px 0}
+.cal-compact .ev .mk{margin-top:8px}
+.cal-compact .ev strong{font-size:16px}
+.cal-compact .ev p{font-size:14px;margin-top:2px}
+.cal-compact .ev small{display:none}
+
+/* 세로형 페이백 카드 (홈, 넓은 화면) */
+@media (min-width:1081px){
+  .home-pb .pb{flex:1;grid-template-columns:minmax(0,1fr);align-content:space-between;gap:18px;padding:22px 24px}
+  .home-pb .pb-num{font-size:46px}
+  .home-pb .bar{margin-top:12px}
+  .home-pb .pb-stats{gap:12px 16px}
+  .home-pb .pb-stats dd{font-size:14px;white-space:nowrap}
+  .home-pb .pb-cta{align-items:stretch}
+  .home-pb .pb-cta .note{text-align:center}
+}
+@media (max-width:1080px){
+  .home-top{grid-template-columns:minmax(0,1fr);gap:72px}
+}
+@media (max-width:560px){
+  .cal-compact .cal{grid-template-columns:minmax(0,1fr)}
+}
+
+/* ---------- 검정비 페이백 ---------- */
+.pb{display:grid;grid-template-columns:1.25fr 1fr auto;gap:36px;align-items:center;padding:32px 36px}
+.pb-label{font-size:15px;font-weight:700;color:var(--text-2)}
+.pb-rate{display:flex;align-items:baseline;gap:4px;margin-top:2px}
+.pb-num{font-size:60px;font-weight:900;letter-spacing:-.05em;line-height:1.05;font-variant-numeric:tabular-nums}
+.pb-unit{font-size:26px;font-weight:800}
+.bar{height:14px;background:var(--surface-2);border-radius:999px;overflow:hidden;margin-top:16px}
+.bar i{display:block;height:100%;width:0;background:var(--accent);border-radius:inherit;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+.pb-scale{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--text-3)}
+.pb-stats{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px 24px}
+.pb-stats dt{font-size:13px;color:var(--text-3)}
+.pb-stats dd{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.pb-stats dd.pb-sub{font-size:13px;font-weight:400;color:var(--text-2)}
+.pb-cta{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+@media (max-width:960px){
+  .pb{grid-template-columns:minmax(0,1fr);gap:28px;padding:26px 22px}
+  .pb-cta{align-items:stretch}
+  .pb-cta .note{text-align:center}
+}
+
+/* ---------- 목록 ---------- */
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px}
+.list{border-top:2px solid var(--text)}
+.list li a{display:flex;align-items:center;gap:12px;padding:17px 4px;border-bottom:1px solid var(--line)}
+.list li a:hover .t{text-decoration:underline;text-underline-offset:3px}
+.list .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.list .d{font-size:14px;color:var(--text-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.cal-chip{display:inline-flex;flex:none;align-items:center;gap:6px;font-size:12px;color:var(--text-2);white-space:nowrap}
+.empty{padding:40px 0;text-align:center;color:var(--text-3)}
+
+/* ---------- 바로가기 ---------- */
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.qk{display:flex;flex-direction:column;justify-content:space-between;gap:24px;min-height:150px;padding:24px 26px;border:1px solid var(--line);border-radius:var(--radius);transition:background .15s}
+.qk:hover{background:var(--surface)}
+.qk small{font-size:13px;color:var(--text-3)}
+.qk strong{display:block;font-size:21px;font-weight:800;letter-spacing:-.03em;margin-top:4px}
+.qk .arr{align-self:flex-end;font-size:22px}
+@media (max-width:480px){.list .cal-chip{display:none}}
+@media (max-width:860px){
+  .two{grid-template-columns:minmax(0,1fr);gap:56px}
+  .quick{grid-template-columns:1fr}
+  .qk{min-height:0}
+}
+
+/* ---------- 하위 페이지 ---------- */
+.page{padding-top:48px}
+.crumb{font-size:14px;color:var(--text-3)}
+.page-head h1{font-size:36px;font-weight:800;letter-spacing:-.04em;margin-top:4px}
+.page-desc{margin-top:8px;color:var(--text-2)}
+.page-head{margin-bottom:36px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.tabs a,.tabs button{height:40px;padding:0 16px;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;font-size:15px;color:var(--text-2)}
+.tabs .on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin-bottom:16px}
+.toolbar .tabs{margin:0}
+.search{height:42px;width:min(280px,100%);padding:0 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.box{padding:26px 28px}
+.box h3{font-size:20px;font-weight:800;letter-spacing:-.03em}
+.box p{color:var(--text-2);margin-top:6px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tags span{font-size:13px;padding:4px 10px;border-radius:999px;background:var(--surface);color:var(--text-2)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin-top:16px;font-size:14px}
+.kv dt{color:var(--text-3)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;counter-reset:s}
+.steps li{padding:20px 22px;border:1px solid var(--line);border-radius:12px;counter-increment:s}
+.steps li::before{content:'0' counter(s);display:block;font-size:13px;font-weight:800;color:var(--text-3);margin-bottom:6px}
+.steps b{display:block}
+.steps span{font-size:14px;color:var(--text-2)}
+.bullets{display:grid;gap:8px;color:var(--text-2)}
+.bullets li{padding-left:14px;position:relative}
+.bullets li::before{content:'';position:absolute;left:0;top:.7em;width:4px;height:4px;border-radius:50%;background:var(--text-3)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{display:flex;gap:14px;align-items:center;padding:20px 4px;cursor:pointer;font-weight:600;list-style:none}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::before{content:'Q';font-weight:900;color:var(--text-3)}
+.faq summary::after{content:'+';margin-left:auto;font-size:22px;font-weight:300;color:var(--text-3)}
+.faq details[open] summary::after{content:'−'}
+.faq .a{padding:0 4px 22px 30px;color:var(--text-2)}
+.doc-row{display:flex;align-items:center;gap:12px;padding:16px 4px;border-bottom:1px solid var(--line)}
+.doc-row .t{flex:1;min-width:0;font-weight:500}
+.doc-row .btn{height:36px;padding:0 14px;font-size:14px;border-radius:8px}
+.article{max-width:760px}
+.article h1{font-size:30px;font-weight:800;letter-spacing:-.04em;margin-top:10px}
+.article .meta{color:var(--text-3);font-size:14px;margin-top:8px}
+.article .body{margin-top:28px;padding-top:28px;border-top:1px solid var(--line);display:grid;gap:14px}
+.callout{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:20px;padding:16px 18px;border-radius:12px;background:var(--surface);font-size:15px}
+.org{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.org .box{padding:22px}
+.org .box h3{font-size:17px}
+.org .box p{font-size:14px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+/* 상세 페이지 공통 */
+.back{display:inline-block;margin-bottom:20px}
+.detail{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:44px;align-items:start}
+.detail-aside{position:sticky;top:92px;display:flex;flex-direction:column;gap:10px}
+.detail-aside .kv{margin:4px 0 10px}
+.detail-aside .kv dd{font-weight:600}
+.d-media{border-radius:var(--radius);max-height:440px;width:100%}
+.d-title{font-size:34px;font-weight:800;letter-spacing:-.04em;margin-top:8px;line-height:1.3}
+.d-lead{font-size:17px;color:var(--text-2);margin:10px 0 28px}
+.d-dday{font-size:40px;font-weight:900;letter-spacing:-.04em;line-height:1.1}
+.d-sec{margin-top:48px}
+.d-sec h2{font-size:20px;font-weight:800;letter-spacing:-.03em;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--text)}
+.d-body{display:grid;gap:12px;color:var(--text-2)}
+.timeline li{display:flex;justify-content:space-between;gap:16px;padding:14px 4px;border-bottom:1px solid var(--line)}
+.timeline span{color:var(--text-2);font-variant-numeric:tabular-nums}
+.tbl{width:100%;border-collapse:collapse;font-size:15px}
+.tbl th{text-align:left;font-size:13px;font-weight:600;color:var(--text-3);padding:0 4px 10px}
+.tbl td{padding:14px 4px;border-top:1px solid var(--line)}
+.curri{display:grid;gap:14px}
+.curri>div{display:grid;grid-template-columns:72px 1fr;align-items:center;gap:12px}
+.curri .tags{margin:0}
+.pager{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:64px}
+.pager a{display:flex;flex-direction:column;gap:4px;padding:18px 20px;border:1px solid var(--line);border-radius:12px;min-width:0}
+.pager a:hover{background:var(--surface)}
+.pager a.nx{text-align:right}
+.pager small{font-size:13px;color:var(--text-3)}
+.pager span{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hover-card{transition:background .15s}
+.hover-card:hover{background:var(--surface)}
+.doc-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.doc-viewer{margin-top:32px;aspect-ratio:1/1.414;max-height:900px;width:100%;border-radius:12px;line-height:1.8}
+.doc-row a.t:hover{text-decoration:underline;text-underline-offset:3px}
+@media (max-width:960px){
+  .detail{grid-template-columns:minmax(0,1fr);gap:32px}
+  .detail-aside{position:static}
+}
+@media (max-width:560px){
+  .d-title{font-size:28px}
+  .pager{grid-template-columns:minmax(0,1fr)}
+  .pager a.nx{text-align:left}
+}
+.contest-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);overflow:hidden;margin-bottom:16px}
+@media (max-width:720px){.split,.contest-hero{grid-template-columns:1fr}.page-head h1{font-size:30px}}
+
+/* ---------- 푸터 ---------- */
+.footer{margin-top:120px;border-top:1px solid var(--line);background:var(--surface);padding:44px 0 36px}
+.foot-inner{display:flex;flex-wrap:wrap;justify-content:space-between;gap:28px}
+.foot-inner p{color:var(--text-2);font-size:14px}
+.foot-info{display:grid;gap:6px}
+.foot-info b{display:inline-block;min-width:84px;color:var(--text);font-weight:700}
+.foot-copy{margin-top:32px;font-size:13px;color:var(--text-3)}
+
+/* ---------- FAB (카카오톡 문의) ---------- */
+.fab{position:fixed;right:24px;bottom:24px;z-index:60;display:flex;align-items:center;gap:8px;height:56px;padding:0 22px 0 18px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-weight:700;box-shadow:0 10px 28px rgba(0,0,0,.18)}
+.fab:hover{transform:translateY(-2px)}
+.fab svg{width:22px;height:22px}
+@media (max-width:600px){.fab{right:16px;bottom:16px;width:56px;padding:0;justify-content:center}.fab span{display:none}}
+
+/* ---------- 공모전 팝업 ---------- */
+.modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.45)}
+.modal[hidden]{display:none}
+.modal-box{width:min(420px,100%);max-height:calc(100vh - 40px);overflow:auto;background:var(--bg);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+.modal-img{aspect-ratio:4/3}
+.modal-body{padding:22px 24px 20px}
+.modal-body h2{font-size:21px;font-weight:800;letter-spacing:-.03em;margin-top:8px}
+.modal-body p{color:var(--text-2);margin-top:6px;font-size:15px}
+.modal-body .btn{width:100%;margin-top:18px}
+.modal-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:14px 20px;border-top:1px solid var(--line);background:var(--surface);font-size:14px}
+.modal-foot label{display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text-2)}
+.modal-foot input{width:16px;height:16px;accent-color:var(--accent)}
+.modal-foot .close{margin-left:auto;font-weight:700}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="gnb" id="gnb">
+  <div class="container gnb-inner">
+    <a href="#/" class="logo" aria-label="인트 홈">
+      <span class="logo-mark">int</span>
+      <span class="logo-sub">인공지능융합대학 학생회</span>
+    </a>
+    <nav aria-label="주 메뉴">
+      <ul class="menu" id="menu"></ul>
+    </nav>
+    <button class="burger" id="burger" aria-label="메뉴 열기" aria-expanded="false"><span></span></button>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<footer class="footer">
+  <div class="container foot-inner">
+    <div>
+      <div class="logo-mark">int</div>
+      <p style="margin-top:8px">세종대학교 인공지능융합대학 학생회 인트</p>
+    </div>
+    <div class="foot-info" id="foot-info"></div>
+  </div>
+  <div class="container foot-copy">© 2026 INT. All rights reserved.</div>
+</footer>
+
+<a class="fab" id="fab" target="_blank" rel="noopener" aria-label="카카오톡으로 문의하기">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3C6.48 3 2 6.58 2 11c0 2.83 1.84 5.32 4.62 6.74l-.97 3.56a.4.4 0 0 0 .6.44l4.2-2.78c.51.06 1.03.09 1.55.09 5.52 0 10-3.58 10-8.05S17.52 3 12 3Z"/></svg>
+  <span>카카오톡 문의</span>
+</a>
+
+<div class="modal" id="popup" hidden role="dialog" aria-modal="true" aria-labelledby="popup-title"></div>
+
+<script>
+/* ===================================================================
+   DATA — 실제 구현에서는 노션 DB / 구글 시트 / 구글 캘린더에서 받아올 부분
+   (모든 값은 예시)
+   =================================================================== */
+const DATA = {
+  links: {
+    kakao: 'https://pf.kakao.com/',            // 카카오톡 채널 URL
+    instagram: 'https://www.instagram.com/',
+    instagramId: '@인스타그램_아이디',
+    notionMilitary: 'https://www.notion.so/',  // 군입대 백서
+    notionContest: 'https://www.notion.so/',   // 공모전 정보
+    suggestForm: 'https://forms.gle/',         // 건의함 구글폼
+    paybackForm: 'https://forms.gle/',         // 검정비 페이백 신청 구글폼
+    gcalSubscribe: 'https://calendar.google.com/',
+    address: '서울특별시 광진구 능동로 209 세종대학교 OO관 OOO호'
+  },
+
+  // 배너: image가 있으면 이미지, 없으면 아래 텍스트 템플릿으로 표시
+  // imageMobile: 모바일용 세로형 이미지 (가로 4:1 배너는 모바일에서 너무 작아짐)
+  banners: [
+    { image: null, imageMobile: null, href: '#/about',
+      word: 'INT', slogan: '인공지능융합대학 학생회, 인트가 함께합니다.',
+      placeLabel: 'PLACE', place: '세종대학교 OO관 OOO호',
+      links: [['Instagram','@인스타그램_아이디'],['Kakaotalk','@인트 학생회'],['Email','int@example.com']] },
+    { image: null, imageMobile: null, href: '#/contest/c2026-ai',
+      word: 'CONTEST', slogan: '제1회 인트 AI 아이디어 공모전',
+      placeLabel: 'PERIOD', place: '2026.10.20 ~ 2026.11.15',
+      links: [['대상','인공지능융합대학 재학생'],['시상','총 OO만 원']] },
+    { image: null, imageMobile: null, href: '#/payback',
+      word: 'PAYBACK', slogan: '자격증 검정비, 학생회가 돌려드려요.',
+      placeLabel: 'APPLY', place: '2026.10.13 ~ 2026.11.07',
+      links: [['남은 예산','페이백 현황에서 확인']] }
+  ],
+
+  // 학교 학사일정 (학기 초 1회 입력)
+  academic: [
+    { title: '2학기 중간고사', start: '2026-10-20', end: '2026-10-26' },
+    { title: '2학기 중간고사 성적 입력', start: '2026-10-27', end: '2026-11-02' },
+    { title: '2학기 기말고사', start: '2026-12-15', end: '2026-12-21' }
+  ],
+
+  // 공지사항 — event를 넣으면 캘린더에도 자동으로 표시됨 (공지 = 캘린더 단일 입력)
+  notices: [
+    { id: 1, type: '행사', title: '2026 인융대 학술제 참가팀 모집', date: '2026-10-26',
+      event: { start: '2026-11-03', end: '2026-11-14' },
+      body: ['인공지능융합대학 학술제 참가팀을 모집합니다.', '팀 구성은 2~4인이며, 학과 관계없이 참여할 수 있습니다.', '자세한 일정과 제출 양식은 첨부 자료를 확인해 주세요.'] },
+    { id: 2, type: '일반', title: '2학기 검정비 페이백 2차 신청 안내', date: '2026-10-12',
+      event: { start: '2026-10-13', end: '2026-11-07' },
+      body: ['2학기 검정비 페이백 2차 신청을 받습니다.', '예산 소진 시 조기 마감되니 페이백 현황표를 확인해 주세요.'] },
+    { id: 3, type: '행사', title: '중간고사 응원 간식 배부', date: '2026-10-15',
+      event: { start: '2026-10-21', end: '2026-10-22' },
+      body: ['중간고사 기간 간식을 배부합니다.', '학생증을 지참해 주세요.'] },
+    { id: 4, type: '일반', title: '10월 정기 회의록 공개', date: '2026-10-08',
+      body: ['10월 정기 회의록을 자료실에 공개했습니다.'] },
+    { id: 5, type: '행사', title: '오픈랩 탐방 신청', date: '2026-10-05',
+      event: { start: '2026-11-18', end: '2026-11-18' },
+      body: ['교내 연구실을 직접 방문하는 오픈랩 탐방을 진행합니다.'] }
+  ],
+
+  // 공모전 — 학생회 주최만. popup:true + 기간 중일 때만 팝업
+  contests: [
+    { id: 'c2026-ai', title: '제1회 인트 AI 아이디어 공모전', start: '2026-10-20', end: '2026-11-15', popup: true,
+      desc: 'AI로 학교생활의 불편을 해결하는 아이디어를 모집합니다. 인공지능융합대학 재학생이라면 누구나 참여할 수 있어요.',
+      target: '인공지능융합대학 재학생 (개인 또는 3인 이하 팀)', prize: '총 OO만 원', contact: '카카오톡 채널 · int@example.com',
+      schedule: [['접수', '2026.10.20 ~ 11.15'], ['서류 심사', '2026.11.16 ~ 11.20'], ['본선 발표', '2026.11.27'], ['시상', '2026.12.04']],
+      prizes: [['대상', '1팀', 'OO만 원'], ['최우수상', '1팀', 'OO만 원'], ['우수상', '2팀', 'OO만 원']],
+      howTo: [['신청서 작성', '구글폼으로 팀 정보 제출'], ['기획서 제출', '양식에 맞춘 PDF 업로드'], ['본선 발표', '서류 통과 팀 5분 발표']],
+      notes: ['타 공모전 수상작 및 표절작은 심사에서 제외됩니다', '제출물의 저작권은 참가자에게 있습니다', '심사 결과는 공지사항으로 안내합니다'],
+      applyUrl: 'https://forms.gle/', guideUrl: '#' },
+    { id: 'c2026-logo', title: '인트 학생회 로고 공모전', start: '2026-03-04', end: '2026-03-31', popup: false,
+      desc: '인트 학생회를 상징할 로고 디자인을 모집했습니다.',
+      target: '인공지능융합대학 재학생', prize: '총 OO만 원', contact: '카카오톡 채널',
+      schedule: [['접수', '2026.03.04 ~ 03.31'], ['결과 발표', '2026.04.07']],
+      notes: ['수상작은 학생회 로고로 사용됩니다'], result: '수상작은 공지사항에서 확인할 수 있어요.' }
+  ],
+
+  // 검정비 페이백 — 구글 시트에서 집계값만 받아옴 (개인정보 X)
+  payback: { budget: 500000, paid: 310000, recipients: 9, applyPeriod: '2026.10.13 ~ 11.07',
+             nextPayDate: '2026-11-14', updatedAt: '2026-10-27' },
+
+  // 학과 — 지금은 4개 모두 같은 틀. 실제 학과별 내용으로 하나씩 교체
+  departments: [1, 2, 3, 4].map(n => ({
+    id: `d${n}`, name: `OO학과 ${n}`, intro: '학과 한 줄 소개를 적어주세요.',
+    body: ['학과가 무엇을 배우는 곳인지 2~3문장으로 소개해 주세요.', '학과만의 특징(트랙, 연구실, 교류 프로그램 등)을 적어주세요.'],
+    subjects: ['과목 A', '과목 B', '과목 C'],
+    curriculum: [['1학년', ['기초 과목 A', '기초 과목 B']], ['2학년', ['전공 기초 A', '전공 기초 B']],
+                 ['3학년', ['전공 심화 A', '전공 심화 B']], ['4학년', ['캡스톤디자인', '전공 선택']]],
+    career: '주요 진로 분야', careers: ['진로 A', '진로 B', '진로 C', '대학원 진학'],
+    office: 'OO관 OOO호', phone: '02-0000-0000', url: '#'
+  })),
+
+  org: [
+    ['회장단', '학생회 운영 총괄'], ['교육부', '취업 길라잡이, 오픈랩, 학술제 등 학업 지원 사업'],
+    ['복지부', '검정비 페이백, 제휴, 간식 행사'], ['기획부', '행사 기획 및 운영'],
+    ['홍보부', 'SNS·웹사이트 운영, 디자인'], ['사무국', '회의록·회계·서류 관리']
+  ],
+
+  // 제휴 — hours/period/address/details/condition이 없으면 PARTNER_DEFAULT 값 사용
+  partners: [
+    { id: 'p1', name: 'OO식당', cat: '식당', benefit: '학생증 제시 시 10% 할인', place: '정문 앞',
+      details: ['전 메뉴 10% 할인', '단체 예약 시 음료 서비스'], condition: '1인 1회, 다른 할인과 중복 불가' },
+    { id: 'p2', name: 'OO카페', cat: '카페', benefit: '음료 사이즈 업', place: '후문 쪽' },
+    { id: 'p3', name: 'OO분식', cat: '식당', benefit: '1,000원 할인', place: '정문 앞' },
+    { id: 'p4', name: 'OO스터디카페', cat: '생활', benefit: '정기권 15% 할인', place: '어린이대공원역' },
+    { id: 'p5', name: 'OO베이커리', cat: '카페', benefit: '5,000원 이상 구매 시 음료 증정', place: '후문 쪽' },
+    { id: 'p6', name: 'OO안경', cat: '생활', benefit: '렌즈 20% 할인', place: '건대입구역' }
+  ],
+
+  // 자료실 — file: 구글 드라이브 공유 링크(미리보기는 /preview 임베드)
+  docs: {
+    rules: [
+      { id: 'r1', title: '인공지능융합대학 학생회칙', date: '2026-03-02', by: '사무국', summary: ['학생회의 목적, 조직, 선거, 회계 등에 관한 기본 규정'] },
+      { id: 'r2', title: '학생회 세칙', date: '2026-03-02', by: '사무국', summary: ['회칙 시행에 필요한 세부 사항'] }],
+    minutes: [
+      { id: 'm3', title: '10월 정기 회의록', date: '2026-10-08', by: '사무국', summary: ['안건 1: 학술제 일정 확정', '안건 2: 검정비 페이백 2차 신청 기간 결정', '안건 3: 중간고사 간식 행사 예산 승인'] },
+      { id: 'm2', title: '9월 정기 회의록', date: '2026-09-10', by: '사무국', summary: ['안건 1: 2학기 사업 계획 검토', '안건 2: 제휴 매장 추가 논의'] },
+      { id: 'm1', title: '개강 전 임시 회의록', date: '2026-08-25', by: '사무국', summary: ['안건 1: 개강 행사 준비'] }],
+    plans: [
+      { id: 'a3', title: '2026 2학기 활동계획서', date: '2026-09-01', by: '회장단', summary: ['2학기 주요 사업과 예산 계획'] },
+      { id: 'a2', title: '2026 1학기 결산안', date: '2026-07-10', by: '사무국', summary: ['1학기 학생회비 수입·지출 내역'] },
+      { id: 'a1', title: '2026 1학기 활동계획서', date: '2026-03-02', by: '회장단', summary: ['1학기 주요 사업과 예산 계획'] }],
+    forms: [
+      { id: 'f2', title: '행사 신청서 양식', date: '2026-03-02', by: '사무국', summary: ['학생회 행사 참여·대관 신청 시 사용'] },
+      { id: 'f1', title: '예산 집행 증빙 양식', date: '2026-03-02', by: '사무국', summary: ['예산 사용 후 영수증 첨부용'] }]
+  },
+
+  faq: [
+    ['검정비 페이백은 어떤 자격증이 대상인가요?', '대상 자격증 목록은 검정비 페이백 페이지의 안내를 확인해 주세요.'],
+    ['페이백 신청 후 언제 지급되나요?', '신청 기간 종료 후 확인 절차를 거쳐 지급일에 일괄 지급됩니다.'],
+    ['학생회비를 내지 않아도 혜택을 받을 수 있나요?', '사업마다 다르며, 각 공지에 대상이 표시됩니다.'],
+    ['제휴 혜택은 어떻게 받나요?', '매장에서 학생증 또는 모바일 학생증을 제시하면 됩니다.'],
+    ['회의록은 어디서 볼 수 있나요?', '자료실 > 회의록에서 확인할 수 있습니다.'],
+    ['건의 사항은 어디로 보내나요?', '복지 > 건의함 또는 우측 하단 카카오톡 문의를 이용해 주세요.']
+  ],
+
+  suggestAnswers: [
+    ['시험기간 열람실 연장 운영 요청', '학교 측에 전달했으며 기말고사 기간 연장 운영이 확정되었습니다.', '2026-10-20'],
+    ['제휴 매장 확대 요청', '후문 쪽 매장 2곳과 협의 중입니다.', '2026-10-02']
+  ]
+};
+
+/* ===================================================================
+   네비게이션 구조
+   =================================================================== */
+const NAV = [
+  { key: 'intro',   label: '소개',   items: [['학생회 소개','#/about'], ['소속 학과','#/departments']] },
+  { key: 'news',    label: '소식',   items: [['공지사항','#/notice'], ['캘린더','#/calendar'], ['공모전','#/contest']] },
+  { key: 'welfare', label: '복지',   items: [['검정비 페이백','#/payback'], ['제휴','#/partners'], ['군입대 백서', DATA.links.notionMilitary, true], ['건의함','#/suggest']] },
+  { key: 'docs',    label: '자료실', items: [['회칙','#/docs/rules'], ['회의록','#/docs/minutes'], ['활동계획서·결산','#/docs/plans'], ['서식','#/docs/forms']] },
+  { key: 'faq',     label: 'FAQ',    items: [] , href: '#/faq' }
+];
+const ROUTE_GROUP = { about:'intro', departments:'intro', notice:'news', calendar:'news', contest:'news',
+  payback:'welfare', partners:'welfare', suggest:'welfare', docs:'docs', faq:'faq' };
+const DOC_TABS = { rules:'회칙', minutes:'회의록', plans:'활동계획서·결산', forms:'서식' };
+
+/* ===================================================================
+   유틸
+   =================================================================== */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const pad = n => String(n).padStart(2, '0');
+const toDate = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const md = s => { const d = toDate(s); return `${d.getMonth() + 1}.${d.getDate()}`; };
+const full = s => s.replaceAll('-', '.');
+const range = (a, b) => a === b ? md(a) : `${md(a)} ~ ${md(b)}`;
+const won = n => n.toLocaleString('ko-KR') + '원';
+const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
+const TODAY = (() => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); })();
+const TODAY_S = ymd(TODAY);
+const dday = s => Math.round((toDate(s) - TODAY) / 864e5);
+const contestStatus = c => TODAY < toDate(c.start) ? '예정' : TODAY > toDate(c.end) ? '마감' : '진행중';
+const ext = 'target="_blank" rel="noopener"';
+
+const CAT = { academic: '학사일정', event: '학생회 행사', contest: '공모전' };
+function buildEvents() {
+  const list = [];
+  DATA.academic.forEach(e => list.push({ cat: 'academic', title: e.title, start: e.start, end: e.end || e.start }));
+  DATA.notices.filter(n => n.event).forEach(n =>
+    list.push({ cat: 'event', title: n.title, start: n.event.start, end: n.event.end || n.event.start, link: `#/notice/${n.id}` }));
+  DATA.contests.forEach(c => list.push({ cat: 'contest', title: `${c.title} 마감`, start: c.end, end: c.end, link: `#/contest/${c.id}` }));
+  return list.sort((a, b) => a.start.localeCompare(b.start) || a.end.localeCompare(b.end));
+}
+const EVENTS = buildEvents();
+
+/* ===================================================================
+   컴포넌트
+   =================================================================== */
+function mountBanner(root) {
+  const slides = DATA.banners;
+  let i = 0, timer = null;
+  const slideHtml = b => {
+    if (b.image) {
+      return `<a class="slide is-img" href="${b.href}"><picture>
+        ${b.imageMobile ? `<source media="(max-width:720px)" srcset="${b.imageMobile}">` : ''}
+        <img src="${b.image}" alt="${b.slogan}"></picture></a>`;
+    }
+    return `<a class="slide" href="${b.href}"><div class="bn-tpl">
+      <div class="bn-left">
+        <div class="bn-word">${b.word}</div>
+        <p class="bn-slogan">${b.slogan}</p>
+        <div class="bn-lines"><i></i><i></i></div>
+        <div class="bn-place"><b>${b.placeLabel}</b><span>${b.place}</span></div>
+      </div>
+      <div class="bn-right"><b>LINK</b>${b.links.map(([k, v]) => `<div><b>${k}</b><span>${v}</span></div>`).join('')}</div>
+    </div></a>`;
+  };
+  root.innerHTML = `
+    <div class="banner" aria-roledescription="carousel" aria-label="배너">
+      <div class="banner-track">${slides.map(slideHtml).join('')}</div>
+    </div>
+    <div class="banner-ctrl">
+      <div class="dots-row">${slides.map((_, k) => `<button aria-label="${k + 1}번 배너"></button>`).join('')}</div>
+      <div class="arrows">
+        <button data-dir="-1" aria-label="이전 배너">‹</button>
+        <span class="count"></span>
+        <button data-dir="1" aria-label="다음 배너">›</button>
+      </div>
+    </div>`;
+  const track = $('.banner-track', root), dots = $$('.dots-row button', root), count = $('.count', root);
+  const go = n => {
+    i = (n + slides.length) % slides.length;
+    track.style.transform = `translateX(-${i * 100}%)`;
+    dots.forEach((d, k) => d.classList.toggle('on', k === i));
+    count.textContent = `${i + 1} / ${slides.length}`;
+  };
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const play = () => { if (!reduce && slides.length > 1) { clearInterval(timer); timer = setInterval(() => go(i + 1), 5000); } };
+  const stop = () => clearInterval(timer);
+  dots.forEach((d, k) => d.addEventListener('click', () => { go(k); play(); }));
+  $$('[data-dir]', root).forEach(b => b.addEventListener('click', () => { go(i + Number(b.dataset.dir)); play(); }));
+  const ban = $('.banner', root);
+  ban.addEventListener('mouseenter', stop); ban.addEventListener('mouseleave', play);
+  ban.addEventListener('focusin', stop); ban.addEventListener('focusout', play);
+  go(0); play();
+  return stop;
+}
+
+function mountCalendar(root, { title = '캘린더', plusHref = '#/calendar', plusLabel = '캘린더 전체 보기', compact = false } = {}) {
+  root.classList.toggle('cal-compact', compact);
+  const st = { y: TODAY.getFullYear(), m: TODAY.getMonth(), sel: null, cat: 'all' };
+  root.innerHTML = `
+    <div class="sec-head">
+      <h2>${title}</h2>
+      <div class="cal-tools">
+        <label class="select"><span class="sr-only">일정 분류</span>
+          <select data-act="cat">
+            <option value="all">전체</option>
+            ${Object.entries(CAT).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}
+          </select>
+        </label>
+        <a class="plus" href="${plusHref}" ${plusHref.startsWith('http') ? ext : ''} aria-label="${plusLabel}" title="${plusLabel}">+</a>
+      </div>
+    </div>
+    <div class="cal">
+      <div class="cal-grid-wrap">
+        <div class="cal-head">
+          <strong class="cal-title" aria-live="polite"></strong>
+          <div class="cal-nav">
+            <button data-act="prev" aria-label="이전 달">‹</button>
+            <button data-act="next" aria-label="다음 달">›</button>
+          </div>
+        </div>
+        <div class="cal-week">${WEEK.map((w, k) => `<span class="${k === 0 ? 'sun' : k === 6 ? 'sat' : ''}">${w}</span>`).join('')}</div>
+        <div class="cal-days"></div>
+        <div class="cal-legend">${Object.entries(CAT).map(([k, v]) => `<span><i class="mk mk-${k}"></i>${v}</span>`).join('')}</div>
+      </div>
+      <div class="cal-panel">
+        <div class="cal-panel-head"><span class="cal-panel-title"></span><span class="reset-slot"></span></div>
+        <ul class="cal-list"></ul>
+      </div>
+    </div>`;
+
+  const days = $('.cal-days', root), list = $('.cal-list', root);
+
+  const render = () => {
+    const evs = EVENTS.filter(e => st.cat === 'all' || e.cat === st.cat);
+    $('.cal-title', root).textContent = `${st.y}. ${pad(st.m + 1)}`;
+
+    const offset = new Date(st.y, st.m, 1).getDay();
+    let html = '';
+    for (let k = 0; k < 42; k++) {
+      const d = new Date(st.y, st.m, 1 - offset + k), ds = ymd(d);
+      const on = evs.filter(e => e.start <= ds && ds <= e.end);
+      const cats = [...new Set(on.map(e => e.cat))];
+      const cls = ['day', d.getMonth() !== st.m && 'out', ds === TODAY_S && 'today', st.sel === ds && 'sel',
+        d.getDay() === 0 && 'sun', d.getDay() === 6 && 'sat'].filter(Boolean).join(' ');
+      html += `<button class="${cls}" data-date="${ds}" aria-pressed="${st.sel === ds}"
+        aria-label="${d.getMonth() + 1}월 ${d.getDate()}일${on.length ? `, 일정 ${on.length}개` : ''}">
+        <span class="num">${d.getDate()}</span>
+        <span class="dots">${cats.map(c => `<i class="mk mk-${c}"></i>`).join('')}</span></button>`;
+    }
+    days.innerHTML = html;
+
+    let items, head;
+    if (st.sel) {
+      const d = toDate(st.sel);
+      items = evs.filter(e => e.start <= st.sel && st.sel <= e.end);
+      head = `${d.getMonth() + 1}.${d.getDate()} (${WEEK[d.getDay()]}) 일정`;
+    } else {
+      const a = ymd(new Date(st.y, st.m, 1)), b = ymd(new Date(st.y, st.m + 1, 0));
+      items = evs.filter(e => e.start <= b && e.end >= a);
+      head = `${st.m + 1}월 일정`;
+    }
+    $('.cal-panel-title', root).textContent = head;
+    $('.reset-slot', root).innerHTML = st.sel ? `<button class="link-btn" data-act="reset">${st.m + 1}월 전체 보기</button>` : '';
+    list.innerHTML = items.length
+      ? items.map(e => {
+          const inner = `<i class="mk mk-${e.cat}"></i><div><strong>${range(e.start, e.end)}</strong><p>${e.title}</p><small>${CAT[e.cat]}</small></div>`;
+          return `<li>${e.link ? `<a class="ev" href="${e.link}">${inner}</a>` : `<div class="ev">${inner}</div>`}</li>`;
+        }).join('')
+      : `<li class="cal-empty">등록된 일정이 없어요</li>`;
+  };
+
+  root.addEventListener('click', e => {
+    const t = e.target.closest('[data-act],[data-date]');
+    if (!t) return;
+    if (t.dataset.date) {
+      const ds = t.dataset.date, d = toDate(ds);
+      if (st.sel === ds) st.sel = null;
+      else { st.sel = ds; st.y = d.getFullYear(); st.m = d.getMonth(); }
+    } else if (t.dataset.act === 'prev' || t.dataset.act === 'next') {
+      const d = new Date(st.y, st.m + (t.dataset.act === 'next' ? 1 : -1), 1);
+      st.y = d.getFullYear(); st.m = d.getMonth(); st.sel = null;
+    } else if (t.dataset.act === 'reset') st.sel = null;
+    else return;
+    render();
+  });
+  $('[data-act="cat"]', root).addEventListener('change', e => { st.cat = e.target.value; render(); });
+  render();
+}
+
+function paybackCard() {
+  const p = DATA.payback, rate = p.paid / p.budget * 100;
+  return `<div class="card pb">
+    <div>
+      <p class="pb-label">예산 소진율</p>
+      <div class="pb-rate"><span class="pb-num">${rate.toFixed(1)}</span><span class="pb-unit">%</span></div>
+      <div class="bar" role="progressbar" aria-valuenow="${rate.toFixed(1)}" aria-valuemin="0" aria-valuemax="100" aria-label="예산 소진율"><i data-w="${rate}"></i></div>
+      <div class="pb-scale"><span>0원</span><span>총 예산 ${won(p.budget)}</span></div>
+    </div>
+    <dl class="pb-stats">
+      <div><dt>지급 완료</dt><dd>${won(p.paid)}</dd><dd class="pb-sub">${p.recipients}명</dd></div>
+      <div><dt>남은 예산</dt><dd>${won(p.budget - p.paid)}</dd><dd class="pb-sub">소진 시 조기 마감</dd></div>
+      <div><dt>신청 기간</dt><dd>${p.applyPeriod}</dd></div>
+      <div><dt>다음 지급일</dt><dd>${full(p.nextPayDate)}</dd></div>
+    </dl>
+    <div class="pb-cta">
+      <a class="btn" href="${DATA.links.paybackForm}" ${ext}>신청하기 ↗</a>
+      <p class="note">${full(p.updatedAt)} 기준</p>
+    </div>
+  </div>`;
+}
+const animateBars = el => requestAnimationFrame(() => setTimeout(() =>
+  $$('.bar i', el).forEach(b => b.style.width = b.dataset.w + '%'), 60));
+
+const contestList = items => items.length ? `<ul class="list">${items.map(c => {
+  const s = contestStatus(c), dd = dday(c.end);
+  return `<li><a href="#/contest/${c.id}"><span class="badge ${s === '진행중' ? 'solid' : ''}">${s}</span>
+    <span class="t">${c.title}</span>
+    <span class="d">${s === '진행중' ? (dd === 0 ? 'D-DAY' : `D-${dd}`) : `${full(c.start)} ~ ${md(c.end)}`}</span></a></li>`;
+}).join('')}</ul>` : `<p class="empty">진행 중인 공모전이 없어요</p>`;
+
+const noticeList = items => items.length ? `<ul class="list">${items.map(n => `
+  <li data-type="${n.type}" data-title="${n.title}"><a href="#/notice/${n.id}">
+    <span class="badge">${n.type}</span>
+    <span class="t">${n.title}</span>
+    ${n.event ? `<span class="cal-chip"><i class="mk mk-event"></i>${range(n.event.start, n.event.end)}</span>` : ''}
+    <span class="d">${md(n.date)}</span></a></li>`).join('')}</ul>` : `<p class="empty">공지사항이 없어요</p>`;
+
+// 이전·다음 이동 (list는 화면에 보이는 순서)
+const pager = (list, i, href, title, labels = ['이전', '다음']) => {
+  const a = list[i - 1], b = list[i + 1];
+  if (!a && !b) return '';
+  return `<nav class="pager" aria-label="이전·다음 항목">
+    ${a ? `<a href="${href(a)}"><small>← ${labels[0]}</small><span>${title(a)}</span></a>` : '<span></span>'}
+    ${b ? `<a class="nx" href="${href(b)}"><small>${labels[1]} →</small><span>${title(b)}</span></a>` : '<span></span>'}
+  </nav>`;
+};
+const dsec = (title, body) => body ? `<section class="d-sec"><h2>${title}</h2>${body}</section>` : '';
+const ddayText = s => { const d = dday(s); return d < 0 ? '마감' : d === 0 ? 'D-DAY' : `D-${d}`; };
+const PARTNER_DEFAULT = { hours: '매장 영업시간 (작성 필요)', period: '2026.03.01 ~ 2027.02.28', address: '상세 주소 (작성 필요)',
+  details: [], condition: '학생증 또는 모바일 학생증 제시' };
+
+const page = (crumb, title, desc, body) => `
+  <section class="container page">
+    <div class="page-head"><p class="crumb">${crumb}</p><h1>${title}</h1>${desc ? `<p class="page-desc">${desc}</p>` : ''}</div>
+    ${body}
+  </section>`;
+
+/* ===================================================================
+   페이지
+   =================================================================== */
+const PAGES = {
+  '': () => ({
+    html: `<div class="container">
+      <section id="banner"></section>
+      <section class="section home-top">
+        <div id="home-cal"></div>
+        <div class="home-pb">
+          <div class="sec-head"><h2>검정비 페이백 현황</h2><a class="more" href="#/payback">자세히 →</a></div>
+          ${paybackCard()}
+        </div>
+      </section>
+      <section class="section two">
+        <div><div class="sec-head"><h2>공모전</h2><a class="more" href="#/contest">더보기 →</a></div>${contestList(DATA.contests.slice(0, 4))}</div>
+        <div><div class="sec-head"><h2>공지사항</h2><a class="more" href="#/notice">더보기 →</a></div>${noticeList(DATA.notices.slice(0, 5))}</div>
+      </section>
+      <section class="section quick" aria-label="바로가기">
+        <a class="qk" href="${DATA.links.notionMilitary}" ${ext}><div><small>노션 바로가기</small><strong>군입대 백서</strong></div><span class="arr">↗</span></a>
+        <a class="qk" href="${DATA.links.notionContest}" ${ext}><div><small>노션 바로가기</small><strong>공모전 정보</strong></div><span class="arr">↗</span></a>
+        <a class="qk" href="#/suggest"><div><small>학생회에 바라는 점</small><strong>건의함</strong></div><span class="arr">→</span></a>
+      </section>
+    </div>`,
+    after: el => {
+      const stop = mountBanner($('#banner', el));
+      mountCalendar($('#home-cal', el), { compact: true });
+      animateBars(el);
+      return stop;
+    }
+  }),
+
+  about: () => ({ html: page('소개', '학생회 소개', '세종대학교 인공지능융합대학 학생회 인트를 소개합니다.', `
+    <div class="split">
+      <div class="card box"><h3>인사말</h3><p>학생회장 인사말이 들어갈 자리입니다. 올해 학생회의 방향과 약속을 적어주세요.</p><p style="margin-top:16px;color:var(--text)"><b>학생회장 OOO</b></p></div>
+      <div class="placeholder card" style="min-height:220px">단체 사진 자리</div>
+    </div>
+    <div class="section" style="margin-top:56px">
+      <div class="sec-head"><h2>조직도</h2></div>
+      <div class="org">${DATA.org.map(([n, d]) => `<div class="card box"><h3>${n}</h3><p>${d}</p></div>`).join('')}</div>
+    </div>`) }),
+
+  departments: parts => {
+    if (parts[1]) {
+      const i = DATA.departments.findIndex(x => x.id === parts[1]);
+      if (i < 0) return PAGES.notfound();
+      const d = DATA.departments[i];
+      return { html: `<section class="container page">
+        <a class="more back" href="#/departments">← 소속 학과</a>
+        <div class="detail">
+          <div>
+            <p class="crumb">인공지능융합대학</p>
+            <h1 class="d-title">${d.name}</h1>
+            <p class="d-lead">${d.intro}</p>
+            <div class="placeholder d-media" style="aspect-ratio:16/7">학과 대표 사진 자리</div>
+            ${dsec('학과 소개', `<div class="d-body">${d.body.map(t => `<p>${t}</p>`).join('')}</div>`)}
+            ${dsec('학년별 주요 교과', `<div class="curri">${d.curriculum.map(([y, list]) =>
+              `<div><b>${y}</b><div class="tags">${list.map(x => `<span>${x}</span>`).join('')}</div></div>`).join('')}</div>`)}
+            ${dsec('졸업 후 진로', `<div class="tags">${d.careers.map(x => `<span>${x}</span>`).join('')}</div>`)}
+          </div>
+          <aside class="card box detail-aside">
+            <h3>학과 정보</h3>
+            <dl class="kv"><dt>학과사무실</dt><dd>${d.office}</dd><dt>전화</dt><dd>${d.phone}</dd><dt>대표 과목</dt><dd>${d.subjects.join(', ')}</dd></dl>
+            <a class="btn" href="${d.url}" ${ext}>학과 홈페이지 ↗</a>
+          </aside>
+        </div>
+        ${pager(DATA.departments, i, x => `#/departments/${x.id}`, x => x.name)}
+      </section>` };
+    }
+    return { html: page('소개', '소속 학과', '인공지능융합대학 소속 학과를 소개합니다.', `
+    <div class="grid-cards">${DATA.departments.map(d => `
+      <a class="card box hover-card" href="#/departments/${d.id}">
+        <h3>${d.name}</h3><p>${d.intro}</p>
+        <div class="tags">${d.subjects.map(s => `<span>${s}</span>`).join('')}</div>
+        <dl class="kv"><dt>진로</dt><dd>${d.career}</dd><dt>학과사무실</dt><dd>${d.office}</dd></dl>
+        <span class="more" style="display:inline-block;margin-top:16px">자세히 →</span>
+      </a>`).join('')}</div>`) };
+  },
+
+  notice: parts => {
+    if (parts[1]) {
+      const n = DATA.notices.find(x => String(x.id) === parts[1]);
+      if (!n) return PAGES.notfound();
+      return { html: `<section class="container page"><div class="article">
+        <a class="more" href="#/notice">← 공지사항 목록</a>
+        <p style="margin-top:24px"><span class="badge">${n.type}</span></p>
+        <h1>${n.title}</h1>
+        <p class="meta">${full(n.date)} 작성</p>
+        ${n.event ? `<div class="callout"><i class="mk mk-event"></i><b>일정 ${full(n.event.start)}${n.event.end !== n.event.start ? ' ~ ' + full(n.event.end) : ''}</b>
+          <span style="color:var(--text-2)">캘린더에 함께 표시돼요</span><a class="link-btn" href="#/calendar" style="margin-left:auto">캘린더 보기</a></div>` : ''}
+        <div class="body">${n.body.map(p => `<p>${p}</p>`).join('')}</div>
+        ${pager(DATA.notices, DATA.notices.indexOf(n), x => `#/notice/${x.id}`, x => x.title, ['최신 글', '이전 글'])}
+      </div></section>` };
+    }
+    return {
+      html: page('소식', '공지사항', '', `
+        <div class="toolbar">
+          <div class="tabs" id="nt">${['전체', '행사', '일반'].map((t, k) => `<button class="${k === 0 ? 'on' : ''}" data-f="${t}">${t}</button>`).join('')}</div>
+          <input class="search" id="nq" type="search" placeholder="제목 검색" aria-label="공지 제목 검색">
+        </div>
+        <div id="nlist">${noticeList(DATA.notices)}</div>
+        <p class="empty" id="nempty" hidden>검색 결과가 없어요</p>`),
+      after: el => {
+        let f = '전체';
+        const apply = () => {
+          const q = $('#nq', el).value.trim();
+          let shown = 0;
+          $$('#nlist li', el).forEach(li => {
+            const ok = (f === '전체' || li.dataset.type === f) && li.dataset.title.includes(q);
+            li.hidden = !ok; if (ok) shown++;
+          });
+          $('#nempty', el).hidden = shown > 0;
+        };
+        $$('#nt button', el).forEach(b => b.addEventListener('click', () => {
+          f = b.dataset.f; $$('#nt button', el).forEach(x => x.classList.toggle('on', x === b)); apply();
+        }));
+        $('#nq', el).addEventListener('input', apply);
+      }
+    };
+  },
+
+  calendar: () => ({
+    html: `<section class="container page"><div class="page-head"><p class="crumb">소식</p><h1>캘린더</h1>
+      <p class="page-desc">학사일정, 학생회 행사, 공모전 마감일을 한눈에 확인하세요. 공지에 등록된 행사는 자동으로 표시돼요.</p></div>
+      <div id="cal-page"></div></section>`,
+    after: el => mountCalendar($('#cal-page', el), { title: '전체 일정', plusHref: DATA.links.gcalSubscribe, plusLabel: '구글 캘린더로 구독' })
+  }),
+
+  contest: parts => {
+    if (parts[1]) {
+      const i = DATA.contests.findIndex(x => x.id === parts[1]);
+      if (i < 0) return PAGES.notfound();
+      const c = DATA.contests[i], s = contestStatus(c), closed = s === '마감';
+      return { html: `<section class="container page">
+        <a class="more back" href="#/contest">← 공모전 목록</a>
+        <div class="detail">
+          <div>
+            <div class="placeholder d-media" style="aspect-ratio:3/2">공모전 포스터 자리</div>
+            <p style="margin-top:28px"><span class="badge ${s === '진행중' ? 'solid' : ''}">${s}</span></p>
+            <h1 class="d-title">${c.title}</h1>
+            <p class="d-lead">${c.desc}</p>
+            ${c.result ? `<div class="callout"><b>결과</b><span style="color:var(--text-2)">${c.result}</span></div>` : ''}
+            ${c.schedule ? dsec('일정', `<ul class="timeline">${c.schedule.map(([k, v]) => `<li><b>${k}</b><span>${v}</span></li>`).join('')}</ul>`) : ''}
+            ${c.prizes ? dsec('시상', `<table class="tbl"><thead><tr><th>구분</th><th>인원</th><th>상금</th></tr></thead><tbody>${c.prizes.map(r => `<tr>${r.map(x => `<td>${x}</td>`).join('')}</tr>`).join('')}</tbody></table>`) : ''}
+            ${c.howTo ? dsec('참가 방법', `<ol class="steps">${c.howTo.map(([b, t]) => `<li><b>${b}</b><span>${t}</span></li>`).join('')}</ol>`) : ''}
+            ${c.notes ? dsec('유의사항', `<ul class="bullets">${c.notes.map(x => `<li>${x}</li>`).join('')}</ul>`) : ''}
+          </div>
+          <aside class="card box detail-aside">
+            <p class="d-dday">${closed ? '마감' : ddayText(c.end)}</p>
+            <dl class="kv"><dt>접수 기간</dt><dd>${full(c.start)} ~ ${full(c.end)}</dd><dt>대상</dt><dd>${c.target || '-'}</dd>
+              <dt>시상</dt><dd>${c.prize || '-'}</dd><dt>문의</dt><dd>${c.contact || '-'}</dd></dl>
+            ${closed ? `<span class="btn" aria-disabled="true" style="opacity:.35;cursor:default">접수 마감</span>`
+                     : `<a class="btn" href="${c.applyUrl || '#'}" ${ext}>참가 신청 ↗</a>`}
+            ${c.guideUrl ? `<a class="btn ghost" href="${c.guideUrl}">공모 요강 다운로드</a>` : ''}
+          </aside>
+        </div>
+        ${pager(DATA.contests, i, x => `#/contest/${x.id}`, x => x.title)}
+      </section>` };
+    }
+    const live = DATA.contests.filter(c => contestStatus(c) !== '마감');
+    const past = DATA.contests.filter(c => contestStatus(c) === '마감');
+    return { html: page('소식', '공모전', '인트 학생회가 주최하는 공모전입니다.', `
+      ${live.map(c => `<div class="card contest-hero">
+        <div class="placeholder" style="min-height:240px">공모전 포스터 자리</div>
+        <div class="box">
+          <span class="badge solid">${contestStatus(c)}</span>
+          <h3 style="margin-top:12px;font-size:24px"><a href="#/contest/${c.id}">${c.title}</a></h3>
+          <p>${c.desc}</p>
+          <dl class="kv"><dt>접수 기간</dt><dd>${full(c.start)} ~ ${full(c.end)}</dd><dt>마감까지</dt><dd>${dday(c.end) >= 0 ? (dday(c.end) === 0 ? 'D-DAY' : 'D-' + dday(c.end)) : '-'}</dd></dl>
+          <div style="display:flex;gap:8px;margin-top:20px;flex-wrap:wrap"><a class="btn" href="#/contest/${c.id}">자세히 보기</a><a class="btn ghost" href="${c.applyUrl || '#'}" ${ext}>참가 신청 ↗</a></div>
+        </div></div>`).join('') || '<p class="empty">현재 진행 중인 공모전이 없어요</p>'}
+      <div class="section" style="margin-top:56px"><div class="sec-head"><h2>지난 공모전</h2></div>${contestList(past)}</div>
+      <p class="note" style="margin-top:24px">외부 공모전 정보는 <a class="link-btn" href="${DATA.links.notionContest}" ${ext}>노션 공모전 정보</a>에서 확인하세요.</p>`) };
+  },
+
+  payback: () => ({
+    html: page('복지', '검정비 페이백', '자격증 응시료(검정비)를 학생회 예산으로 돌려드립니다.', `
+      ${paybackCard()}
+      <div class="section" style="margin-top:56px"><div class="sec-head"><h2>신청 절차</h2></div>
+        <ol class="steps">
+          <li><b>구글폼 신청</b><span>신청 기간 내 폼 작성</span></li>
+          <li><b>증빙 제출</b><span>응시료 영수증·응시 확인서 업로드</span></li>
+          <li><b>학생회 확인</b><span>대상 여부·서류 검토</span></li>
+          <li><b>지급</b><span>지급일에 일괄 입금</span></li>
+        </ol>
+      </div>
+      <div class="section split" style="margin-top:56px">
+        <div class="card box"><h3>지원 대상</h3><ul class="bullets" style="margin-top:12px"><li>인공지능융합대학 재학생</li><li>대상 자격증 목록 (작성 필요)</li><li>1인당 지원 한도 (작성 필요)</li></ul></div>
+        <div class="card box"><h3>유의사항</h3><ul class="bullets" style="margin-top:12px"><li>예산 소진 시 조기 마감됩니다</li><li>허위 증빙 시 지급이 취소됩니다</li><li>현황은 매주 갱신됩니다</li></ul></div>
+      </div>`),
+    after: animateBars
+  }),
+
+  partners: parts => parts[1] ? partnerDetail(parts[1]) : ({
+    html: page('복지', '제휴', '학생증을 보여주면 받을 수 있는 혜택이에요.', `
+      <div class="tabs" id="pt">${['전체', '식당', '카페', '생활'].map((t, k) => `<button class="${k === 0 ? 'on' : ''}" data-f="${t}">${t}</button>`).join('')}</div>
+      <div class="grid-cards" id="plist">${DATA.partners.map(p => `
+        <a class="card hover-card" href="#/partners/${p.id}" data-cat="${p.cat}" style="overflow:hidden">
+          <div class="placeholder" style="aspect-ratio:16/9">매장 사진</div>
+          <div class="box" style="padding:20px 22px"><span class="badge">${p.cat}</span><h3 style="margin-top:10px;font-size:18px">${p.name}</h3>
+          <p style="color:var(--text)"><b>${p.benefit}</b></p><p style="font-size:14px">${p.place}</p></div>
+        </a>`).join('')}</div>
+      <p class="note" style="margin-top:24px">제휴 문의는 카카오톡 채널로 연락해 주세요.</p>`),
+    after: el => $$('#pt button', el).forEach(b => b.addEventListener('click', () => {
+      $$('#pt button', el).forEach(x => x.classList.toggle('on', x === b));
+      $$('#plist > a', el).forEach(a => a.hidden = !(b.dataset.f === '전체' || a.dataset.cat === b.dataset.f));
+    }))
+  }),
+
+  suggest: () => ({ html: page('복지', '건의함', '학교생활 불편 사항이나 학생회에 바라는 점을 자유롭게 남겨주세요. 익명으로 제출돼요.', `
+    <div class="card box" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px">
+      <div><h3>건의하기</h3><p>구글폼으로 연결됩니다. 답변은 이 페이지와 인스타그램에 공개돼요.</p></div>
+      <a class="btn" href="${DATA.links.suggestForm}" ${ext}>건의 작성 ↗</a>
+    </div>
+    <div class="section" style="margin-top:56px"><div class="sec-head"><h2>처리 절차</h2></div>
+      <ol class="steps"><li><b>접수</b><span>구글폼 제출</span></li><li><b>검토</b><span>정기 회의 안건 상정</span></li><li><b>답변 공개</b><span>처리 결과 게시</span></li></ol>
+    </div>
+    <div class="section faq" style="margin-top:56px"><div class="sec-head"><h2>최근 답변</h2></div>
+      ${DATA.suggestAnswers.map(([q, a, d]) => `<details><summary>${q}<span class="note" style="margin-left:auto">${full(d)}</span></summary><div class="a">${a}</div></details>`).join('')}
+    </div>`) }),
+
+  docs: parts => {
+    const tab = DOC_TABS[parts[1]] ? parts[1] : 'rules';
+    if (parts[2]) {
+      const list = DATA.docs[tab], i = list.findIndex(x => x.id === parts[2]);
+      if (i < 0) return PAGES.notfound();
+      const d = list[i];
+      return { html: `<section class="container page"><div class="article">
+        <a class="more back" href="#/docs/${tab}">← ${DOC_TABS[tab]} 목록</a>
+        <p><span class="badge">${DOC_TABS[tab]}</span></p>
+        <h1>${d.title}</h1>
+        <p class="meta">${full(d.date)} · ${d.by}</p>
+        <div class="doc-actions"><a class="btn" href="${d.file || '#'}" ${ext}>PDF 다운로드</a><a class="btn ghost" href="${d.file || '#'}" ${ext}>새 창에서 열기 ↗</a></div>
+        ${d.summary?.length ? dsec(tab === 'minutes' ? '주요 안건' : '요약', `<ul class="bullets">${d.summary.map(x => `<li>${x}</li>`).join('')}</ul>`) : ''}
+        <div class="placeholder doc-viewer">PDF 미리보기 자리<br><small>구글 드라이브 /preview 링크를 iframe으로 임베드</small></div>
+        ${pager(list, i, x => `#/docs/${tab}/${x.id}`, x => x.title, ['최신', '이전'])}
+      </div></section>` };
+    }
+    return { html: page('자료실', DOC_TABS[tab], '', `
+      <div class="tabs">${Object.entries(DOC_TABS).map(([k, v]) => `<a href="#/docs/${k}" class="${k === tab ? 'on' : ''}">${v}</a>`).join('')}</div>
+      <div class="list" style="border-top-width:2px">${DATA.docs[tab].map(d => `
+        <div class="doc-row"><span class="badge">PDF</span><a class="t" href="#/docs/${tab}/${d.id}">${d.title}</a><span class="note">${full(d.date)}</span><a class="btn ghost" href="#/docs/${tab}/${d.id}">보기</a></div>`).join('')}</div>`) };
+  },
+
+  faq: () => ({ html: page('FAQ', '자주 묻는 질문', '', `
+    <div class="faq" style="border-top:2px solid var(--text)">${DATA.faq.map(([q, a]) => `<details><summary>${q}</summary><div class="a">${a}</div></details>`).join('')}</div>
+    <div class="card box" style="margin-top:32px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px">
+      <div><h3>찾는 답이 없나요?</h3><p>카카오톡 채널로 문의해 주세요.</p></div>
+      <a class="btn" href="${DATA.links.kakao}" ${ext}>카카오톡 문의 ↗</a>
+    </div>`) }),
+
+  notfound: () => ({ html: page('', '페이지를 찾을 수 없어요', '', `<a class="btn ghost" href="#/">홈으로</a>`) })
+};
+
+function partnerDetail(id) {
+  const i = DATA.partners.findIndex(x => x.id === id);
+  if (i < 0) return PAGES.notfound();
+  const p = { ...PARTNER_DEFAULT, ...DATA.partners[i] };
+  const details = p.details.length ? p.details : [p.benefit];
+  return { html: `<section class="container page">
+    <a class="more back" href="#/partners">← 제휴 목록</a>
+    <div class="detail">
+      <div>
+        <div class="placeholder d-media" style="aspect-ratio:16/9">매장 사진 자리</div>
+        <p style="margin-top:28px"><span class="badge">${p.cat}</span></p>
+        <h1 class="d-title">${p.name}</h1>
+        <p class="d-lead"><b style="color:var(--text)">${p.benefit}</b></p>
+        ${dsec('혜택 내용', `<ul class="bullets">${details.map(x => `<li>${x}</li>`).join('')}</ul>`)}
+        ${dsec('이용 방법', `<ol class="steps"><li><b>매장 방문</b><span>${p.place}</span></li><li><b>학생증 제시</b><span>결제 전에 보여주세요</span></li><li><b>혜택 적용</b><span>${p.condition}</span></li></ol>`)}
+        ${dsec('위치', `<div class="placeholder" style="aspect-ratio:16/7;border-radius:12px">지도 자리 (네이버·카카오 지도 임베드)</div><p class="note" style="margin-top:10px">${p.address}</p>`)}
+      </div>
+      <aside class="card box detail-aside">
+        <h3>제휴 정보</h3>
+        <dl class="kv"><dt>혜택</dt><dd>${p.benefit}</dd><dt>위치</dt><dd>${p.place}</dd><dt>영업시간</dt><dd>${p.hours}</dd>
+          <dt>제휴 기간</dt><dd>${p.period}</dd><dt>이용 조건</dt><dd>${p.condition}</dd></dl>
+        <a class="btn ghost" href="#" ${ext}>지도에서 보기 ↗</a>
+      </aside>
+    </div>
+    ${pager(DATA.partners, i, x => `#/partners/${x.id}`, x => x.name)}
+  </section>` };
+}
+
+/* ===================================================================
+   라우터 & 레이아웃
+   =================================================================== */
+function renderNav() {
+  $('#menu').innerHTML = NAV.map(g => `
+    <li><a class="menu-top" data-key="${g.key}" href="${g.href || g.items[0][1]}" ${g.items[0]?.[2] ? ext : ''}>${g.label}</a>
+      ${g.items.length ? `<ul class="sub">${g.items.map(([l, h, isExt]) =>
+        `<li><a href="${h}" ${isExt ? `${ext} class="ext"` : ''}>${l}</a></li>`).join('')}</ul>` : ''}
+    </li>`).join('');
+  $('#foot-info').innerHTML = `
+    <p><b>주소</b>${DATA.links.address}</p>
+    <p><b>Instagram</b><a href="${DATA.links.instagram}" ${ext}>${DATA.links.instagramId}</a></p>
+    <p><b>문의</b><a href="${DATA.links.kakao}" ${ext}>카카오톡 채널</a></p>`;
+  $('#fab').href = DATA.links.kakao;
+}
+
+// 현재 경로. 주소창 해시를 쓸 수 없는 환경(미리보기 아이프레임 등)에서도 동작하도록 직접 관리
+let PATH = location.hash || '#/';
+function go(hash) {
+  PATH = hash;
+  try { if (location.hash !== hash) history.pushState(null, '', hash); } catch (e) { /* 샌드박스: 주소 갱신 생략 */ }
+  route();
+}
+// 내부 링크(#/...)는 브라우저 기본 이동 대신 go()로 처리
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href^="#"]');
+  if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const href = a.getAttribute('href');
+  e.preventDefault();
+  if (href === '#' || !href.startsWith('#/')) return;   // '#' 자리표시 링크는 이동 없음
+  go(href);
+});
+const syncFromUrl = () => { PATH = location.hash || '#/'; route(); };
+
+let cleanup = null;
+function route() {
+  const parts = PATH.replace(/^#\/?/, '').split('/');
+  const fn = PAGES[parts[0]] || PAGES.notfound;
+  if (typeof cleanup === 'function') cleanup();
+  const res = fn(parts);
+  const app = $('#app');
+  app.innerHTML = res.html;
+  cleanup = res.after ? res.after(app) : null;
+  const group = ROUTE_GROUP[parts[0]];
+  $$('.menu-top').forEach(a => a.classList.toggle('active', a.dataset.key === group));
+  $('#gnb').classList.remove('open');
+  $('#burger').setAttribute('aria-expanded', 'false');
+  document.body.style.overflow = '';
+  window.scrollTo(0, 0);
+}
+
+$('#burger').addEventListener('click', () => {
+  const open = $('#gnb').classList.toggle('open');
+  $('#burger').setAttribute('aria-expanded', String(open));
+  document.body.style.overflow = open ? 'hidden' : '';
+});
+
+/* ===================================================================
+   공모전 팝업 — 공모전 기간에만, "오늘 하루 / 일주일간 보지 않기"
+   =================================================================== */
+function initPopup() {
+  const c = DATA.contests.find(x => x.popup && contestStatus(x) === '진행중');
+  if (!c) return;
+  const key = `int_popup_hide_${c.id}`;
+  let until = 0;
+  try { until = Number(localStorage.getItem(key)) || 0; } catch (e) {}
+  if (Date.now() < until) return;
+
+  const m = $('#popup');
+  const dd = dday(c.end);
+  m.innerHTML = `<div class="modal-box">
+    <div class="placeholder modal-img">공모전 포스터 자리</div>
+    <div class="modal-body">
+      <span class="badge solid">${dd === 0 ? 'D-DAY' : 'D-' + dd}</span>
+      <h2 id="popup-title">${c.title}</h2>
+      <p>${c.desc}</p>
+      <p class="note">접수 ${full(c.start)} ~ ${full(c.end)}</p>
+      <a class="btn" href="#/contest/${c.id}" data-close>자세히 보기</a>
+    </div>
+    <div class="modal-foot">
+      <label><input type="checkbox" data-hide="day"> 오늘 하루 보지 않기</label>
+      <label><input type="checkbox" data-hide="week"> 일주일간 보지 않기</label>
+      <button class="close" data-close>닫기</button>
+    </div></div>`;
+  m.hidden = false;
+
+  const boxes = $$('[data-hide]', m);
+  boxes.forEach(b => b.addEventListener('change', () => { if (b.checked) boxes.forEach(o => { if (o !== b) o.checked = false; }); }));
+
+  const close = () => {
+    const sel = boxes.find(b => b.checked)?.dataset.hide;
+    let t = 0;
+    if (sel === 'day') { const n = new Date(); t = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1).getTime(); }
+    if (sel === 'week') t = Date.now() + 7 * 864e5;
+    if (t) { try { localStorage.setItem(key, String(t)); } catch (e) {} }
+    m.hidden = true;
+    document.removeEventListener('keydown', onKey);
+  };
+  const onKey = e => { if (e.key === 'Escape') close(); };
+  $$('[data-close]', m).forEach(b => b.addEventListener('click', close));
+  m.addEventListener('click', e => { if (e.target === m) close(); });
+  document.addEventListener('keydown', onKey);
+  $('.close', m).focus();
+}
+
+renderNav();
+window.addEventListener('hashchange', syncFromUrl);
+window.addEventListener('popstate', syncFromUrl);
+route();
+initPopup();
+</script>
+</body>
+</html>
