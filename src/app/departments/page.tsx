@@ -28,7 +28,7 @@ export default async function DepartmentsPage() {
               <dt>학과사무실</dt>
               <dd>{d.office}</dd>
             </dl>
-            <span className="more more-inline">자세히 →</span>
+            <span className="more more-inline">자세히 →<span className="sr-only"> · {d.name}</span></span>
           </Link>
         ))}
       </div>

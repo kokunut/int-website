@@ -31,3 +31,21 @@ export function isSuppressed(stored: string | null | undefined, today: DateStrin
   if (!stored || !/^\d{4}-\d{2}-\d{2}$/.test(stored)) return false;
   return today < stored;
 }
+
+/**
+ * 첫 페인트 전에 실행하는 인라인 스크립트 본문.
+ * `isSuppressed`·`todayKST` 와 같은 규칙(저장값 형식 검사, KST 날짜, today < 만료일이면 숨김)으로
+ * 숨김 대상이면 `<html data-popup-hidden="<id>">` 를 표시한다. 저장소 접근 오류는 무시한다.
+ * 규칙을 바꾸면 `__tests__/popup.test.ts` 의 스크립트 테스트도 함께 고쳐야 한다.
+ */
+export function popupHideScript(id: string): string {
+  const lit = (v: string) => JSON.stringify(v).replace(/</g, '\\u003c');
+  return (
+    '(function(){try{' +
+    `var s=localStorage.getItem(${lit(popupStorageKey(id))});` +
+    'if(!s||!/^\\d{4}-\\d{2}-\\d{2}$/.test(s))return;' +
+    "var t=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());" +
+    `if(t<s)document.documentElement.dataset.popupHidden=${lit(id)};` +
+    '}catch(e){}})();'
+  );
+}

@@ -31,7 +31,7 @@ export default function PartnerBrowser({ partners }: { partners: ResolvedPartner
               <div className="placeholder ratio-16-9">매장 사진</div>
               <div className="partner-body">
                 <span className="badge">{p.cat}</span>
-                <h3>{p.name}</h3>
+                <h2>{p.name}</h2>
                 <p className="benefit">{p.benefit}</p>
                 <p className="place">{p.place}</p>
               </div>
