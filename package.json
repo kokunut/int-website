@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "screenshots": "node scripts/screenshots.mjs",
     "content:check": "node --no-warnings --experimental-strip-types --import ./scripts/register.mjs scripts/content-check.ts"
   },
   "dependencies": {
