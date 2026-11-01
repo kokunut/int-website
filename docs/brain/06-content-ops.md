@@ -200,6 +200,8 @@ curl -X POST https://<사이트주소>/api/revalidate \
 
 Vercel Web Analytics·Speed Insights를 씁니다. **쿠키를 쓰지 않고 개인 식별 정보를 모으지 않습니다.** 통계 스크립트는 Vercel **운영(Production) 배포**에서만 들어가므로, 로컬·CI·PR 미리보기에서는 아무것도 전송되지 않아요.
 
+**집계 범위**: 운영 배포에서만 집계되며, 미리보기·로컬 방문은 집계되지 않습니다.
+
 **처음 한 번 켜기** (저장소 관리자)
 1. Vercel 프로젝트 → **Analytics** 탭 → **Enable**
 2. Vercel 프로젝트 → **Speed Insights** 탭 → **Enable**
