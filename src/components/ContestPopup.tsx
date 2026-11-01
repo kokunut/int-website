@@ -10,17 +10,22 @@ type HideChoice = 'day' | 'week' | null;
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';
 
 /**
- * 공모전 팝업. 서버에는 popup:true 후보만 받고,
- * 노출 여부(기간·"보지 않기")는 마운트 후 클라이언트에서 KST 기준으로 판정한다.
+ * 공모전 팝업. 서버가 고른 후보(`serverToday` 기준)를 초기 HTML에 포함해 LCP를 앞당기고,
+ * "보지 않기"는 page.tsx의 인라인 스크립트(`data-popup-hidden`)가 첫 페인트 전에 CSS로 숨긴다.
+ * 하이드레이션 후에는 클라이언트 날짜·localStorage로 다시 판정한다(서버와 다르면 클라이언트 우선, ADR-006).
+ * 초기 상태는 서버와 같은 입력(localStorage 미사용)으로만 계산해 하이드레이션 불일치가 없다.
  */
-export default function ContestPopup({ contests }: { contests: PopupContest[] }) {
-  const [shown, setShown] = useState<{ contest: PopupContest; today: string } | null>(null);
+export default function ContestPopup({ contests, serverToday }: { contests: PopupContest[]; serverToday: string }) {
+  const [shown, setShown] = useState<{ contest: PopupContest; today: string } | null>(() => {
+    const contest = pickPopupContest(contests, serverToday);
+    return contest ? { contest, today: serverToday } : null;
+  });
   const [hide, setHide] = useState<HideChoice>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
 
-  // 마운트 후 판정 (SSR 마크업과 달라지지 않도록 서버에서는 아무것도 그리지 않는다)
+  // 하이드레이션 후 클라이언트 기준으로 재판정 (숨겨야 하면 언마운트, 서버와 달라도 클라이언트 우선)
   useEffect(() => {
     const today = todayKST();
     const isHidden = (c: PopupContest): boolean => {
@@ -31,10 +36,14 @@ export default function ContestPopup({ contests }: { contests: PopupContest[] })
       }
     };
     const contest = pickPopupContest(contests, today, isHidden);
-    if (!contest) return;
-    returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- 클라이언트 전용 값(localStorage)으로 마운트 후 1회 결정
-    setShown({ contest, today });
+    if (contest) {
+      // 인라인 스크립트가 다른 공모전 기준으로 남긴 숨김 표시는 클라이언트 판정이 우선하므로 지운다
+      delete document.documentElement.dataset.popupHidden;
+      returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    }
+    // 외부 상태(localStorage·클라이언트 시계)와의 동기화이므로 마운트 후 전환이 의도된 동작이다
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setShown(contest ? { contest, today } : null);
   }, [contests]);
 
   const close = useCallback(() => {
@@ -114,7 +123,7 @@ export default function ContestPopup({ contests }: { contests: PopupContest[] })
             접수 {full(c.start)} ~ {full(c.end)}
           </p>
           <Link className="btn" href={`/contest/${c.id}`} onClick={close}>
-            자세히 보기
+            자세히 보기<span className="sr-only"> · {c.title}</span>
           </Link>
         </div>
         <div className="modal-foot">

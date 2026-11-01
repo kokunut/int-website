@@ -31,9 +31,9 @@ export default async function ContestPage() {
             </div>
             <div className="box">
               <span className="badge solid">{contestStatus(c)}</span>
-              <h3 className="hero-title">
+              <h2 className="hero-title">
                 <Link href={`/contest/${c.id}`}>{c.title}</Link>
-              </h3>
+              </h2>
               <p>{c.desc}</p>
               <dl className="kv">
                 <dt>접수 기간</dt>
@@ -45,7 +45,7 @@ export default async function ContestPage() {
               </dl>
               <div className="btn-row">
                 <Link className="btn" href={`/contest/${c.id}`}>
-                  자세히 보기
+                  자세히 보기<span className="sr-only"> · {c.title}</span>
                 </Link>
                 {c.applyUrl && (
                   <AppLink className="btn ghost" href={c.applyUrl}>

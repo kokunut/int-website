@@ -3,11 +3,13 @@ import AppLink from '@/components/AppLink';
 import BannerCarousel from '@/components/BannerCarousel';
 import Calendar from '@/components/Calendar';
 import ContestList from '@/components/ContestList';
+import ContestPopup from '@/components/ContestPopup';
 import NoticeList from '@/components/NoticeList';
 import PaybackCard from '@/components/PaybackCard';
 import Link from 'next/link';
 import { getBanners, getCalendarEvents, getContests, getNotices, getPayback, getSiteLinks } from '@/lib/data';
 import { todayKST } from '@/lib/date';
+import { pickPopupContest, popupHideScript } from '@/lib/popup';
 
 export const revalidate = 600;
 
@@ -23,9 +25,15 @@ export default async function HomePage() {
     getSiteLinks(),
   ]);
   const today = todayKST();
+  const popupContests = contests
+    .filter((c) => c.popup)
+    .map(({ id, title, desc, start, end, popup }) => ({ id, title, desc, start, end, popup }));
+  const serverPopup = pickPopupContest(popupContests, today);
 
   return (
     <div className="container">
+      {serverPopup && <script dangerouslySetInnerHTML={{ __html: popupHideScript(serverPopup.id) }} />}
+      <ContestPopup contests={popupContests} serverToday={today} />
       <h1 className="sr-only">인트 · 인공지능융합대학 학생회</h1>
       <section id="banner" aria-label="배너">
         <BannerCarousel banners={banners} />
@@ -36,7 +44,7 @@ export default async function HomePage() {
           <div className="sec-head">
             <h2>검정비 페이백 현황</h2>
             <Link className="more" href="/payback">
-              자세히 →
+              자세히 →<span className="sr-only"> · 검정비 페이백 현황</span>
             </Link>
           </div>
           <PaybackCard payback={payback} formUrl={links.paybackForm} />

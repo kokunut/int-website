@@ -30,3 +30,4 @@
 | 2026-11-01 | #17 | (본 PR) | `npm run notion:setup`: 노션 DB 7개 자동 생성(멱등·`--dry-run`·`--seed`·`--write-env`), select 옵션 스키마화, 왕복 테스트 |
 | 2026-11-01 | #19 | (본 PR) | 소속 학과 14곳·대학 주소·학과 약어를 웹 조사로 반영(`(확인 필요)` 표기·출처 링크), 비는 섹션 숨김, 명단 약어 `title`, `07-content-research.md` 추가 |
 | 2026-11-01 | #21 | (본 PR) | Playwright E2E(`npm run test:e2e`): 라우트·내비·팝업·캘린더·제휴/FAQ·404·스킵링크. CI e2e job은 `ci.yml`을 사람이 추가해야 함 |
+| 2026-11-01 | #24 | (본 PR) | Lighthouse 점검 반영: 폰트 자체 호스팅(ADR-009), `--text-3` 대비 4.5:1↑, 배너 점 히트 영역 24px, `icon.svg`, 링크 텍스트(sr-only 보강)·제목 순서(h1→h2), `lighthouserc.json`·`npm run lhci`. CI job은 사람이 `ci.yml`에 추가 |

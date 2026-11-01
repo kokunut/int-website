@@ -8,7 +8,7 @@
   --line:#e3e3e6;
   --text:#17171a;
   --text-2:#55565c;
-  --text-3:#9b9ca2;
+  --text-3:#686a70;
   --accent:#17171a;       /* 주요 버튼·선택 날짜·진행바 → 브랜드 컬러 자리 */
   --accent-ink:#ffffff;
   --sun:var(--text);      /* 일요일 (이미지에선 빨강) */
@@ -22,7 +22,7 @@
 
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--text);background:var(--bg);line-height:1.55;-webkit-font-smoothing:antialiased;word-break:keep-all}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--text);background:var(--bg);line-height:1.55;-webkit-font-smoothing:antialiased;word-break:keep-all}
 a{color:inherit;text-decoration:none}
 button,select,input{font:inherit;color:inherit}
 button{background:none;border:0;cursor:pointer}
@@ -101,8 +101,9 @@ img{display:block;max-width:100%}
 .bn-right div b{display:block;font-weight:700}
 .bn-right div span{color:var(--text-2)}
 .banner-ctrl{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
-.dots-row{display:flex;gap:6px}
-.dots-row button{width:8px;height:8px;border-radius:999px;background:var(--line);transition:width .2s}
+.dots-row{display:flex;gap:16px}
+.dots-row button{position:relative;width:8px;height:8px;border-radius:999px;background:var(--line);transition:width .2s}
+.dots-row button::before{content:'';position:absolute;inset:-8px}
 .dots-row button.on{width:24px;background:var(--text)}
 .arrows{display:flex;align-items:center;gap:4px;font-size:14px;color:var(--text-2)}
 .arrows button{width:34px;height:34px;border-radius:999px;border:1px solid var(--line);font-size:16px}
@@ -138,7 +139,7 @@ img{display:block;max-width:100%}
 .day{position:relative;height:50px;display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--text-2);font-variant-numeric:tabular-nums}
 .day .num{width:40px;height:40px;margin-bottom:8px;display:grid;place-items:center;border-radius:50%;transition:background .12s}
 .day:hover .num{background:var(--surface)}
-.day.out{color:var(--text-3);opacity:.45}
+.day.out{color:var(--text-3)}
 .day.today .num{box-shadow:inset 0 0 0 1.5px var(--text)}
 .day.sel .num,.day.sel:hover .num{background:var(--accent);color:var(--accent-ink)}
 .day .dots{position:absolute;bottom:1px;left:50%;transform:translateX(-50%);display:flex;gap:4px}
@@ -378,7 +379,7 @@ a.ev:hover p{color:var(--text);text-decoration:underline;text-underline-offset:3
 
 /* ---------- 공모전 팝업 ---------- */
 .modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.45)}
-.modal[hidden]{display:none}
+.modal[hidden],html[data-popup-hidden] .modal{display:none}
 .modal-box{width:min(420px,100%);max-height:calc(100vh - 40px);overflow:auto;background:var(--bg);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.25)}
 .modal-img{aspect-ratio:4/3}
 .modal-body{padding:22px 24px 20px}
@@ -427,7 +428,7 @@ body:has(.gnb.open) .fab{display:none}
 .about-photo{min-height:220px}
 .card-flush{overflow:hidden}
 .partner-body{padding:20px 22px}
-.partner-body h3{margin-top:10px;font-size:18px}
+.partner-body h2{margin-top:10px;font-size:18px}
 .partner-body .benefit{color:var(--text);font-weight:700}
 .partner-body .place{font-size:14px}
 .map-box{border-radius:12px}
