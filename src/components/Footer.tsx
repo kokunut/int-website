@@ -13,19 +13,23 @@ export default function Footer({ links }: { links: SiteLinks }) {
         <div className="foot-info" id="foot-info">
           <p>
             <b>주소</b>
-            {links.address}
+            <span>{links.address}</span>
           </p>
           <p>
             <b>Instagram</b>
-            <a href={links.instagram} target="_blank" rel="noopener noreferrer">
-              {links.instagramId}
-            </a>
+            <span>
+              <a href={links.instagram} target="_blank" rel="noopener noreferrer">
+                {links.instagramId}
+              </a>
+            </span>
           </p>
           <p>
             <b>문의</b>
-            <a href={links.kakao} target="_blank" rel="noopener noreferrer">
-              카카오톡 채널
-            </a>
+            <span>
+              <a href={links.kakao} target="_blank" rel="noopener noreferrer">
+                카카오톡 채널 (확인 필요)
+              </a>
+            </span>
           </p>
         </div>
       </div>

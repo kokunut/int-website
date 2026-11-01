@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { majorNames } from '@/content/council';
 import { getAboutPage, getCouncilSummary, getOrg } from '@/lib/data';
 
 export const revalidate = 600;
@@ -62,7 +63,11 @@ export default async function AboutPage() {
                 {u.members.map((m) => (
                   <li key={m.name} className="roster-item">
                     <span className="roster-name">{m.name}</span>
-                    {m.major && <span className="roster-major">{m.major}</span>}
+                    {m.major && (
+                      <span className="roster-major" title={majorNames[m.major]}>
+                        {m.major}
+                      </span>
+                    )}
                     {m.role && <span className="badge">{m.role}</span>}
                     {m.lead && <span className="badge solid">부장</span>}
                   </li>

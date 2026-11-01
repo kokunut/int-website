@@ -11,6 +11,7 @@
 | [04-glossary.md](04-glossary.md) | 용어, 학과 약어 | 새 용어가 생길 때 |
 | [05-progress.md](05-progress.md) | 작업 현황판, 작업 로그 | **모든 PR마다** |
 | [06-content-ops.md](06-content-ops.md) | 콘텐츠 운영 매뉴얼(다음 집행부용) | 노션·구글 연동 이후 |
+| [07-content-research.md](07-content-research.md) | 소속 학과·주소 웹 조사 결과와 출처 | 학생회 확인으로 값이 바뀔 때 |
 
 ## 작성 원칙
 - 짧고 사실 위주로. 추측은 "가정:"으로 표시한다.

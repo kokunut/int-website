@@ -5,6 +5,7 @@ import AppLink from '@/components/AppLink';
 import DetailSection from '@/components/DetailSection';
 import Pager from '@/components/Pager';
 import { getDepartment, getDepartments } from '@/lib/data';
+import { departmentSections } from '@/lib/departments';
 
 export const revalidate = 600;
 
@@ -25,6 +26,7 @@ export default async function DepartmentDetailPage({ params }: Props) {
   const [d, departments] = await Promise.all([getDepartment(id), getDepartments()]);
   if (!d) notFound();
 
+  const show = departmentSections(d);
   const i = departments.findIndex((x) => x.id === d.id);
   const toItem = (x: typeof d) => ({ href: `/departments/${x.id}`, title: x.name });
 
@@ -35,11 +37,14 @@ export default async function DepartmentDetailPage({ params }: Props) {
       </Link>
       <div className="detail">
         <div>
-          <p className="crumb">인공지능융합대학</p>
+          <p className="crumb">인공지능융합대학{d.college ? ` · ${d.college}` : ''}</p>
           <h1 className="d-title">{d.name}</h1>
           <p className="d-lead">{d.intro}</p>
-          <div className="placeholder d-media ratio-16-7">학과 대표 사진 자리</div>
-          {d.body.length > 0 && (
+          {d.photo && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="d-media d-photo" src={d.photo} alt={`${d.name} 대표 사진`} />
+          )}
+          {show.body && (
             <DetailSection title="학과 소개">
               <div className="d-body">
                 {d.body.map((t) => (
@@ -48,7 +53,7 @@ export default async function DepartmentDetailPage({ params }: Props) {
               </div>
             </DetailSection>
           )}
-          {d.curriculum.length > 0 && (
+          {show.curriculum && d.curriculum && (
             <DetailSection title="학년별 주요 교과">
               <div className="curri">
                 {d.curriculum.map((c) => (
@@ -64,10 +69,19 @@ export default async function DepartmentDetailPage({ params }: Props) {
               </div>
             </DetailSection>
           )}
-          {d.careers.length > 0 && (
+          {show.subjects && (
+            <DetailSection title="대표 교과">
+              <div className="tags">
+                {d.subjects?.map((s) => (
+                  <span key={s}>{s}</span>
+                ))}
+              </div>
+            </DetailSection>
+          )}
+          {show.careers && (
             <DetailSection title="졸업 후 진로">
               <div className="tags">
-                {d.careers.map((c) => (
+                {d.careers?.map((c) => (
                   <span key={c}>{c}</span>
                 ))}
               </div>
@@ -81,12 +95,13 @@ export default async function DepartmentDetailPage({ params }: Props) {
             <dd>{d.office}</dd>
             <dt>전화</dt>
             <dd>{d.phone}</dd>
-            <dt>대표 과목</dt>
-            <dd>{d.subjects.join(', ')}</dd>
           </dl>
           <AppLink className="btn" href={d.url}>
             학과 홈페이지 ↗
           </AppLink>
+          <p className="note mt-8">
+            출처: <AppLink href={d.source}>세종대학교 홈페이지</AppLink>
+          </p>
         </aside>
       </div>
       <Pager prev={departments[i - 1] && toItem(departments[i - 1])} next={departments[i + 1] && toItem(departments[i + 1])} />

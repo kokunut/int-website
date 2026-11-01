@@ -101,15 +101,24 @@ export interface CurriculumYear {
 export interface Department {
   id: string;
   name: string;
+  /** 소속 학부 (예: 창의소프트학부). 보조 표기용 */
+  college?: string;
   intro: string;
   body: string[];
-  subjects: string[];
-  curriculum: CurriculumYear[];
+  /** 대표 교과. 없거나 비면 숨김 */
+  subjects?: string[];
+  /** 학년별 교과. 없거나 비면 숨김 */
+  curriculum?: CurriculumYear[];
   career: string;
-  careers: string[];
+  /** 대표 사진 URL. 없으면 사진 영역을 렌더링하지 않음 */
+  photo?: string;
+  /** 졸업 후 진로. 없거나 비면 숨김 */
+  careers?: string[];
   office: string;
   phone: string;
   url: string;
+  /** 출처 URL (세종대학교 홈페이지) */
+  source: string;
 }
 
 export interface Member {
