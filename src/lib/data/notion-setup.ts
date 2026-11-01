@@ -125,96 +125,102 @@ const para = (content: string) => ({
   paragraph: { rich_text: rich(content) },
 });
 
-/**
- * 도메인 값 -> 노션 페이지 payload. `order` 는 순서 속성이 있는 DB(제휴·FAQ·배너)에서 쓴다.
- * 모든 행은 `공개` 체크.
- */
+type Builder<K extends SeedKind> = (item: SeedItems[K], order?: number) => PagePayload;
+
+/** 모든 행은 `공개` 체크 */
+const base = (): Record<string, unknown> => ({ [P_PUBLIC]: checkbox(true) });
+
+/** 순서 속성이 있는 DB(제휴·FAQ·배너)에서만 값이 있다 */
+function putOrder(props: Record<string, unknown>, name: string, order: number | undefined): void {
+  put(props, name, { number: order }, order !== undefined);
+}
+
+const BUILDERS: { [K in SeedKind]: Builder<K> } = {
+  notices: (n) => {
+    const props = base();
+    props[NOTICE.title] = title(n.title);
+    props[NOTICE.no] = { number: n.id };
+    props[NOTICE.type] = { select: { name: n.type } };
+    props[NOTICE.date] = date(n.date);
+    put(props, NOTICE.event, date(n.event?.start ?? '', n.event?.end), !!n.event);
+    return { properties: props, children: n.body.map(para) };
+  },
+  contests: (c) => {
+    const props = base();
+    props[CONTEST.title] = title(c.title);
+    props[CONTEST.slug] = richText(c.id);
+    props[CONTEST.period] = date(c.start, c.end);
+    put(props, CONTEST.popup, checkbox(true), c.popup);
+    putText(props, CONTEST.desc, c.desc);
+    putText(props, CONTEST.target, c.target);
+    putText(props, CONTEST.prize, c.prize);
+    putText(props, CONTEST.contact, c.contact);
+    putLines(props, CONTEST.schedule, c.schedule?.map((s) => `${s.label} | ${s.value}`));
+    putLines(props, CONTEST.prizes, c.prizes?.map((p) => `${p.rank} | ${p.count} | ${p.amount}`));
+    putLines(props, CONTEST.howTo, c.howTo?.map((h) => `${h.title} | ${h.desc}`));
+    putLines(props, CONTEST.notes, c.notes);
+    putUrl(props, CONTEST.applyUrl, c.applyUrl);
+    putUrl(props, CONTEST.guideUrl, c.guideUrl);
+    putText(props, CONTEST.result, c.result);
+    return { properties: props };
+  },
+  partners: (p, order) => {
+    const props = base();
+    props[PARTNER.name] = title(p.name);
+    props[PARTNER.slug] = richText(p.id);
+    props[PARTNER.cat] = { select: { name: p.cat } };
+    props[PARTNER.benefit] = richText(p.benefit);
+    props[PARTNER.place] = richText(p.place);
+    putText(props, PARTNER.hours, p.hours);
+    putText(props, PARTNER.period, p.period);
+    putText(props, PARTNER.address, p.address);
+    putLines(props, PARTNER.details, p.details);
+    putText(props, PARTNER.condition, p.condition);
+    putUrl(props, PARTNER.mapUrl, p.mapUrl);
+    putOrder(props, PARTNER.order, order);
+    return { properties: props };
+  },
+  faq: (f, order) => {
+    const props = base();
+    props[FAQ.q] = title(f.q);
+    props[FAQ.a] = richText(f.a);
+    putOrder(props, FAQ.order, order);
+    return { properties: props };
+  },
+  docs: ({ category, item: d }) => {
+    const props = base();
+    props[DOC.title] = title(d.title);
+    props[DOC.slug] = richText(d.id);
+    props[DOC.category] = { select: { name: CATEGORY_LABEL[category] } };
+    props[DOC.date] = date(d.date);
+    putText(props, DOC.by, d.by);
+    putLines(props, DOC.summary, d.summary);
+    putUrl(props, DOC.file, d.file);
+    return { properties: props };
+  },
+  banners: (b, order) => {
+    // 이미지는 파일 업로드가 필요해 시드하지 않는다 (글자 배너로 표시됨)
+    const props = base();
+    props[BANNER.slogan] = title(b.slogan);
+    props[BANNER.href] = richText(b.href);
+    putText(props, BANNER.word, b.word);
+    putText(props, BANNER.placeLabel, b.placeLabel);
+    putText(props, BANNER.place, b.place);
+    putLines(props, BANNER.links, b.links.map((l) => `${l.label} | ${l.value}`));
+    putOrder(props, BANNER.order, order);
+    return { properties: props };
+  },
+  suggest: (s) => {
+    const props = base();
+    props[SUGGEST.title] = title(s.title);
+    props[SUGGEST.answer] = richText(s.answer);
+    props[SUGGEST.date] = date(s.date);
+    return { properties: props };
+  },
+};
+
+/** 도메인 값 -> 노션 페이지 payload. `order` 는 순서 속성이 있는 DB 에서 쓴다 */
 export function toNotionPage<K extends SeedKind>(kind: K, item: SeedItems[K], order?: number): PagePayload {
-  const props: Record<string, unknown> = { [P_PUBLIC]: checkbox(true) };
-  const ord = (name: string): void => put(props, name, { number: order }, order !== undefined);
-  switch (kind) {
-    case 'notices': {
-      const n = item as Notice;
-      props[NOTICE.title] = title(n.title);
-      props[NOTICE.no] = { number: n.id };
-      props[NOTICE.type] = { select: { name: n.type } };
-      props[NOTICE.date] = date(n.date);
-      put(props, NOTICE.event, date(n.event?.start ?? '', n.event?.end), !!n.event);
-      return { properties: props, children: n.body.map(para) };
-    }
-    case 'contests': {
-      const c = item as Contest;
-      props[CONTEST.title] = title(c.title);
-      props[CONTEST.slug] = richText(c.id);
-      props[CONTEST.period] = date(c.start, c.end);
-      put(props, CONTEST.popup, checkbox(true), c.popup);
-      putText(props, CONTEST.desc, c.desc);
-      putText(props, CONTEST.target, c.target);
-      putText(props, CONTEST.prize, c.prize);
-      putText(props, CONTEST.contact, c.contact);
-      putLines(props, CONTEST.schedule, c.schedule?.map((s) => `${s.label} | ${s.value}`));
-      putLines(props, CONTEST.prizes, c.prizes?.map((p) => `${p.rank} | ${p.count} | ${p.amount}`));
-      putLines(props, CONTEST.howTo, c.howTo?.map((h) => `${h.title} | ${h.desc}`));
-      putLines(props, CONTEST.notes, c.notes);
-      putUrl(props, CONTEST.applyUrl, c.applyUrl);
-      putUrl(props, CONTEST.guideUrl, c.guideUrl);
-      putText(props, CONTEST.result, c.result);
-      return { properties: props };
-    }
-    case 'partners': {
-      const p = item as Partner;
-      props[PARTNER.name] = title(p.name);
-      props[PARTNER.slug] = richText(p.id);
-      props[PARTNER.cat] = { select: { name: p.cat } };
-      props[PARTNER.benefit] = richText(p.benefit);
-      props[PARTNER.place] = richText(p.place);
-      putText(props, PARTNER.hours, p.hours);
-      putText(props, PARTNER.period, p.period);
-      putText(props, PARTNER.address, p.address);
-      putLines(props, PARTNER.details, p.details);
-      putText(props, PARTNER.condition, p.condition);
-      putUrl(props, PARTNER.mapUrl, p.mapUrl);
-      ord(PARTNER.order);
-      return { properties: props };
-    }
-    case 'faq': {
-      const f = item as FaqItem;
-      props[FAQ.q] = title(f.q);
-      props[FAQ.a] = richText(f.a);
-      ord(FAQ.order);
-      return { properties: props };
-    }
-    case 'docs': {
-      const { category, item: d } = item as { category: DocCategory; item: DocItem };
-      props[DOC.title] = title(d.title);
-      props[DOC.slug] = richText(d.id);
-      props[DOC.category] = { select: { name: CATEGORY_LABEL[category] } };
-      props[DOC.date] = date(d.date);
-      putText(props, DOC.by, d.by);
-      putLines(props, DOC.summary, d.summary);
-      putUrl(props, DOC.file, d.file);
-      return { properties: props };
-    }
-    case 'banners': {
-      // 이미지는 파일 업로드가 필요해 시드하지 않는다 (글자 배너로 표시됨)
-      const b = item as Banner;
-      props[BANNER.slogan] = title(b.slogan);
-      props[BANNER.href] = richText(b.href);
-      putText(props, BANNER.word, b.word);
-      putText(props, BANNER.placeLabel, b.placeLabel);
-      putText(props, BANNER.place, b.place);
-      putLines(props, BANNER.links, b.links.map((l) => `${l.label} | ${l.value}`));
-      ord(BANNER.order);
-      return { properties: props };
-    }
-    case 'suggest': {
-      const s = item as SuggestAnswer;
-      props[SUGGEST.title] = title(s.title);
-      props[SUGGEST.answer] = richText(s.answer);
-      props[SUGGEST.date] = date(s.date);
-      return { properties: props };
-    }
-    default:
-      throw new Error(`알 수 없는 종류: ${String(kind)}`);
-  }
+  const build: Builder<K> = BUILDERS[kind];
+  return build(item, order);
 }

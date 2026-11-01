@@ -178,9 +178,47 @@ export async function runSetup(opts: SetupOptions, deps: SetupDeps): Promise<Rec
   if (!parent) throw new Error('부모 페이지를 알 수 없습니다: NOTION_PARENT_PAGE_ID 또는 --parent <id|URL> (32자리 id)');
 
   log('노션 DB 자동 생성');
-  const existing = await existingDatabases(api, parent);
   const ids: Record<string, string> = {};
+  try {
+    await createAll(api, parent, ids, opts, log);
+  } catch (e) {
+    reportPartial(ids, log);
+    throw e;
+  }
 
+  log('\n--- Vercel 환경변수 (KEY=value) ---');
+  for (const [k, v] of Object.entries(ids)) log(`${k}=${v}`);
+
+  if (opts.writeEnv) {
+    const file = '.env.local';
+    deps.writeFile(file, mergeEnv(deps.readFile(file) ?? '', ids));
+    log(`\n${file} 의 NOTION_DB_* 키를 갱신했습니다 (다른 키는 그대로).`);
+  }
+  log('\n다음: npm run content:check 로 점검하세요.');
+  return ids;
+}
+
+/** 중간 실패 시 그때까지의 DB id 를 알리고 재실행 방법을 안내한다 */
+function reportPartial(ids: Record<string, string>, log: (msg: string) => void): void {
+  log('\n⚠️ 중간에 실패했습니다.');
+  const entries = Object.entries(ids);
+  if (entries.length) {
+    log('여기까지 만들거나 확인한 DB id:');
+    for (const [k, v] of entries) log(`${k}=${v}`);
+  } else {
+    log('아직 만든 DB가 없습니다.');
+  }
+  log('원인을 해결한 뒤 같은 명령을 다시 실행하세요. 같은 제목의 DB는 새로 만들지 않고 재사용합니다.');
+}
+
+async function createAll(
+  api: Api,
+  parent: string,
+  ids: Record<string, string>,
+  opts: SetupOptions,
+  log: (msg: string) => void,
+): Promise<void> {
+  const existing = await existingDatabases(api, parent);
   for (const spec of DB_SPECS) {
     const title = dbTitle(spec);
     log(`\n[${title}]`);
@@ -212,15 +250,4 @@ export async function runSetup(opts: SetupOptions, deps: SetupDeps): Promise<Rec
     for (const row of rows) await createRow(api, id, row);
     log(`  🌱 예시 행 ${rows.length}개 추가`);
   }
-
-  log('\n--- Vercel 환경변수 (KEY=value) ---');
-  for (const [k, v] of Object.entries(ids)) log(`${k}=${v}`);
-
-  if (opts.writeEnv) {
-    const file = '.env.local';
-    deps.writeFile(file, mergeEnv(deps.readFile(file) ?? '', ids));
-    log(`\n${file} 의 NOTION_DB_* 키를 갱신했습니다 (다른 키는 그대로).`);
-  }
-  log('\n다음: npm run content:check 로 점검하세요.');
-  return ids;
 }

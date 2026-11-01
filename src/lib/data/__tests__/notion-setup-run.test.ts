@@ -16,6 +16,8 @@ function createFakeNotion() {
   const pages = new Map<string, { blocks: unknown[] }>();
   const calls: string[] = [];
   const throttle: { remaining: number; retryAfter: string | null } = { remaining: 0, retryAfter: '3' };
+  /** dbCreate=N 이면 N번째 DB 생성에서 401 */
+  const failure = { dbCreate: 0 };
   let seq = 0;
   const newId = (): string => (++seq).toString(16).padStart(32, '0');
   const json = (status: number, body: unknown, headers: Record<string, string> = {}): Response =>
@@ -28,6 +30,9 @@ function createFakeNotion() {
     calls.push(`${method} ${path}`);
     const body = init?.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : {};
 
+    if (method === 'POST' && path === '/databases' && failure.dbCreate > 0 && dbs.size + 1 === failure.dbCreate) {
+      return json(401, { message: 'API token is invalid.' });
+    }
     if (throttle.remaining > 0) {
       throttle.remaining--;
       return json(429, { message: 'rate limited' }, throttle.retryAfter ? { 'Retry-After': throttle.retryAfter } : {});
@@ -68,7 +73,7 @@ function createFakeNotion() {
     return json(404, { message: `no route ${method} ${path}` });
   }) as typeof fetch;
 
-  return { dbs, calls, throttle, fetch: fakeFetch, count: (call: string) => calls.filter((c) => c === call).length };
+  return { dbs, calls, throttle, failure, fetch: fakeFetch, count: (call: string) => calls.filter((c) => c === call).length };
 }
 
 function setup(notion: ReturnType<typeof createFakeNotion>) {
@@ -215,6 +220,29 @@ describe('429 재시도', () => {
     await expect(api('POST', '/pages', { parent: { database_id: 'ff' }, properties: {} })).rejects.toThrow(
       'Notion 404 POST /pages - database not found',
     );
+  });
+});
+
+describe('중간 실패 안내', () => {
+  it('4번째 DB 에서 401 이면 만든 DB id 를 출력하고, 재실행하면 재사용한다', async () => {
+    const notion = createFakeNotion();
+    const { run, logs } = setup(notion);
+    notion.failure.dbCreate = 4;
+
+    await expect(run()).rejects.toThrow('Notion 401 POST /databases');
+
+    expect(notion.dbs.size).toBe(3);
+    const out = logs.join('\n');
+    expect(out).toContain('중간에 실패');
+    expect(out).toContain('재사용');
+    for (const id of notion.dbs.keys()) expect(out).toContain(id);
+    for (const spec of DB_SPECS.slice(0, 3)) expect(out).toContain(`${spec.env}=`);
+    expect(out).not.toContain(`${DB_SPECS[3].env}=`);
+
+    notion.failure.dbCreate = 0;
+    const ids = await run();
+    expect(Object.keys(ids)).toHaveLength(DB_SPECS.length);
+    expect(notion.dbs.size).toBe(DB_SPECS.length);
   });
 });
 
