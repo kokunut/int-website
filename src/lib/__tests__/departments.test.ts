@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { majorNames, org } from '@/content/council';
 import { departments, TBC } from '@/content/departments';
+import { departmentSections } from '@/lib/departments';
 
 describe('departments', () => {
   it('has 14 departments with unique ids', () => {
@@ -21,6 +22,20 @@ describe('departments', () => {
         expect(v.endsWith(TBC), `${d.id}: ${v}`).toBe(true);
       }
     }
+  });
+});
+
+describe('departmentSections', () => {
+  it('hides 대표 교과 section when a department has no subjects', () => {
+    const d = departments.find((x) => x.id === 'qisedpt')!;
+    const show = departmentSections(d);
+    expect(show.subjects).toBe(false);
+    expect(show.careers).toBe(true);
+  });
+
+  it('hides every section whose list is empty', () => {
+    const show = departmentSections({ ...departments[0], subjects: [], careers: [], curriculum: [], body: [] });
+    expect(show).toEqual({ body: false, curriculum: false, subjects: false, careers: false });
   });
 });
 
