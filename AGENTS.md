@@ -31,6 +31,7 @@ npm run dev        # 개발 서버 http://localhost:3000
 npm run lint       # ESLint
 npm run typecheck  # TypeScript 검사
 npm test           # 단위 테스트 (Vitest)
+npm run test:e2e   # E2E 테스트 (Playwright, 최초 1회 npx playwright install chromium)
 npm run build      # 프로덕션 빌드
 npm run screenshots # README 화면 캡처 (서버 실행 후, docs/images/)
 npm run content:check  # 노션·구글 연동 점검 (.env.local 필요, CI 제외)

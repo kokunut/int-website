@@ -1,0 +1,28 @@
+import { defineConfig, devices } from '@playwright/test';
+
+const PORT = 3100;
+
+export default defineConfig({
+  testDir: './e2e',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 1 : 0,
+  reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
+  use: {
+    baseURL: `http://localhost:${PORT}`,
+    locale: 'ko-KR',
+    timezoneId: 'Asia/Seoul',
+    trace: 'on-first-retry',
+  },
+  projects: [
+    { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } } },
+    { name: 'mobile', use: { ...devices['Pixel 7'] } },
+  ],
+  webServer: {
+    // CI 에서 앞 단계 빌드를 재사용하려면 `npm run start -- -p 3100` 만 실행하도록 바꿔도 된다.
+    command: `npm run build && npm run start -- -p ${PORT}`,
+    url: `http://localhost:${PORT}`,
+    reuseExistingServer: !process.env.CI,
+    timeout: 300_000,
+  },
+});
