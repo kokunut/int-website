@@ -43,6 +43,8 @@
 ## Dependabot PR 처리
 설정은 `.github/dependabot.yml`(매주 월요일 09:00 KST). 보안 업데이트는 저장소 설정에서 켠 Dependabot security updates가 별도로 올린다.
 - **minor·patch 그룹 PR**(`next-react`, `test-tools`, `dev-tools`, `prod-minor`, `actions`): CI 3개 job(check·e2e·lighthouse)이 모두 통과하면 Claude Code가 머지한다.
+  - Claude Code 세션이 없으면 저장소 관리자(kokunut·realcdh)가 CI 3개가 모두 초록일 때 **Squash and merge**한다.
+  - 2주 이상 쌓이면 `@claude 열린 Dependabot PR을 확인하고 CI가 통과한 minor·patch PR 목록을 정리해 주세요`처럼 요청한다.
 - **major PR**(그룹 밖 개별 PR): 바로 머지하지 않는다. 이슈로 영향(변경점·깨지는 API)을 검토한 뒤 진행한다.
 - Dependabot PR에는 저장소 시크릿이 주입되지 않으므로 노션·구글 연동 검증은 **목 데이터 기준**이다. 연동 영향이 의심되면 머지 후 `npm run content:check`로 확인한다.
 

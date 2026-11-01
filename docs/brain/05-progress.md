@@ -13,7 +13,7 @@
 ## 사람이 해야 할 일 (에이전트가 못 하는 것)
 - [ ] Vercel 프로젝트 연결·도메인
 - [ ] 노션 통합 생성·DB 7개 구성, 구글 시트 요약 탭 웹 게시, 캘린더 iCal 주소 → Vercel 환경변수 등록 (`06-content-ops.md`, `npm run content:check`로 점검)
-- [ ] 저장소 Settings → Code security에서 **Dependabot alerts**와 **Dependabot security updates** 켜기 (보안 패치 자동 PR, 버전 업데이트는 `dependabot.yml`이 담당)
+- [ ] 저장소 Settings → Advanced Security에서 **Dependabot alerts**와 **Dependabot security updates** 켜기 (보안 패치 자동 PR, 버전 업데이트는 `dependabot.yml`이 담당)
 - [ ] 실제 링크(카카오 채널, 인스타그램, 구글폼) 및 학생회실 주소 확정
 - [ ] 학과 약어 정식 명칭, 집행부 명단 가정(정후보→회장, 총원 26 vs 25) 확인 (`04-glossary.md`)
 

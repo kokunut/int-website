@@ -119,6 +119,12 @@
 </details>
 
 <details>
+<summary><b>`dependencies` 라벨이 붙은 PR이 계속 올라와요</b></summary>
+
+사이트가 쓰는 부품(라이브러리)의 새 버전을 알려 주는 자동 업데이트 PR이에요. 모든 검사에 초록 체크가 떠 있으면 머지해도 됩니다. 빨간 표시가 있으면 개발자에게 알려 주세요.
+</details>
+
+<details>
 <summary><b>학생회 명단을 바꾸고 싶어요</b></summary>
 
 명단은 코드 파일 `src/content/council.ts`에 있습니다. 개발자에게 바뀐 이름과 직책을 알려 주세요. GitHub에서 파일을 직접 고치고 PR(수정 제안)을 올려도 됩니다.
