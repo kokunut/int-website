@@ -7,12 +7,12 @@ import { EVENTS, trackEvent } from '../analytics';
 
 describe('trackEvent', () => {
   beforeEach(() => track.mockClear());
-  it('is a no-op outside Vercel', () => {
-    trackEvent(EVENTS.kakaoFab, false);
+  it('is a no-op outside production', async () => {
+    await trackEvent(EVENTS.kakaoFab, false);
     expect(track).not.toHaveBeenCalled();
   });
-  it('sends the event name on Vercel', () => {
-    trackEvent(EVENTS.paybackApply, true);
+  it('sends the event name in production', async () => {
+    await trackEvent(EVENTS.paybackApply, true);
     expect(track).toHaveBeenCalledWith('payback_apply');
   });
   it('keeps stable event names', () => {

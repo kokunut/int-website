@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { absoluteUrl, getSiteUrl, isVercel } from '../site';
+import { absoluteUrl, getSiteUrl, isVercelProduction } from '../site';
 
-describe('isVercel', () => {
-  it('is true only for VERCEL=1', () => {
-    expect(isVercel('1')).toBe(true);
-    for (const v of [undefined, '', '0', 'true']) expect(isVercel(v)).toBe(false);
+describe('isVercelProduction', () => {
+  it('is true only for VERCEL_ENV=production', () => {
+    expect(isVercelProduction('production')).toBe(true);
+    for (const v of [undefined, '', '1', 'preview', 'development']) expect(isVercelProduction(v)).toBe(false);
   });
 });
 

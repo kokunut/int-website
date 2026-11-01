@@ -34,4 +34,4 @@
 | 2026-11-01 | #21 | (본 PR) | Playwright E2E(`npm run test:e2e`): 라우트·내비·팝업·캘린더·제휴/FAQ·404·스킵링크. CI e2e job은 `ci.yml`을 사람이 추가해야 함 |
 | 2026-11-01 | #24 | (본 PR) | Lighthouse 점검 반영: 폰트 자체 호스팅(ADR-009), `--text-3` 대비 4.5:1↑, 배너 점 히트 영역 24px, `icon.svg`, 링크 텍스트(sr-only 보강)·제목 순서(h1→h2), `lighthouserc.json`·`npm run lhci`. CI job은 사람이 `ci.yml`에 추가 |
 | 2026-11-01 | #27 | (본 PR) | `.github/dependabot.yml`(npm·github-actions 주간, 그룹·major 개별 PR), Dependabot PR 처리 절차 문서화 |
-| 2026-11-01 | #29 | (본 PR) | 방문 통계: Vercel Analytics·Speed Insights(Vercel 빌드에서만 렌더, `isVercel()`), 커스텀 이벤트 3종(팝업 자세히 보기·페이백 신청·카카오 FAB, 밖에서는 no-op), ADR-011, 운영 매뉴얼 "방문 통계 보기" |
+| 2026-11-01 | #29 | (본 PR) | 방문 통계: Vercel Analytics·Speed Insights(운영 배포에서만 렌더, `isVercelProduction()`), 커스텀 이벤트 3종(팝업 자세히 보기·페이백 신청·카카오 FAB, 밖에서는 no-op), ADR-011, 운영 매뉴얼 "방문 통계 보기" |

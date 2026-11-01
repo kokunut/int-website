@@ -13,9 +13,9 @@ export function getSiteUrl(raw: string | undefined = process.env.NEXT_PUBLIC_SIT
   }
 }
 
-/** Vercel 빌드 여부. Vercel 밖(로컬 `next start`, CI)에서는 `/_vercel/insights/*` 가 404 라 통계 스크립트를 넣지 않는다. */
-export function isVercel(raw: string | undefined = process.env.VERCEL): boolean {
-  return raw === '1';
+/** Vercel 운영(Production) 배포 여부. 로컬·CI 는 `/_vercel/insights/*` 가 404 이고 미리보기 배포는 통계가 섞이므로, 운영에서만 통계를 켠다. */
+export function isVercelProduction(raw: string | undefined = process.env.VERCEL_ENV): boolean {
+  return raw === 'production';
 }
 
 /** 경로를 절대 URL 로 (`/` -> 기준 URL + '/') */

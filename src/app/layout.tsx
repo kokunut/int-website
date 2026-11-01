@@ -7,7 +7,7 @@ import Header from '@/components/Header';
 import KakaoFab from '@/components/KakaoFab';
 import { getSiteLinks } from '@/lib/data';
 import { buildNav } from '@/lib/nav';
-import { getSiteUrl, isVercel } from '@/lib/site';
+import { getSiteUrl, isVercelProduction } from '@/lib/site';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import './globals.css';
 
@@ -33,7 +33,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <main id="app" tabIndex={-1}>{children}</main>
         <Footer links={links} />
         <KakaoFab href={links.kakao} />
-        {isVercel() && (
+        {isVercelProduction() && (
           <>
             <Analytics />
             <SpeedInsights />
