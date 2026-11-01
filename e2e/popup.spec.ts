@@ -22,6 +22,13 @@ test('팝업 노출 → 오늘 하루 보지 않기 → 새로고침 시 미노�
   await expect(dialog).toBeVisible();
 });
 
+test('다른 페이지(/about)에서는 팝업이 뜨지 않는다', async ({ page }) => {
+  await page.goto('/about');
+  await expect(page.locator('#app')).toBeVisible();
+  await page.waitForTimeout(500);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+});
+
 test('Esc 로 닫힌다', async ({ page }) => {
   await page.goto('/');
   const dialog = page.getByRole('dialog', { name: TITLE });

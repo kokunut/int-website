@@ -3,6 +3,7 @@ import AppLink from '@/components/AppLink';
 import BannerCarousel from '@/components/BannerCarousel';
 import Calendar from '@/components/Calendar';
 import ContestList from '@/components/ContestList';
+import ContestPopup from '@/components/ContestPopup';
 import NoticeList from '@/components/NoticeList';
 import PaybackCard from '@/components/PaybackCard';
 import Link from 'next/link';
@@ -23,9 +24,13 @@ export default async function HomePage() {
     getSiteLinks(),
   ]);
   const today = todayKST();
+  const popupContests = contests
+    .filter((c) => c.popup)
+    .map(({ id, title, desc, start, end, popup }) => ({ id, title, desc, start, end, popup }));
 
   return (
     <div className="container">
+      <ContestPopup contests={popupContests} />
       <h1 className="sr-only">인트 · 인공지능융합대학 학생회</h1>
       <section id="banner" aria-label="배너">
         <BannerCarousel banners={banners} />

@@ -21,20 +21,28 @@ export default function ContestPopup({ contests }: { contests: PopupContest[] })
   const returnFocus = useRef<HTMLElement | null>(null);
 
   // 마운트 후 판정 (SSR 마크업과 달라지지 않도록 서버에서는 아무것도 그리지 않는다)
+  // 첫 페인트를 막지 않도록 한 틱 늦춰 판정한다 (requestIdleCallback, 미지원 시 setTimeout 0)
   useEffect(() => {
-    const today = todayKST();
-    const isHidden = (c: PopupContest): boolean => {
-      try {
-        return isSuppressed(localStorage.getItem(popupStorageKey(c.id)), today);
-      } catch {
-        return false; // 저장소 접근이 막힌 환경에서는 매번 보여준다
-      }
+    const decide = () => {
+      const today = todayKST();
+      const isHidden = (c: PopupContest): boolean => {
+        try {
+          return isSuppressed(localStorage.getItem(popupStorageKey(c.id)), today);
+        } catch {
+          return false; // 저장소 접근이 막힌 환경에서는 매번 보여준다
+        }
+      };
+      const contest = pickPopupContest(contests, today, isHidden);
+      if (!contest) return;
+      returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      setShown({ contest, today });
     };
-    const contest = pickPopupContest(contests, today, isHidden);
-    if (!contest) return;
-    returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- 클라이언트 전용 값(localStorage)으로 마운트 후 1회 결정
-    setShown({ contest, today });
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(decide);
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = window.setTimeout(decide, 0);
+    return () => window.clearTimeout(id);
   }, [contests]);
 
   const close = useCallback(() => {

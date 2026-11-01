@@ -15,7 +15,7 @@
 ```
 src/
   app/                    # 라우트 (URL = 폴더)
-    layout.tsx            # GNB, 푸터, FAB, 공모전 팝업
+    layout.tsx            # GNB, 푸터, FAB
     page.tsx              # 메인
     about/ departments/[id]/ notice/[id]/ calendar/ contest/[id]/
     payback/ partners/[id]/ suggest/ docs/[category]/[id]/ faq/

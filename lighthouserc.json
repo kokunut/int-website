@@ -8,7 +8,10 @@
         "http://localhost:3200/calendar",
         "http://localhost:3200/about",
         "http://localhost:3200/partners",
-        "http://localhost:3200/faq"
+        "http://localhost:3200/faq",
+        "http://localhost:3200/departments",
+        "http://localhost:3200/notice/1",
+        "http://localhost:3200/contest/c2026-ai"
       ],
       "numberOfRuns": 1
     },
