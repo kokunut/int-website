@@ -27,3 +27,4 @@
 | 2026-11-01 | #11 | #12 | 노션(공지·공모전·제휴·FAQ·자료·배너·건의)·iCal(학사일정)·게시 CSV(페이백) 연동, 소스별 목 폴백, `/api/revalidate`, `content:check`, 운영 매뉴얼 |
 | 2026-11-01 | #13 | #14 | README 비개발자용 개편, 화면 캡처 8장·`npm run screenshots`, 캘린더 오늘 표시·모바일 배너 링크 정렬 CSS 수정 |
 | 2026-11-01 | #15 | (본 PR) | 잘린 `claude.yml` 복구(액션·모델·Node 설정), App 설치 반영 |
+| 2026-11-01 | #17 | (본 PR) | `npm run notion:setup`: 노션 DB 7개 자동 생성(멱등·`--dry-run`·`--seed`·`--write-env`), select 옵션 스키마화, 왕복 테스트 |

@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "screenshots": "node scripts/screenshots.mjs",
-    "content:check": "node --no-warnings --experimental-strip-types --import ./scripts/register.mjs scripts/content-check.ts"
+    "content:check": "node --no-warnings --experimental-strip-types --import ./scripts/register.mjs scripts/content-check.ts",
+    "notion:setup": "node --no-warnings --experimental-strip-types --import ./scripts/register.mjs scripts/notion-setup.ts"
   },
   "dependencies": {
     "next": "^16.4.3",
