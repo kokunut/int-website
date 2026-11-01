@@ -13,6 +13,7 @@
 ## 사람이 해야 할 일 (에이전트가 못 하는 것)
 - [ ] Vercel 프로젝트 연결·도메인
 - [ ] 노션 통합 생성·DB 7개 구성, 구글 시트 요약 탭 웹 게시, 캘린더 iCal 주소 → Vercel 환경변수 등록 (`06-content-ops.md`, `npm run content:check`로 점검)
+- [ ] 저장소 Settings → Advanced Security에서 **Dependabot alerts**와 **Dependabot security updates** 켜기 (보안 패치 자동 PR, 버전 업데이트는 `dependabot.yml`이 담당)
 - [ ] 실제 링크(카카오 채널, 인스타그램, 구글폼) 및 학생회실 주소 확정
 - [ ] 학과 약어 정식 명칭, 집행부 명단 가정(정후보→회장, 총원 26 vs 25) 확인 (`04-glossary.md`)
 
@@ -31,3 +32,4 @@
 | 2026-11-01 | #19 | (본 PR) | 소속 학과 14곳·대학 주소·학과 약어를 웹 조사로 반영(`(확인 필요)` 표기·출처 링크), 비는 섹션 숨김, 명단 약어 `title`, `07-content-research.md` 추가 |
 | 2026-11-01 | #21 | (본 PR) | Playwright E2E(`npm run test:e2e`): 라우트·내비·팝업·캘린더·제휴/FAQ·404·스킵링크. CI e2e job은 `ci.yml`을 사람이 추가해야 함 |
 | 2026-11-01 | #24 | (본 PR) | Lighthouse 점검 반영: 폰트 자체 호스팅(ADR-009), `--text-3` 대비 4.5:1↑, 배너 점 히트 영역 24px, `icon.svg`, 링크 텍스트(sr-only 보강)·제목 순서(h1→h2), `lighthouserc.json`·`npm run lhci`. CI job은 사람이 `ci.yml`에 추가 |
+| 2026-11-01 | #27 | (본 PR) | `.github/dependabot.yml`(npm·github-actions 주간, 그룹·major 개별 PR), Dependabot PR 처리 절차 문서화 |

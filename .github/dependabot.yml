@@ -1,0 +1,56 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Seoul
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    # 그룹은 위에서부터 먼저 맞는 곳에 들어간다. major는 어떤 그룹에도 넣지 않아 개별 PR로 올라온다.
+    groups:
+      next-react:
+        patterns:
+          - next
+          - react
+          - react-dom
+          - eslint-config-next
+          - "@types/react*"
+        update-types:
+          - minor
+          - patch
+      test-tools:
+        patterns:
+          - "@playwright/test"
+          - "@lhci/cli"
+        update-types:
+          - minor
+          - patch
+      dev-tools:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+      prod-minor:
+        dependency-type: production
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Seoul
+    commit-message:
+      prefix: "ci(deps)"
+    groups:
+      actions:
+        patterns:
+          - "*"

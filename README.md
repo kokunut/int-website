@@ -119,6 +119,12 @@
 </details>
 
 <details>
+<summary><b>`dependencies` 라벨이 붙은 PR이 계속 올라와요</b></summary>
+
+사이트가 쓰는 부품(라이브러리)의 새 버전을 알려 주는 자동 업데이트 PR이에요. 모든 검사에 초록 체크가 떠 있으면 머지해도 됩니다. 빨간 표시가 있으면 개발자에게 알려 주세요.
+</details>
+
+<details>
 <summary><b>학생회 명단을 바꾸고 싶어요</b></summary>
 
 명단은 코드 파일 `src/content/council.ts`에 있습니다. 개발자에게 바뀐 이름과 직책을 알려 주세요. GitHub에서 파일을 직접 고치고 PR(수정 제안)을 올려도 됩니다.
@@ -152,6 +158,8 @@ npm run screenshots    # README용 화면 캡처 (서버를 먼저 띄운 뒤 �
 E2E는 처음 한 번 `npx playwright install chromium`으로 브라우저를 설치한 뒤 `npm run test:e2e`로 실행합니다.
 
 PR 전에는 `lint`, `typecheck`, `test`, `build`가 모두 통과해야 합니다. 화면 캡처는 `npm run build && npx next start -p 3000`으로 서버를 띄운 뒤 다른 터미널에서 `npm run screenshots`를 실행하면 `docs/images/`에 저장됩니다. (Playwright가 설치되어 있어야 하고, 주소는 `BASE_URL`로 바꿀 수 있어요.)
+
+의존성은 Dependabot이 매주 월요일 PR로 올립니다(`.github/dependabot.yml`). 처리 절차는 [`02-workflow.md`](docs/brain/02-workflow.md)를 보세요.
 
 작업 규칙은 [`AGENTS.md`](AGENTS.md)와 [`docs/brain/`](docs/brain/README.md)(프로젝트 세컨브레인)에 있습니다. 작업 전에 꼭 읽어 주세요.
 
