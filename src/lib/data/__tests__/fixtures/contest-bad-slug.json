@@ -1,0 +1,32 @@
+{
+  "id": "c2",
+  "properties": {
+    "제목": {
+      "type": "title",
+      "title": [
+        {
+          "plain_text": "x"
+        }
+      ]
+    },
+    "슬러그": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "plain_text": "Bad Slug"
+        }
+      ]
+    },
+    "기간": {
+      "type": "date",
+      "date": {
+        "start": "2026-10-20",
+        "end": null
+      }
+    },
+    "공개": {
+      "type": "checkbox",
+      "checkbox": true
+    }
+  }
+}

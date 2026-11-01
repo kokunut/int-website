@@ -1,0 +1,81 @@
+{
+  "id": "b1",
+  "properties": {
+    "문구": {
+      "type": "title",
+      "title": [
+        {
+          "plain_text": "인트가 함께합니다"
+        }
+      ]
+    },
+    "링크": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "plain_text": "/about"
+        }
+      ]
+    },
+    "큰글자": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "plain_text": "INT"
+        }
+      ]
+    },
+    "장소라벨": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "plain_text": "PLACE"
+        }
+      ]
+    },
+    "장소": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "plain_text": "OO관"
+        }
+      ]
+    },
+    "정보": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "plain_text": "Instagram | @int"
+        }
+      ]
+    },
+    "이미지": {
+      "type": "files",
+      "files": [
+        {
+          "file": {
+            "url": "https://s3.example/a.png?sig=1"
+          }
+        }
+      ]
+    },
+    "모바일이미지": {
+      "type": "files",
+      "files": [
+        {
+          "external": {
+            "url": "https://cdn.example/m.png"
+          }
+        }
+      ]
+    },
+    "순서": {
+      "type": "number",
+      "number": 1
+    },
+    "공개": {
+      "type": "checkbox",
+      "checkbox": true
+    }
+  }
+}

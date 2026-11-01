@@ -1,0 +1,79 @@
+{
+  "id": "p1",
+  "properties": {
+    "이름": {
+      "type": "title",
+      "title": [
+        {
+          "plain_text": "OO식당"
+        }
+      ]
+    },
+    "슬러그": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "plain_text": "oo-restaurant"
+        }
+      ]
+    },
+    "분류": {
+      "type": "select",
+      "select": {
+        "name": "식당"
+      }
+    },
+    "혜택": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "plain_text": "10% 할인"
+        }
+      ]
+    },
+    "위치": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "plain_text": "정문 앞"
+        }
+      ]
+    },
+    "영업시간": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "plain_text": ""
+        }
+      ]
+    },
+    "상세": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "plain_text": "전 메뉴 10% 할인\n음료 서비스"
+        }
+      ]
+    },
+    "조건": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "plain_text": "1인 1회"
+        }
+      ]
+    },
+    "지도링크": {
+      "type": "url",
+      "url": "https://naver.me/x"
+    },
+    "순서": {
+      "type": "number",
+      "number": 2
+    },
+    "공개": {
+      "type": "checkbox",
+      "checkbox": true
+    }
+  }
+}

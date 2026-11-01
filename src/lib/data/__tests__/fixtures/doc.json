@@ -1,0 +1,58 @@
+{
+  "id": "d1",
+  "properties": {
+    "제목": {
+      "type": "title",
+      "title": [
+        {
+          "plain_text": "10월 회의록"
+        }
+      ]
+    },
+    "슬러그": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "plain_text": "m-2026-10"
+        }
+      ]
+    },
+    "분류": {
+      "type": "select",
+      "select": {
+        "name": "회의록"
+      }
+    },
+    "날짜": {
+      "type": "date",
+      "date": {
+        "start": "2026-10-08T09:00:00.000+09:00",
+        "end": null
+      }
+    },
+    "작성": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "plain_text": "사무부"
+        }
+      ]
+    },
+    "요약": {
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "plain_text": "안건 1\n안건 2"
+        }
+      ]
+    },
+    "파일링크": {
+      "type": "url",
+      "url": "https://drive.google.com/x"
+    },
+    "공개": {
+      "type": "checkbox",
+      "checkbox": true
+    }
+  }
+}
