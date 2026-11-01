@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import ContestPopup from '@/components/ContestPopup';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import KakaoFab from '@/components/KakaoFab';
-import { getSiteLinks } from '@/lib/data';
+import { getContests, getSiteLinks } from '@/lib/data';
 import { buildNav } from '@/lib/nav';
 import './globals.css';
 
@@ -13,7 +14,10 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const links = await getSiteLinks();
+  const [links, contests] = await Promise.all([getSiteLinks(), getContests()]);
+  const popupContests = contests
+    .filter((c) => c.popup)
+    .map(({ id, title, desc, start, end, popup }) => ({ id, title, desc, start, end, popup }));
   return (
     <html lang="ko">
       <head>
@@ -30,6 +34,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <main id="app" tabIndex={-1}>{children}</main>
         <Footer links={links} />
         <KakaoFab href={links.kakao} />
+        <ContestPopup contests={popupContests} />
       </body>
     </html>
   );
