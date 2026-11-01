@@ -4,7 +4,7 @@
 자세한 내용은 [`docs/brain/`](docs/brain/README.md)(세컨브레인)에 있습니다.
 
 ## 1. 프로젝트 한 줄 요약
-세종대학교 인공지능융합대학 학생회 **인트(int)** 공식 웹사이트. 단일 HTML 초안(`index_1.html`)을 Next.js 사이트로 옮기고, 콘텐츠는 노션·구글에서 관리한다.
+세종대학교 인공지능융합대학 학생회 **인트(int)** 공식 웹사이트. 단일 HTML 초안(`docs/prototype/index_1.html`)을 Next.js 사이트로 옮기고, 콘텐츠는 노션·구글에서 관리한다.
 
 ## 현재 상태
 세부 진행 상황은 [`05-progress.md`](docs/brain/05-progress.md)가 기준입니다.
