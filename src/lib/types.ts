@@ -128,6 +128,8 @@ export interface Partner {
   address?: string;
   details?: string[];
   condition?: string;
+  /** 지도 링크. 없으면 이름+위치로 네이버 지도 검색 링크를 만든다 */
+  mapUrl?: string;
 }
 
 /** PARTNER_DEFAULT 로 빈 값을 채운 제휴 정보 */
@@ -142,6 +144,8 @@ export interface DocItem {
   date: DateString;
   by: string;
   summary: string[];
+  /** 구글 드라이브 공유 링크(PDF). 없으면 미리보기 자리표시 */
+  file?: string;
 }
 
 export interface FaqItem {
@@ -163,4 +167,49 @@ export interface CalendarEvent {
   start: DateString;
   end: DateString;
   link?: string;
+}
+
+/** 번호 단계 (제목 + 설명) */
+export interface StepItem {
+  title: string;
+  desc: string;
+}
+
+export interface AboutPage {
+  desc: string;
+  greetingTitle: string;
+  greeting: string[];
+  signer: string;
+  /** 단체 사진. 없으면 자리표시 */
+  photo?: { src: string; alt: string };
+}
+
+export interface PaybackPage {
+  desc: string;
+  steps: StepItem[];
+  eligibility: string[];
+  notes: string[];
+}
+
+export interface SuggestPage {
+  desc: string;
+  ctaTitle: string;
+  ctaDesc: string;
+  steps: StepItem[];
+}
+
+export interface PartnersPage {
+  desc: string;
+  footnote: string;
+  /** 상세 '이용 방법'. source 가 있으면 desc 대신 제휴 항목의 해당 값을 쓴다 */
+  howTo: (StepItem & { source?: 'place' | 'condition' })[];
+}
+
+export interface DepartmentsPage {
+  desc: string;
+}
+
+export interface FaqPage {
+  contactTitle: string;
+  contactDesc: string;
 }
