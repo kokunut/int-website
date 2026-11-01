@@ -110,6 +110,8 @@ export interface Department {
   /** 학년별 교과. 없거나 비면 숨김 */
   curriculum?: CurriculumYear[];
   career: string;
+  /** 대표 사진 URL. 없으면 사진 영역을 렌더링하지 않음 */
+  photo?: string;
   /** 졸업 후 진로. 없거나 비면 숨김 */
   careers?: string[];
   office: string;

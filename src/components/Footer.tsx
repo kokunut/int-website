@@ -24,7 +24,7 @@ export default function Footer({ links }: { links: SiteLinks }) {
           <p>
             <b>문의</b>
             <a href={links.kakao} target="_blank" rel="noopener noreferrer">
-              카카오톡 채널
+              카카오톡 채널 (확인 필요)
             </a>
           </p>
         </div>

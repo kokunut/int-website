@@ -275,6 +275,13 @@ a.ev:hover p{color:var(--text);text-decoration:underline;text-underline-offset:3
 .toolbar .tabs{margin:0}
 .search{height:42px;width:min(280px,100%);padding:0 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
 .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.dept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:stretch}
+.dept-card{display:flex;flex-direction:column;min-width:0}
+.dept-card h2{overflow-wrap:anywhere}
+.dept-card .more-inline{margin-top:auto;padding-top:16px;align-self:flex-start}
+@media (max-width:960px){.dept-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.dept-grid{grid-template-columns:1fr}}
+.d-photo{display:block;object-fit:cover}
 .box{padding:26px 28px}
 .box h2,.box h3{font-size:20px;font-weight:800;letter-spacing:-.03em}
 .box p{color:var(--text-2);margin-top:6px}

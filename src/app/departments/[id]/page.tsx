@@ -38,7 +38,10 @@ export default async function DepartmentDetailPage({ params }: Props) {
           <p className="crumb">인공지능융합대학{d.college ? ` · ${d.college}` : ''}</p>
           <h1 className="d-title">{d.name}</h1>
           <p className="d-lead">{d.intro}</p>
-          <div className="placeholder d-media ratio-16-7">학과 대표 사진 자리</div>
+          {d.photo && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="d-media d-photo" src={d.photo} alt={`${d.name} 대표 사진`} />
+          )}
           {d.body.length > 0 && (
             <DetailSection title="학과 소개">
               <div className="d-body">
@@ -79,6 +82,12 @@ export default async function DepartmentDetailPage({ params }: Props) {
           <dl className="kv">
             <dt>학과사무실</dt>
             <dd>{d.office}</dd>
+            {d.career && (
+              <>
+                <dt>진로</dt>
+                <dd>{d.career}</dd>
+              </>
+            )}
             <dt>전화</dt>
             <dd>{d.phone}</dd>
             {d.subjects && d.subjects.length > 0 && (
