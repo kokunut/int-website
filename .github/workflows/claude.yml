@@ -50,4 +50,4 @@ jobs:
           # 역할 분담: 코딩은 Sonnet (docs/brain/02-workflow.md)
           claude_args: |
             --model claude-sonnet-5-5
-            --allowedTools "Bash(npm ci),Bash(npm install*),Bash(npm run *),Bash(npm test*),Bash(npx tsc*)"
+            --allowedTools "Bash(npm ci),Bash(npm install*),Bash(npm run *),Bash(npm test*),Bash(npx tsc*),Bash(npx playwright install chromium),Bash(npx playwright test*)"
