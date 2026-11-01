@@ -26,6 +26,7 @@ export default async function HomePage() {
 
   return (
     <div className="container">
+      <h1 className="sr-only">인트 · 인공지능융합대학 학생회</h1>
       <section id="banner" aria-label="배너">
         <BannerCarousel banners={banners} />
       </section>

@@ -1,5 +1,7 @@
 import { test, expect } from './fixtures';
 
+test.use({ showPopup: true });
+
 const TITLE = '제1회 인트 AI 아이디어 공모전';
 
 test('팝업 노출 → 오늘 하루 보지 않기 → 새로고침 시 미노출 → 다음 날 다시 노출', async ({ page }) => {

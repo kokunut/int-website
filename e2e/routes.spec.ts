@@ -10,9 +10,8 @@ for (const path of ROUTES) {
   test(`${path} 은 200 이고 콘솔 에러가 없다`, async ({ page, errors }) => {
     const res = await page.goto(path);
     expect(res?.status()).toBe(200);
-    await expect(page.locator('h1').first()).toBeVisible();
-    // 외부 폰트는 일부러 차단하므로 리소스 로드 실패 메시지는 제외한다.
-    expect(errors.filter((e) => !/Failed to load resource|ERR_FAILED/.test(e))).toEqual([]);
+    await expect(page.locator('h1')).toHaveCount(1);
+    expect(errors).toEqual([]);
   });
 }
 
