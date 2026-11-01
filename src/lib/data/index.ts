@@ -8,7 +8,8 @@
 import { academic } from '@/content/academic';
 import { banners } from '@/content/banners';
 import { contests } from '@/content/contests';
-import { departments, org } from '@/content/departments';
+import { departments } from '@/content/departments';
+import { org } from '@/content/council';
 import { docs } from '@/content/docs';
 import { faq, suggestAnswers } from '@/content/faq';
 import { notices } from '@/content/notices';
@@ -30,6 +31,7 @@ import type {
   FaqItem,
   FaqPage,
   Notice,
+  Member,
   OrgUnit,
   Partner,
   PartnersPage,
@@ -83,8 +85,17 @@ export async function getDepartment(id: string): Promise<Department | undefined>
   return departments.find((d) => d.id === id);
 }
 
+/** 부장(lead)을 맨 앞으로, 나머지는 원래 순서 유지 */
+export function sortMembers(members: Member[]): Member[] {
+  return [...members.filter((m) => m.lead), ...members.filter((m) => !m.lead)];
+}
+
 export async function getOrg(): Promise<OrgUnit[]> {
-  return [...org];
+  return org.map((u) => ({ ...u, members: sortMembers(u.members) }));
+}
+
+export async function getCouncilSummary(): Promise<{ total: number }> {
+  return { total: org.reduce((n, u) => n + u.members.length, 0) };
 }
 
 /** 비어 있는 항목(영업시간·기간·주소·상세·조건)은 PARTNER_DEFAULT 로 채운다 */

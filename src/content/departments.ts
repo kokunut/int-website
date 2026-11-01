@@ -1,4 +1,4 @@
-import type { Department, OrgUnit } from '@/lib/types';
+import type { Department } from '@/lib/types';
 
 // 학과 — 지금은 4개 모두 같은 틀. 실제 학과별 내용으로 하나씩 교체
 export const departments: Department[] = [1, 2, 3, 4].map((n) => ({
@@ -22,12 +22,3 @@ export const departments: Department[] = [1, 2, 3, 4].map((n) => ({
   phone: '02-0000-0000',
   url: '#',
 }));
-
-export const org: OrgUnit[] = [
-  { name: '회장단', desc: '학생회 운영 총괄' },
-  { name: '교육부', desc: '취업 길라잡이, 오픈랩, 학술제 등 학업 지원 사업' },
-  { name: '복지부', desc: '검정비 페이백, 제휴, 간식 행사' },
-  { name: '기획부', desc: '행사 기획 및 운영' },
-  { name: '홍보부', desc: 'SNS·웹사이트 운영, 디자인' },
-  { name: '사무국', desc: '회의록·회계·서류 관리' },
-];
