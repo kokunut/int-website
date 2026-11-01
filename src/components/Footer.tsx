@@ -8,7 +8,7 @@ export default function Footer({ links }: { links: SiteLinks }) {
       <div className="container foot-inner">
         <div>
           <div className="logo-mark">int</div>
-          <p style={{ marginTop: 8 }}>세종대학교 인공지능융합대학 학생회 인트</p>
+          <p className="mt-8">세종대학교 인공지능융합대학 학생회 인트</p>
         </div>
         <div className="foot-info" id="foot-info">
           <p>

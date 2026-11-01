@@ -391,3 +391,19 @@ a.ev:hover p{color:var(--text);text-decoration:underline;text-underline-offset:3
 
 /* 모바일 메뉴가 열려 있으면 FAB 숨김 (메뉴 항목 가림 방지) */
 body:has(.gnb.open) .fab{display:none}
+
+/* ---------- 비활성(자리표시자) 버튼 ---------- */
+.btn[aria-disabled="true"]{opacity:.35;cursor:default;pointer-events:none}
+.slide-link{display:block;height:100%}
+
+/* ---------- 유틸리티 (인라인 style 대체) ---------- */
+.mt-24{margin-top:24px}
+.mt-28{margin-top:28px}
+.mt-56{margin-top:56px}
+.ml-auto{margin-left:auto}
+.text-2{color:var(--text-2)}
+.d-media-poster{aspect-ratio:3/2}
+.hero-img{min-height:240px}
+.hero-title{margin-top:12px;font-size:24px}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.mt-8{margin-top:8px}
