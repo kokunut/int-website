@@ -35,7 +35,7 @@ export default async function DepartmentDetailPage({ params }: Props) {
       </Link>
       <div className="detail">
         <div>
-          <p className="crumb">인공지능융합대학</p>
+          <p className="crumb">인공지능융합대학{d.college ? ` · ${d.college}` : ''}</p>
           <h1 className="d-title">{d.name}</h1>
           <p className="d-lead">{d.intro}</p>
           <div className="placeholder d-media ratio-16-7">학과 대표 사진 자리</div>
@@ -48,7 +48,7 @@ export default async function DepartmentDetailPage({ params }: Props) {
               </div>
             </DetailSection>
           )}
-          {d.curriculum.length > 0 && (
+          {d.curriculum && d.curriculum.length > 0 && (
             <DetailSection title="학년별 주요 교과">
               <div className="curri">
                 {d.curriculum.map((c) => (
@@ -64,7 +64,7 @@ export default async function DepartmentDetailPage({ params }: Props) {
               </div>
             </DetailSection>
           )}
-          {d.careers.length > 0 && (
+          {d.careers && d.careers.length > 0 && (
             <DetailSection title="졸업 후 진로">
               <div className="tags">
                 {d.careers.map((c) => (
@@ -81,12 +81,19 @@ export default async function DepartmentDetailPage({ params }: Props) {
             <dd>{d.office}</dd>
             <dt>전화</dt>
             <dd>{d.phone}</dd>
-            <dt>대표 과목</dt>
-            <dd>{d.subjects.join(', ')}</dd>
+            {d.subjects && d.subjects.length > 0 && (
+              <>
+                <dt>대표 과목</dt>
+                <dd>{d.subjects.join(', ')}</dd>
+              </>
+            )}
           </dl>
           <AppLink className="btn" href={d.url}>
             학과 홈페이지 ↗
           </AppLink>
+          <p className="note mt-8">
+            출처: <AppLink href={d.source}>세종대학교 홈페이지</AppLink>
+          </p>
         </aside>
       </div>
       <Pager prev={departments[i - 1] && toItem(departments[i - 1])} next={departments[i + 1] && toItem(departments[i + 1])} />
