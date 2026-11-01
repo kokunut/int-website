@@ -114,7 +114,7 @@ export default function ContestPopup({ contests }: { contests: PopupContest[] })
             접수 {full(c.start)} ~ {full(c.end)}
           </p>
           <Link className="btn" href={`/contest/${c.id}`} onClick={close}>
-            자세히 보기
+            자세히 보기<span className="sr-only"> · {c.title}</span>
           </Link>
         </div>
         <div className="modal-foot">

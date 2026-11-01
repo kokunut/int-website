@@ -36,7 +36,7 @@ export default async function HomePage() {
           <div className="sec-head">
             <h2>검정비 페이백 현황</h2>
             <Link className="more" href="/payback">
-              자세히 →
+              자세히 →<span className="sr-only"> · 검정비 페이백 현황</span>
             </Link>
           </div>
           <PaybackCard payback={payback} formUrl={links.paybackForm} />

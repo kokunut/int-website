@@ -7,6 +7,7 @@ import KakaoFab from '@/components/KakaoFab';
 import { getContests, getSiteLinks } from '@/lib/data';
 import { buildNav } from '@/lib/nav';
 import { getSiteUrl } from '@/lib/site';
+import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import './globals.css';
 
 const SITE_TITLE = '인트 | 인공지능융합대학 학생회';
@@ -26,12 +27,6 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     .map(({ id, title, desc, start, end, popup }) => ({ id, title, desc, start, end, popup }));
   return (
     <html lang="ko">
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
-        />
-      </head>
       <body>
         <a className="skip-link" href="#app">
           본문 바로가기
