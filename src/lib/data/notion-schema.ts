@@ -20,6 +20,8 @@ export interface PropSpec {
   required: boolean;
   example: string;
   note?: string;
+  /** select 속성의 선택지 (DB 자동 생성 시 미리 만든다) */
+  options?: string[];
 }
 
 export const P_PUBLIC = '공개';
@@ -130,13 +132,24 @@ export interface DbSpec {
   bodyNote?: string;
 }
 
-const t = (name: string, type: NotionPropType, required: boolean, example: string, note?: string): PropSpec => ({
+const t = (
+  name: string,
+  type: NotionPropType,
+  required: boolean,
+  example: string,
+  note?: string,
+  options?: string[],
+): PropSpec => ({
   name,
   type,
   required,
   example,
   note,
+  ...(options ? { options } : {}),
 });
+
+/** 제휴 분류 선택지 (목 데이터의 분류) */
+export const PARTNER_CATEGORIES = ['식당', '카페', '생활'];
 
 /** 매뉴얼 표 생성용 스키마 (위 상수와 동일한 이름을 사용) */
 export const DB_SPECS: DbSpec[] = [
@@ -148,7 +161,7 @@ export const DB_SPECS: DbSpec[] = [
     props: [
       t(NOTICE.title, 'title', true, '2026 학술제 참가팀 모집'),
       t(NOTICE.no, 'number', true, '6', '겹치지 않는 양의 정수. 주소(/notice/6)에 쓰입니다'),
-      t(NOTICE.type, 'select', true, '행사', '일반 또는 행사'),
+      t(NOTICE.type, 'select', true, '행사', '일반 또는 행사', [...NOTICE_TYPES]),
       t(NOTICE.date, 'date', true, '2026-10-26', '게시일'),
       t(NOTICE.event, 'date', false, '2026-11-03 → 2026-11-14', '캘린더에도 표시할 때만. 하루면 시작일만'),
       pub,
@@ -184,7 +197,7 @@ export const DB_SPECS: DbSpec[] = [
     props: [
       t(PARTNER.name, 'title', true, 'OO식당'),
       t(PARTNER.slug, 'rich_text', true, 'oo-restaurant', '영문 소문자·숫자·하이픈만'),
-      t(PARTNER.cat, 'select', true, '식당', '식당/카페/생활 등 필터에 쓰임'),
+      t(PARTNER.cat, 'select', true, '식당', '식당/카페/생활 등 필터에 쓰임', PARTNER_CATEGORIES),
       t(PARTNER.benefit, 'rich_text', true, '학생증 제시 시 10% 할인'),
       t(PARTNER.place, 'rich_text', true, '정문 앞'),
       t(PARTNER.hours, 'rich_text', false, '11:00 ~ 21:00'),
@@ -215,7 +228,7 @@ export const DB_SPECS: DbSpec[] = [
     props: [
       t(DOC.title, 'title', true, '10월 정기 회의록'),
       t(DOC.slug, 'rich_text', true, 'm-2026-10', '영문 소문자·숫자·하이픈만. 같은 분류 안에서 겹치면 안 됩니다'),
-      t(DOC.category, 'select', true, '회의록', Object.keys(DOC_CATEGORY_LABELS).join(' / ')),
+      t(DOC.category, 'select', true, '회의록', Object.keys(DOC_CATEGORY_LABELS).join(' / '), Object.keys(DOC_CATEGORY_LABELS)),
       t(DOC.date, 'date', true, '2026-10-08'),
       t(DOC.by, 'rich_text', false, '사무부'),
       t(DOC.summary, 'rich_text', false, '안건 1: 학술제 일정 확정', '한 줄에 하나'),
