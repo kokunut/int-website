@@ -44,4 +44,4 @@ PR 전에는 `lint`, `typecheck`, `test`, `build` 가 모두 통과해야 한다
 | 설계·리뷰·머지 | Claude Opus 5.5 |
 | 코딩·리뷰 반영 | Claude Sonnet 5.5 |
 
-Claude GitHub App이 설치되면 코드는 이슈/PR 코멘트의 `@claude` 호출로 작성하고, Claude Code는 지시·리뷰·머지만 한다. ([02-workflow.md](docs/brain/02-workflow.md) 참고)
+Claude GitHub App이 **설치되어 있다**. 코드는 이슈/PR 코멘트의 `@claude` 호출로 작성하고, Claude Code는 지시·리뷰·머지만 한다. ([02-workflow.md](docs/brain/02-workflow.md) 참고)
