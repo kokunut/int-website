@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import { getAboutPage, getOrg } from '@/lib/data';
+import { getAboutPage, getCouncilSummary, getOrg } from '@/lib/data';
 
 export const revalidate = 600;
 
 export const metadata: Metadata = { title: '학생회 소개' };
 
 export default async function AboutPage() {
-  const [page, org] = await Promise.all([getAboutPage(), getOrg()]);
+  const [page, org, summary] = await Promise.all([getAboutPage(), getOrg(), getCouncilSummary()]);
   return (
     <section className="container page">
       <div className="page-head">
@@ -38,16 +38,40 @@ export default async function AboutPage() {
         <div className="sec-head">
           <h2 id="org-title">조직도</h2>
         </div>
-        <div className="org">
+        <div className="org org-grid">
           {org.map((u) => (
-            <div key={u.name} className="card box">
+            <a key={u.id} href={`#unit-${u.id}`} className="card box org-link">
               <h3>{u.name}</h3>
               <p>{u.desc}</p>
-            </div>
+              <p className="org-count">{u.members.length}명</p>
+            </a>
           ))}
         </div>
       </section>
-      {/* TODO(후속 이슈): 집행부 명단(직책·이름) 구획을 이 자리(조직도 아래)에 추가한다. 지금은 초안과 동일하게 조직도까지만 표시 */}
+      <section className="section mt-56" aria-labelledby="roster-title">
+        <div className="sec-head">
+          <h2 id="roster-title">집행부</h2>
+          <p className="text-1">총 {summary.total}명</p>
+        </div>
+        <div className="roster">
+          {org.map((u) => (
+            <article key={u.id} id={`unit-${u.id}`} className="card box roster-card" aria-labelledby={`roster-${u.id}`}>
+              <h3 id={`roster-${u.id}`}>{u.name}</h3>
+              <p>{u.desc}</p>
+              <ul className="roster-list">
+                {u.members.map((m) => (
+                  <li key={m.name} className="roster-item">
+                    <span className="roster-name">{m.name}</span>
+                    {m.major && <span className="roster-major">{m.major}</span>}
+                    {m.role && <span className="badge">{m.role}</span>}
+                    {m.lead && <span className="badge solid">부장</span>}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+      </section>
     </section>
   );
 }

@@ -6,7 +6,7 @@ export const aboutPage: AboutPage = {
   desc: '세종대학교 인공지능융합대학 학생회 인트를 소개합니다.',
   greetingTitle: '인사말',
   greeting: ['학생회장 인사말이 들어갈 자리입니다. 올해 학생회의 방향과 약속을 적어주세요.'],
-  signer: '학생회장 OOO',
+  signer: '학생회장 박상현',
   // photo: { src: '', alt: '' },
 };
 

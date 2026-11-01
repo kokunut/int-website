@@ -430,3 +430,24 @@ body:has(.gnb.open) .fab{display:none}
 .doc-viewer-frame{display:block;margin-top:32px;aspect-ratio:1/1.414;max-height:900px;width:100%;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
 .about-photo-wrap{overflow:hidden;min-height:220px}
 .about-photo-img{display:block;width:100%;height:100%;object-fit:cover}
+
+/* 집행부 명단 */
+.org-count{font-size:13px;font-weight:700;color:var(--text-2)}
+.roster{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.roster-card{padding:22px}
+.roster-card h3{font-size:17px}
+.roster-card>p{font-size:14px}
+.roster-list{list-style:none;margin:14px 0 0;padding:0;border-top:1px solid var(--line)}
+.roster-item{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
+.roster-item:last-child{border-bottom:0}
+.roster-name{font-weight:800}
+.roster-major{font-size:13px;color:var(--text-2)}
+.roster-item .badge{margin-left:auto;font-size:11px;padding:2px 7px}
+@media (max-width:960px){.roster{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.roster{grid-template-columns:1fr}}
+.org.org-grid{grid-template-columns:repeat(3,1fr)}
+@media (max-width:560px){.org.org-grid{grid-template-columns:repeat(2,1fr);gap:10px}.org.org-grid .box{padding:16px}}
+.org-link{display:block;transition:background .15s}
+.org-link:hover{background:var(--surface)}
+.org-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.roster-card{scroll-margin-top:84px}

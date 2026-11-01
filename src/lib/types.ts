@@ -112,9 +112,21 @@ export interface Department {
   url: string;
 }
 
+export interface Member {
+  name: string;
+  /** 학과·전공 약칭 (원문 그대로). 모르면 생략 */
+  major?: string;
+  /** 직책 (회장단 등) */
+  role?: string;
+  /** 부장 여부 */
+  lead?: boolean;
+}
+
 export interface OrgUnit {
+  id: string;
   name: string;
   desc: string;
+  members: Member[];
 }
 
 export interface Partner {
