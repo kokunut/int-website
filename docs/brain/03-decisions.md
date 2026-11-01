@@ -51,3 +51,8 @@
 - 2026-11-01 · 채택
 - 결정: 메인 팝업은 서버(`page.tsx`, `todayKST()` 기준)에서 후보를 골라 초기 HTML에 포함한다. "보지 않기"는 팝업 앞의 인라인 스크립트(`popupHideScript`)가 `localStorage`와 KST 오늘 날짜를 비교해 `<html data-popup-hidden>`을 표시하고, CSS(`html[data-popup-hidden] .modal{display:none}`)가 첫 페인트 전에 숨긴다. 클라이언트 컴포넌트는 하이드레이션 후 기존 로직으로 재판정하며(ADR-006) 서버와 다르면 클라이언트가 우선한다. 초기 상태는 localStorage를 쓰지 않아 하이드레이션 경고가 없다. `requestIdleCallback` 지연은 제거.
 - 이유: 마운트 후에 그리면 팝업 본문이 LCP가 되어 늦어지고, 유휴 지연은 오히려 더 늦춤. 스크립트의 규칙은 `isSuppressed`와 같으며 단위 테스트로 고정.
+
+## ADR-011 방문 통계: Vercel Analytics·Speed Insights, 운영 배포에서만 렌더
+- 2026-11-01 · 채택
+- 결정: `@vercel/analytics`, `@vercel/speed-insights`를 쓰고 `layout.tsx`(서버 컴포넌트)에서 `isVercelProduction()`(`process.env.VERCEL_ENV === "production"`)일 때만 `<Analytics />`, `<SpeedInsights />`를 렌더한다. 커스텀 이벤트(`popup_detail`, `payback_apply`, `kakao_fab`)는 `src/lib/analytics.ts`의 `EVENTS`로 상수화하고, 클라이언트에서는 `next.config.ts`가 주입한 `NEXT_PUBLIC_ANALYTICS`가 `1`일 때만 전송한다(그 외 no-op). `track`은 이벤트 발생 시 동적 import 해 초기 JS에 포함하지 않는다.
+- 이유: 무료이고 쿠키·개인 식별 정보가 없다. 미리보기(Preview) 배포도 `VERCEL=1`이라 집행부·리뷰어 트래픽이 섞이므로 운영(Production)만 집계한다. Vercel 밖(로컬 `next start`, CI)에서는 `/_vercel/insights/script.js`가 404여서 E2E 콘솔 에러 검사와 Lighthouse 권장사항이 실패한다. 한계: 커스텀 이벤트는 유료 플랜 기능일 수 있어 무료 플랜에서는 페이지뷰만 보일 수 있음(확인 필요).

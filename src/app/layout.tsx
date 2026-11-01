@@ -1,3 +1,5 @@
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Footer from '@/components/Footer';
@@ -5,7 +7,7 @@ import Header from '@/components/Header';
 import KakaoFab from '@/components/KakaoFab';
 import { getSiteLinks } from '@/lib/data';
 import { buildNav } from '@/lib/nav';
-import { getSiteUrl } from '@/lib/site';
+import { getSiteUrl, isVercelProduction } from '@/lib/site';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import './globals.css';
 
@@ -31,6 +33,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <main id="app" tabIndex={-1}>{children}</main>
         <Footer links={links} />
         <KakaoFab href={links.kakao} />
+        {isVercelProduction() && (
+          <>
+            <Analytics />
+            <SpeedInsights />
+          </>
+        )}
       </body>
     </html>
   );

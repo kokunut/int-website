@@ -87,6 +87,7 @@
 
 - [ ] Vercel 프로젝트 연결과 도메인
 - [ ] 노션 통합(연동용 계정 같은 것) 만들기, 노션 DB 7개 구성, 구글 시트 `요약` 탭 웹 게시, 캘린더 iCal 주소를 Vercel 환경변수에 등록
+- [ ] Vercel에서 **Analytics**와 **Speed Insights** 켜기 (방문 통계)
 - [ ] **실제 링크** 확정: 카카오 채널, 인스타그램, 구글폼(페이백 신청·건의함)
 - [ ] **학생회실 주소** 확정 (지금은 `OO관 OOO호` 자리표시)
 - [ ] 학과 약어 정식 명칭과 집행부 명단(직책, 총원) 확인
@@ -116,6 +117,20 @@
 
 - **안 떠요**: 노션 공모전 행에 `팝업` 체크가 있고, 오늘이 접수 기간 안이며, `공개`가 체크되어 있어야 해요. 방문자가 "오늘 하루/일주일간 보지 않기"를 눌렀다면 그 기간엔 뜨지 않습니다.
 - **계속 떠요**: 접수 기간이 끝날 때까지는 정상이에요. 팝업을 끄고 싶으면 `팝업` 체크를 풀거나 `공개`를 해제하세요.
+</details>
+
+<details>
+<summary><b>`dependencies` 라벨이 붙은 PR이 계속 올라와요</b></summary>
+
+사이트가 쓰는 부품(라이브러리)의 새 버전을 알려 주는 자동 업데이트 PR이에요. 모든 검사에 초록 체크가 떠 있으면 머지해도 됩니다. 빨간 표시가 있으면 개발자에게 알려 주세요.
+</details>
+
+<details>
+<summary><b>방문자 수를 보고 싶어요</b></summary>
+
+Vercel 프로젝트의 **Analytics** 탭(어떤 메뉴를 많이 보는지)과 **Speed Insights** 탭(실제 방문자 기준 속도)에서 볼 수 있어요. 처음 한 번 각 탭에서 **Enable**을 눌러야 합니다. 자세한 방법은 [`docs/brain/06-content-ops.md`](docs/brain/06-content-ops.md)의 "방문 통계 보기"를 보세요.
+
+개인정보: **쿠키를 쓰지 않고 개인을 알아볼 수 있는 정보도 모으지 않습니다.**
 </details>
 
 <details>
@@ -152,6 +167,8 @@ npm run screenshots    # README용 화면 캡처 (서버를 먼저 띄운 뒤 �
 E2E는 처음 한 번 `npx playwright install chromium`으로 브라우저를 설치한 뒤 `npm run test:e2e`로 실행합니다.
 
 PR 전에는 `lint`, `typecheck`, `test`, `build`가 모두 통과해야 합니다. 화면 캡처는 `npm run build && npx next start -p 3000`으로 서버를 띄운 뒤 다른 터미널에서 `npm run screenshots`를 실행하면 `docs/images/`에 저장됩니다. (Playwright가 설치되어 있어야 하고, 주소는 `BASE_URL`로 바꿀 수 있어요.)
+
+의존성은 Dependabot이 매주 월요일 PR로 올립니다(`.github/dependabot.yml`). 처리 절차는 [`02-workflow.md`](docs/brain/02-workflow.md)를 보세요.
 
 작업 규칙은 [`AGENTS.md`](AGENTS.md)와 [`docs/brain/`](docs/brain/README.md)(프로젝트 세컨브레인)에 있습니다. 작업 전에 꼭 읽어 주세요.
 

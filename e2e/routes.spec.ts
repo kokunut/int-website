@@ -30,3 +30,29 @@ test('첫 Tab 은 본문 바로가기 링크에 포커스된다', async ({ page 
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/#app$/);
 });
+
+test('Vercel 밖에서는 /_vercel/ 요청이 한 건도 없다', async ({ page }) => {
+  const paths: string[] = [];
+  page.on('request', (r) => paths.push(new URL(r.url()).pathname));
+  for (const path of ['/', '/about']) {
+    await page.goto(path);
+    await page.waitForLoadState('networkidle');
+  }
+  expect(paths.filter((p) => p.startsWith('/_vercel/'))).toEqual([]);
+});
+
+test('카카오톡 FAB 클릭은 새 탭을 열고 콘솔 에러·통계 요청이 없다', async ({ page, context, errors }) => {
+  await page.goto('/');
+  const fab = page.getByRole('link', { name: '카카오톡으로 문의하기' });
+  const href = await fab.getAttribute('href');
+  // 외부 사이트 접속 없이 새 탭만 확인한다.
+  await context.route(href!, (route) => route.fulfill({ status: 200, body: '', contentType: 'text/html' }));
+  const vercelRequests: string[] = [];
+  context.on('request', (r) => {
+    if (new URL(r.url()).pathname.startsWith('/_vercel/')) vercelRequests.push(r.url());
+  });
+  const [popup] = await Promise.all([context.waitForEvent('page'), fab.click()]);
+  await popup.close();
+  expect(vercelRequests).toEqual([]);
+  expect(errors).toEqual([]);
+});
