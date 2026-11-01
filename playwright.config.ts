@@ -19,8 +19,10 @@ export default defineConfig({
     { name: 'mobile', use: { ...devices['Pixel 7'] } },
   ],
   webServer: {
-    // CI 에서 앞 단계 빌드를 재사용하려면 `npm run start -- -p 3100` 만 실행하도록 바꿔도 된다.
-    command: `npm run build && npm run start -- -p ${PORT}`,
+    // CI 는 앞 단계에서 이미 빌드하므로 서버만 띄운다.
+    command: process.env.CI
+      ? `npm run start -- -p ${PORT}`
+      : `npm run build && npm run start -- -p ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,
