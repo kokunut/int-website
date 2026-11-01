@@ -1,7 +1,7 @@
 # 05. 작업 현황판
 
 ## 환경
-- Claude GitHub App: **미설치** (`.github/workflows/claude.yml` 없음) → Claude Code가 직접 코딩
+- Claude GitHub App: **설치됨** (2026-11-01, `.github/workflows/claude.yml`, 시크릿 `CLAUDE_CODE_OAUTH_TOKEN`) → 이후 코드는 이슈/PR 코멘트의 `@claude`로 작성, Claude Code는 지시·리뷰·머지만
 - 배포: 미배포 (Vercel 연결 필요 — 저장소 소유자 작업)
 
 ## 진행 중 (1개만)
@@ -15,7 +15,6 @@
 - [ ] 노션 통합 생성·DB 7개 구성, 구글 시트 요약 탭 웹 게시, 캘린더 iCal 주소 → Vercel 환경변수 등록 (`06-content-ops.md`, `npm run content:check`로 점검)
 - [ ] 실제 링크(카카오 채널, 인스타그램, 구글폼) 및 학생회실 주소 확정
 - [ ] 학과 약어 정식 명칭, 집행부 명단 가정(정후보→회장, 총원 26 vs 25) 확인 (`04-glossary.md`)
-- [ ] (선택) Claude GitHub App 설치
 
 ## 작업 로그
 | 날짜 | 이슈 | PR | 요약 |
@@ -26,4 +25,5 @@
 | 2026-11-01 | #7 | #8 | 소개·학과·페이백·제휴·건의함·자료실(구글 드라이브/문서 미리보기·다운로드)·FAQ, sitemap/robots/OG. 페이지 문구는 `src/content/pages.ts`로 분리 |
 | 2026-11-01 | #9 | #10 | 집행부 명단 25명·6개 부서 반영, /about 조직도↔명단 앵커, 사무국→사무부 |
 | 2026-11-01 | #11 | #12 | 노션(공지·공모전·제휴·FAQ·자료·배너·건의)·iCal(학사일정)·게시 CSV(페이백) 연동, 소스별 목 폴백, `/api/revalidate`, `content:check`, 운영 매뉴얼 |
-| 2026-11-01 | #13 | (본 PR) | README 비개발자용 개편, 화면 캡처 8장·`npm run screenshots`, 캘린더 오늘 표시·모바일 배너 링크 정렬 CSS 수정 |
+| 2026-11-01 | #13 | #14 | README 비개발자용 개편, 화면 캡처 8장·`npm run screenshots`, 캘린더 오늘 표시·모바일 배너 링크 정렬 CSS 수정 |
+| 2026-11-01 | #15 | (본 PR) | 잘린 `claude.yml` 복구(액션·모델·Node 설정), App 설치 반영 |
