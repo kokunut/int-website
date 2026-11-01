@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { EVENTS, trackEvent } from '@/lib/analytics';
 import { dday, full, todayKST } from '@/lib/date';
 import { isSuppressed, pickPopupContest, popupStorageKey, suppressUntil, type PopupContest } from '@/lib/popup';
 
@@ -122,7 +123,14 @@ export default function ContestPopup({ contests, serverToday }: { contests: Popu
           <p className="note">
             접수 {full(c.start)} ~ {full(c.end)}
           </p>
-          <Link className="btn" href={`/contest/${c.id}`} onClick={close}>
+          <Link
+            className="btn"
+            href={`/contest/${c.id}`}
+            onClick={() => {
+              trackEvent(EVENTS.popupDetail);
+              close();
+            }}
+          >
             자세히 보기<span className="sr-only"> · {c.title}</span>
           </Link>
         </div>
