@@ -153,6 +153,8 @@ E2E는 처음 한 번 `npx playwright install chromium`으로 브라우저를 �
 
 PR 전에는 `lint`, `typecheck`, `test`, `build`가 모두 통과해야 합니다. 화면 캡처는 `npm run build && npx next start -p 3000`으로 서버를 띄운 뒤 다른 터미널에서 `npm run screenshots`를 실행하면 `docs/images/`에 저장됩니다. (Playwright가 설치되어 있어야 하고, 주소는 `BASE_URL`로 바꿀 수 있어요.)
 
+의존성은 Dependabot이 매주 월요일 PR로 올립니다(`.github/dependabot.yml`). 처리 절차는 [`02-workflow.md`](docs/brain/02-workflow.md)를 보세요.
+
 작업 규칙은 [`AGENTS.md`](AGENTS.md)와 [`docs/brain/`](docs/brain/README.md)(프로젝트 세컨브레인)에 있습니다. 작업 전에 꼭 읽어 주세요.
 
 ```text
