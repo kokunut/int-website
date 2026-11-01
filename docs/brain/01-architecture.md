@@ -19,6 +19,7 @@ src/
     about/ departments/[id]/ notice/[id]/ calendar/ contest/[id]/
     payback/ partners/[id]/ suggest/ docs/[category]/[id]/ faq/
     not-found.tsx
+    api/revalidate/       # POST 즉시 갱신 (x-revalidate-secret)
   components/             # UI 컴포넌트 (클라이언트 컴포넌트는 'use client')
   content/                # 목(mock) 데이터 = 초안의 DATA 객체. 연동 전 기본값/폴백
   lib/
@@ -27,7 +28,9 @@ src/
     events.ts             # 캘린더 이벤트 생성 (학사일정 + 공지 event + 공모전 마감)
     data/                 # 데이터 레이어: 페이지는 여기 함수만 호출
       index.ts            # getNotices(), getContests() ... (소스 선택 + 폴백)
-      notion.ts sheets.ts gcal.ts   # 외부 연동 어댑터 (#6에서 구현)
+      notion-schema.ts    # 노션 속성 이름 상수 + 매뉴얼용 스키마
+      notion.ts           # 노션 API(fetch) / notion-map.ts 행 -> 도메인 타입 변환(순수)
+      ics.ts csv.ts       # 학사일정 iCal 파서 / 페이백 CSV 파서·매핑 (remote.ts 가 가져옴)
 docs/brain/               # 세컨브레인
 public/                   # 정적 파일 (로고, 이미지)
 ```
@@ -49,14 +52,17 @@ public/                   # 정적 파일 (로고, 이미지)
 
 ## 데이터 흐름
 ```
-노션 DB ─┐
-구글 시트 ─┼─> src/lib/data/*.ts (서버, ISR 10분) ─> 페이지(서버 컴포넌트) ─> 클라이언트 컴포넌트(props)
-구글 캘린더┘        │ 환경변수 없거나 실패 시
-                    └─> src/content/* 목 데이터 폴백
+노션 DB(7개) ──────┐  fetch + Notion-Version 고정
+구글 캘린더 iCal ──┼─> src/lib/data/*.ts (서버, fetch 캐시 10분, 태그 'notion') ─> 페이지(서버 컴포넌트) ─> 클라이언트 컴포넌트(props)
+구글 시트 CSV(요약탭)┘        │ 환경변수 없거나 실패 시
+                              └─> src/content/* 목 데이터 폴백 (소스별로 독립)
 ```
 - 페이지는 **반드시 `src/lib/data` 함수만** 사용한다. `src/content`를 직접 import 하지 않는다.
-- 모든 데이터 함수는 `async`. 외부 소스 실패 시 콘솔 경고 후 목 데이터 반환(사이트가 죽지 않게).
-- `export const revalidate = 600` (10분). 노션 이미지 URL은 약 1시간 후 만료되므로 이 주기보다 길게 잡지 않는다.
+- 소스별 규칙: 환경변수 없음 -> 목 데이터 / 있음 -> 원격 호출, 실패 시 `console.warn('[data] <소스> 실패, 목 데이터 사용')` 후 목 데이터. 원격이 성공한 빈 목록은 그대로 사용.
+- 노션 행은 `notion-map.ts` 의 순수 함수로 변환하고, 잘못된 행은 경고 후 건너뛴다. 각 로더는 React `cache()` 로 요청 내 중복 호출을 합친다.
+- 학과·학생회 조직·페이지 문구·사이트 링크는 코드(`src/content`) 그대로.
+- 운영 방법(속성표, 설정 절차)은 [06-content-ops.md](06-content-ops.md).
+- 모든 원격 fetch 는 `next: { revalidate: 600, tags: ['notion'] }`. `POST /api/revalidate` 가 이 태그와 레이아웃 경로를 무효화한다. 노션 이미지 URL은 약 1시간 후 만료되므로 이 주기보다 길게 잡지 않는다.
 - API 키는 서버 전용 환경변수(`NEXT_PUBLIC_` 접두사 금지).
 
 ## 날짜 규칙

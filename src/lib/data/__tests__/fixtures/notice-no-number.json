@@ -1,0 +1,34 @@
+{
+  "id": "n2",
+  "properties": {
+    "제목": {
+      "type": "title",
+      "title": [
+        {
+          "plain_text": "번호 없음"
+        }
+      ]
+    },
+    "번호": {
+      "type": "number",
+      "number": null
+    },
+    "유형": {
+      "type": "select",
+      "select": {
+        "name": "일반"
+      }
+    },
+    "날짜": {
+      "type": "date",
+      "date": {
+        "start": "2026-10-26",
+        "end": null
+      }
+    },
+    "공개": {
+      "type": "checkbox",
+      "checkbox": true
+    }
+  }
+}
