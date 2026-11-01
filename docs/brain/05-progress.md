@@ -27,3 +27,6 @@
 | 2026-11-01 | #11 | #12 | 노션(공지·공모전·제휴·FAQ·자료·배너·건의)·iCal(학사일정)·게시 CSV(페이백) 연동, 소스별 목 폴백, `/api/revalidate`, `content:check`, 운영 매뉴얼 |
 | 2026-11-01 | #13 | #14 | README 비개발자용 개편, 화면 캡처 8장·`npm run screenshots`, 캘린더 오늘 표시·모바일 배너 링크 정렬 CSS 수정 |
 | 2026-11-01 | #15 | (본 PR) | 잘린 `claude.yml` 복구(액션·모델·Node 설정), App 설치 반영 |
+| 2026-11-01 | #17 | (본 PR) | `npm run notion:setup`: 노션 DB 7개 자동 생성(멱등·`--dry-run`·`--seed`·`--write-env`), select 옵션 스키마화, 왕복 테스트 |
+| 2026-11-01 | #19 | (본 PR) | 소속 학과 14곳·대학 주소·학과 약어를 웹 조사로 반영(`(확인 필요)` 표기·출처 링크), 비는 섹션 숨김, 명단 약어 `title`, `07-content-research.md` 추가 |
+| 2026-11-01 | #21 | (본 PR) | Playwright E2E(`npm run test:e2e`): 라우트·내비·팝업·캘린더·제휴/FAQ·404·스킵링크. CI e2e job은 `ci.yml`을 사람이 추가해야 함 |

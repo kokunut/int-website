@@ -7,6 +7,7 @@
 | 스타일 | 일반 CSS (`src/app/globals.css`) + CSS 변수 | 초안 CSS를 그대로 옮겨 디자인 손실 최소화 |
 | 폰트 | Pretendard (CDN) | 초안과 동일 |
 | 테스트 | Vitest | 날짜·캘린더·팝업 로직 단위 테스트 |
+| E2E 테스트 | Playwright | `e2e/` — 데스크톱(1280)·모바일(Pixel 7). 시계를 2026-11-01 12:00 KST로 고정, 외부 폰트 차단, 포트 3100. Vitest는 `e2e/**` 제외 |
 | 배포 | Vercel | 무료, ISR 지원 |
 | CI | GitHub Actions | lint·typecheck·test·build |
 

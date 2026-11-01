@@ -10,11 +10,11 @@ export const banners: Banner[] = [
     word: 'INT',
     slogan: '인공지능융합대학 학생회, 인트가 함께합니다.',
     placeLabel: 'PLACE',
-    place: '세종대학교 OO관 OOO호',
+    place: '서울특별시 광진구 능동로 209 세종대학교 (학생회실 호실 확인 필요)',
     links: [
-      { label: 'Instagram', value: '@인스타그램_아이디' },
-      { label: 'Kakaotalk', value: '@인트 학생회' },
-      { label: 'Email', value: 'int@example.com' },
+      { label: 'Instagram', value: '@인스타그램_아이디 (확인 필요)' },
+      { label: 'Kakaotalk', value: '@인트 학생회 (확인 필요)' },
+      { label: 'Email', value: 'int@example.com (확인 필요)' },
     ],
   },
   {
