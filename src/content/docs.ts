@@ -1,12 +1,5 @@
 import type { DocCategory, DocItem } from '@/lib/types';
 
-export const DOC_TABS: Record<DocCategory, string> = {
-  rules: '회칙',
-  minutes: '회의록',
-  plans: '활동계획서·결산',
-  forms: '서식',
-};
-
 // 자료실 — 실제 연동 시 file: 구글 드라이브 공유 링크(미리보기는 /preview 임베드)
 export const docs: Record<DocCategory, DocItem[]> = {
   rules: [

@@ -12,11 +12,14 @@ import { departments, org } from '@/content/departments';
 import { docs } from '@/content/docs';
 import { faq, suggestAnswers } from '@/content/faq';
 import { notices } from '@/content/notices';
+import { aboutPage, departmentsPage, faqPage, partnersPage, paybackPage, suggestPage } from '@/content/pages';
 import { PARTNER_DEFAULT, partners } from '@/content/partners';
 import { payback } from '@/content/payback';
 import { siteLinks } from '@/content/site';
 import { buildEvents } from '../events';
 import type {
+  AboutPage,
+  DepartmentsPage,
   AcademicEvent,
   Banner,
   CalendarEvent,
@@ -25,9 +28,13 @@ import type {
   DocCategory,
   DocItem,
   FaqItem,
+  FaqPage,
   Notice,
   OrgUnit,
   Partner,
+  PartnersPage,
+  PaybackPage,
+  SuggestPage,
   ResolvedPartner,
   Payback,
   SiteLinks,
@@ -112,4 +119,24 @@ export async function getSuggestAnswers(): Promise<SuggestAnswer[]> {
 /** 학사일정 + 공지 행사 + 공모전 마감을 합친 캘린더 이벤트 */
 export async function getCalendarEvents(): Promise<CalendarEvent[]> {
   return buildEvents({ academic, notices, contests });
+}
+
+/** 페이지별 편집 문구 */
+export async function getAboutPage(): Promise<AboutPage> {
+  return aboutPage;
+}
+export async function getDepartmentsPage(): Promise<DepartmentsPage> {
+  return departmentsPage;
+}
+export async function getPaybackPage(): Promise<PaybackPage> {
+  return paybackPage;
+}
+export async function getSuggestPage(): Promise<SuggestPage> {
+  return suggestPage;
+}
+export async function getPartnersPage(): Promise<PartnersPage> {
+  return partnersPage;
+}
+export async function getFaqPage(): Promise<FaqPage> {
+  return faqPage;
 }
