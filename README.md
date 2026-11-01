@@ -144,9 +144,12 @@ npm run lint           # ESLint
 npm run typecheck      # TypeScript 검사
 npm test               # 단위 테스트 (Vitest)
 npm run build          # 프로덕션 빌드
+npm run test:e2e       # E2E 테스트 (Playwright, 빌드·서버 자동 실행)
 npm run content:check  # 노션·구글 연동 점검 (.env.local 필요)
 npm run screenshots    # README용 화면 캡처 (서버를 먼저 띄운 뒤 실행)
 ```
+
+E2E는 처음 한 번 `npx playwright install chromium`으로 브라우저를 설치한 뒤 `npm run test:e2e`로 실행합니다.
 
 PR 전에는 `lint`, `typecheck`, `test`, `build`가 모두 통과해야 합니다. 화면 캡처는 `npm run build && npx next start -p 3000`으로 서버를 띄운 뒤 다른 터미널에서 `npm run screenshots`를 실행하면 `docs/images/`에 저장됩니다. (Playwright가 설치되어 있어야 하고, 주소는 `BASE_URL`로 바꿀 수 있어요.)
 
