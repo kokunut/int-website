@@ -1,6 +1,7 @@
 import { full, won } from '@/lib/date';
 import type { Payback } from '@/lib/types';
-import AppLink from './AppLink';
+import { EVENTS } from '@/lib/analytics';
+import TrackedLink from './TrackedLink';
 
 export default function PaybackCard({ payback: p, formUrl }: { payback: Payback; formUrl: string }) {
   const rate = p.budget > 0 ? Math.min(100, (p.paid / p.budget) * 100) : 0;
@@ -48,9 +49,9 @@ export default function PaybackCard({ payback: p, formUrl }: { payback: Payback;
         </div>
       </dl>
       <div className="pb-cta">
-        <AppLink className="btn" href={formUrl}>
+        <TrackedLink className="btn" href={formUrl} event={EVENTS.paybackApply}>
           신청하기 ↗
-        </AppLink>
+        </TrackedLink>
         <p className="note">{full(p.updatedAt)} 기준</p>
       </div>
     </div>

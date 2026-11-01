@@ -13,6 +13,11 @@ export function getSiteUrl(raw: string | undefined = process.env.NEXT_PUBLIC_SIT
   }
 }
 
+/** Vercel 빌드 여부. Vercel 밖(로컬 `next start`, CI)에서는 `/_vercel/insights/*` 가 404 라 통계 스크립트를 넣지 않는다. */
+export function isVercel(raw: string | undefined = process.env.VERCEL): boolean {
+  return raw === '1';
+}
+
 /** 경로를 절대 URL 로 (`/` -> 기준 URL + '/') */
 export function absoluteUrl(path: string, base: string = getSiteUrl()): string {
   return `${base}${path.startsWith('/') ? path : `/${path}`}`;

@@ -7,6 +7,7 @@ interface Props {
   children: ReactNode;
   'aria-label'?: string;
   title?: string;
+  onClick?: () => void;
 }
 
 const isExternal = (href: string): boolean => /^https?:\/\//.test(href);
