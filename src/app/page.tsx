@@ -9,6 +9,7 @@ import PaybackCard from '@/components/PaybackCard';
 import Link from 'next/link';
 import { getBanners, getCalendarEvents, getContests, getNotices, getPayback, getSiteLinks } from '@/lib/data';
 import { todayKST } from '@/lib/date';
+import { pickPopupContest, popupHideScript } from '@/lib/popup';
 
 export const revalidate = 600;
 
@@ -27,10 +28,12 @@ export default async function HomePage() {
   const popupContests = contests
     .filter((c) => c.popup)
     .map(({ id, title, desc, start, end, popup }) => ({ id, title, desc, start, end, popup }));
+  const serverPopup = pickPopupContest(popupContests, today);
 
   return (
     <div className="container">
-      <ContestPopup contests={popupContests} />
+      {serverPopup && <script dangerouslySetInnerHTML={{ __html: popupHideScript(serverPopup.id) }} />}
+      <ContestPopup contests={popupContests} serverToday={today} />
       <h1 className="sr-only">인트 · 인공지능융합대학 학생회</h1>
       <section id="banner" aria-label="배너">
         <BannerCarousel banners={banners} />

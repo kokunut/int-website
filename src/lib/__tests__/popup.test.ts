@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { addDays, isSuppressed, pickPopupContest, popupStorageKey, suppressUntil } from '../popup';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { addDays, popupHideScript,isSuppressed, pickPopupContest, popupStorageKey, suppressUntil } from '../popup';
 import type { PopupContest } from '../popup';
 
 const c = (id: string, start: string, end: string, popup = true): PopupContest => ({
@@ -62,5 +62,45 @@ describe('isSuppressed', () => {
 describe('popupStorageKey', () => {
   it('공모전 id 별 키', () => {
     expect(popupStorageKey('c1')).toBe('int_popup_hide_c1');
+  });
+});
+
+describe('popupHideScript', () => {
+  const run = (id: string, stored: string | null | 'throw', now: string) => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(now));
+    const doc = { documentElement: { dataset: {} as Record<string, string> } };
+    const storage = {
+      getItem: (k: string) => {
+        if (stored === 'throw') throw new Error('denied');
+        return k === `int_popup_hide_${id}` ? stored : null;
+      },
+    };
+    new Function('localStorage', 'document', popupHideScript(id))(storage, doc);
+    vi.useRealTimers();
+    return doc.documentElement.dataset.popupHidden;
+  };
+  afterEach(() => vi.useRealTimers());
+
+  it('만료일 이전(KST 기준)이면 data-popup-hidden 을 id 로 표시한다', () => {
+    expect(run('c1', '2026-11-02', '2026-11-01T14:59:00Z')).toBe('c1');
+  });
+  it('KST 자정이 지나면(UTC 15시) 표시하지 않는다', () => {
+    expect(run('c1', '2026-11-02', '2026-11-01T15:00:00Z')).toBeUndefined();
+  });
+  it('값이 없거나 형식이 틀리거나 저장소 접근이 막히면 표시하지 않는다', () => {
+    expect(run('c1', null, '2026-11-01T00:00:00Z')).toBeUndefined();
+    expect(run('c1', 'abc', '2026-11-01T00:00:00Z')).toBeUndefined();
+    expect(run('c1', 'throw', '2026-11-01T00:00:00Z')).toBeUndefined();
+  });
+  it('isSuppressed 와 같은 결과를 낸다', () => {
+    for (const stored of ['2026-11-01', '2026-11-02', '2026-10-31']) {
+      expect(run('c1', stored, '2026-11-01T03:00:00Z') === 'c1').toBe(isSuppressed(stored, '2026-11-01'));
+    }
+  });
+  it('id 의 태그 종료 문자가 이스케이프된다', () => {
+    const s = popupHideScript('a"</script>');
+    expect(s).not.toContain('</script>');
+    expect(s).toContain('\\u003c');
   });
 });

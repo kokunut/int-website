@@ -13,9 +13,23 @@ test('팝업 노출 → 오늘 하루 보지 않기 → 새로고침 시 미노�
   await dialog.getByRole('button', { name: '닫기' }).click();
   await expect(dialog).toBeHidden();
 
+  // 새로고침 중 팝업 요소가 한 번도 화면에 나타나지 않아야 한다 (첫 페인트 전 숨김)
+  await page.addInitScript(() => {
+    const w = window as unknown as { __popupSeen: boolean };
+    w.__popupSeen = false;
+    const check = () => {
+      const m = document.querySelector('.modal');
+      if (m && getComputedStyle(m).display !== 'none') w.__popupSeen = true;
+    };
+    new MutationObserver(check).observe(document, { childList: true, subtree: true, attributes: true });
+    document.addEventListener('DOMContentLoaded', check);
+    window.addEventListener('load', check);
+  });
   await page.reload();
   await expect(page.locator('#app')).toBeVisible();
   await expect(dialog).toBeHidden();
+  await page.waitForTimeout(300);
+  expect(await page.evaluate(() => (window as unknown as { __popupSeen: boolean }).__popupSeen)).toBe(false);
 
   await page.clock.setFixedTime(new Date('2026-11-02T03:00:00Z'));
   await page.reload();
