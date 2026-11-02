@@ -1,9 +1,9 @@
 'use client';
 
-import { useRef, useState, type KeyboardEvent } from 'react';
-import { cardAlt, counterText, indexFromScroll, stepIndex } from '@/lib/cardnews';
+import { useRef, useState, type KeyboardEvent, type TouchEvent } from 'react';
+import { cardAlt, counterText, indexFromScroll, stepIndex, swipeDelta } from '@/lib/cardnews';
 
-/** 카드뉴스 이미지 슬라이더 — 스와이프(scroll-snap)·이전/다음·키보드 ←/→·점·"2 / 6" */
+/** 카드뉴스 이미지 슬라이더 — 가로 스와이프·이전/다음·키보드 ←/→·점·"2 / 6" */
 export default function CardSlider({ title, images, instagram }: { title: string; images: string[]; instagram?: string }) {
   const total = images.length;
   const track = useRef<HTMLDivElement>(null);
@@ -32,6 +32,22 @@ export default function CardSlider({ title, images, instagram }: { title: string
     target.current = null;
   };
 
+  /** touch-action: pan-y 로 가로 스크롤은 브라우저가 처리하지 않으므로, 가로 이동이 세로보다 클 때만 직접 넘긴다 */
+  const start = useRef<{ x: number; y: number } | null>(null);
+  const onTouchStart = (e: TouchEvent) => {
+    release();
+    const t = e.touches[0];
+    start.current = t ? { x: t.clientX, y: t.clientY } : null;
+  };
+  const onTouchEnd = (e: TouchEvent) => {
+    const s = start.current;
+    const t = e.changedTouches[0];
+    start.current = null;
+    if (!s || !t) return;
+    const d = swipeDelta(t.clientX - s.x, t.clientY - s.y);
+    if (d !== 0) move(d);
+  };
+
   const onKeyDown = (e: KeyboardEvent) => {    if (e.key === 'ArrowLeft') {
       e.preventDefault();
       move(-1);
@@ -48,7 +64,9 @@ export default function CardSlider({ title, images, instagram }: { title: string
           className="cards-track"
           ref={track}
           onScroll={(e) => onScroll(e.currentTarget)}
-          onTouchStart={release}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+          onTouchCancel={() => (start.current = null)}
           onWheel={release}
           onPointerDown={release}
         >

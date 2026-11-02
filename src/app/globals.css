@@ -488,7 +488,7 @@ body:has(.gnb.open) .fab{display:none}
 .cards{max-width:560px;margin:24px 0 0}
 .cards:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 .cards-stage{position:relative}
-.cards-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.cards-track{touch-action:pan-y;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
 .cards-track::-webkit-scrollbar{display:none}
 .cards-slide{flex:0 0 100%;scroll-snap-align:start;aspect-ratio:4/5;display:flex}
 .cards-slide img{width:100%;height:100%;object-fit:contain;user-select:none}

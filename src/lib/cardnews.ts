@@ -18,6 +18,15 @@ export function indexFromScroll(scrollLeft: number, width: number, total: number
   return clampIndex(scrollLeft / width, total);
 }
 
+/** 스와이프로 인정할 최소 가로 이동(px) */
+export const SWIPE_MIN_DX = 40;
+
+/** 터치 이동량 -> 넘길 방향. 가로가 SWIPE_MIN_DX 초과이면서 세로보다 클 때만 (왼쪽으로 밀면 +1, 오른쪽으로 밀면 -1, 아니면 0) */
+export function swipeDelta(dx: number, dy: number): -1 | 0 | 1 {
+  if (Math.abs(dx) <= SWIPE_MIN_DX || Math.abs(dx) <= Math.abs(dy)) return 0;
+  return dx < 0 ? 1 : -1;
+}
+
 /** "2 / 6" 표시 */
 export const counterText = (index: number, total: number): string => `${index + 1} / ${total}`;
 

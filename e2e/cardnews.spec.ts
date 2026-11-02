@@ -29,6 +29,16 @@ test('카드뉴스 공지 상세: 장수 표시·버튼·키보드로 넘기기'
 test('카드뉴스 공지 상세: 공유 썸네일은 첫 장 절대 URL', async ({ page }) => {
   await page.goto('/notice/6');
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /^https?:\/\/.+\/mock\/cardnews-1\.svg$/);
+  await expect(page.locator('meta[property="og:image:width"]')).toHaveAttribute('content', '1080');
+  await expect(page.locator('meta[property="og:image:height"]')).toHaveAttribute('content', '1350');
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+});
+
+test('메인 공지 목록: 카드뉴스 배지와 장수 표시', async ({ page }) => {
+  await page.goto('/');
+  const item = page.locator('.list li', { hasText: '인트 10월 활동 모아보기' });
+  await expect(item.locator('.badge')).toHaveText('카드뉴스');
+  await expect(item).toContainText('3장');
 });
 
 test('공지 목록: 카드뉴스 탭 필터와 장수 표시', async ({ page }) => {
