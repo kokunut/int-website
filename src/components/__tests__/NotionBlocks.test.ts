@@ -61,6 +61,16 @@ describe('NotionBlocks', () => {
     expect(html([{ type: 'paragraph', text: '<script>x</script>' }])).not.toContain('<script>');
   });
 
+  it('링크는 렌더링하지 않는다: javascript: 주소가 들어 있어도 텍스트로만 남는다', () => {
+    const out = html([
+      { type: 'paragraph', text: '[누르기](javascript:alert(1))' },
+      { type: 'list', ordered: false, items: ['javascript:alert(2)'] },
+    ]);
+    expect(out).not.toContain('<a');
+    expect(out).not.toContain('href=');
+    expect(out).toContain('javascript:alert(1)');
+  });
+
   it('linesToBlocks: 줄마다 문단', () => {
     expect(linesToBlocks(['가', '나'])).toEqual([
       { type: 'paragraph', text: '가' },

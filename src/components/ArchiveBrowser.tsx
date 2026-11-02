@@ -39,14 +39,18 @@ export default function ArchiveBrowser({ posts, presetTopics }: { posts: Archive
           {shown.map((p) => (
             <li key={p.id}>
               <Link href={`/archive/${p.category}/${p.id}`}>
-                {p.pinned && <span className="badge solid">고정</span>}
-                {p.topic && <span className="badge">{p.topic}</span>}
+                <span className="a-badges">
+                  {p.pinned && <span className="badge solid">고정</span>}
+                  {p.topic && <span className="badge">{p.topic}</span>}
+                </span>
                 <span className="t">
                   {p.title}
                   {p.summary && <small className="sum">{p.summary}</small>}
                 </span>
-                {p.attachments.length > 0 && <span className="cards-n">첨부 {p.attachments.length}</span>}
-                <span className="d">{md(p.date)}</span>
+                <span className="a-meta">
+                  {p.attachments.length > 0 && <span className="cards-n">첨부 {p.attachments.length}</span>}
+                  <span className="d">{md(p.date)}</span>
+                </span>
               </Link>
             </li>
           ))}

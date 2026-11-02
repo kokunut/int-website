@@ -336,6 +336,17 @@ a.ev:hover p{color:var(--text);text-decoration:underline;text-underline-offset:3
 .nb-image figcaption{margin-top:6px;font-size:13px;color:var(--text-3)}
 .archive-list .t{white-space:normal;display:flex;flex-direction:column;gap:2px}
 .archive-list .sum{font-size:13px;font-weight:400;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.archive-list .a-badges,.archive-list .a-meta{display:inline-flex;align-items:center;gap:6px;flex:none}
+.archive-list .a-meta{gap:12px}
+/* 모바일: 윗줄(배지 · 첨부·날짜) / 아랫줄(제목 전체 너비 + 요약 1줄). 공지·공모전 목록은 단일 행 유지 */
+@media (max-width:560px){
+  .archive-list li a{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"badges meta" "title title";align-items:center;gap:8px 12px;padding:14px 4px}
+  .archive-list .a-badges{grid-area:badges;flex-wrap:wrap;min-width:0}
+  .archive-list .a-badges .badge{font-size:11px;padding:2px 6px}
+  .archive-list .a-meta{grid-area:meta;gap:8px}
+  .archive-list .a-meta .d,.archive-list .a-meta .cards-n{font-size:12px}
+  .archive-list .t{grid-area:title}
+}
 .archive-ext{margin-bottom:20px;max-width:360px}
 .attach-list{border-top:2px solid var(--text)}
 .callout{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:20px;padding:16px 18px;border-radius:12px;background:var(--surface);font-size:15px}

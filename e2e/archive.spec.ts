@@ -98,6 +98,22 @@ test('상세: 배지·날짜·본문 블록·첨부·원문 링크·이전/다�
   expect(errors).toEqual([]);
 });
 
+test('상세: 첨부 목록이 보이고 외부 링크 버튼은 새 탭으로 열린다', async ({ page }) => {
+  await page.goto('/archive/career/certificate-example');
+  const article = page.locator('.article');
+  const attach = article.getByRole('region', { name: '첨부 파일' });
+  await expect(attach.locator('li')).toHaveCount(2);
+  const files = attach.getByRole('link', { name: '열기·다운로드' });
+  await expect(files.first()).toHaveAttribute('target', '_blank');
+  await expect(files.first()).toHaveAttribute('rel', 'noopener noreferrer');
+
+  await page.goto('/archive/career/job-posting-example');
+  const origin = page.locator('.article').getByRole('link', { name: /원문 보기/ });
+  await expect(origin).toBeVisible();
+  await expect(origin).toHaveAttribute('target', '_blank');
+  await expect(origin).toHaveAttribute('rel', 'noopener noreferrer');
+});
+
 test('상세: 체크리스트·구분선 블록', async ({ page }) => {
   await page.goto('/archive/career/certificate-example');
   await expect(page.locator('.nb-todo')).toHaveCount(2);
