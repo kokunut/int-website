@@ -72,7 +72,7 @@ describe('mapSetting: 항목별 타입', () => {
   });
 
   it('인사말은 여러 줄을 문단 배열로 읽는다', () => {
-    expect(mapSetting(setting('인사말', { text: { 값: '첫 문단\n\n둘째 문단' } }))).toEqual({
+    expect(mapSetting(setting('인사말', { text: { 값: '첫 문단\n둘째 문단' } }))).toEqual({
       id: 'greeting',
       value: ['첫 문단', '둘째 문단'],
     });
@@ -260,8 +260,8 @@ describe('설정 값 정리', () => {
     expect(cleanLink(null)).toBe('');
   });
 
-  it('인사말은 빈 줄 기준으로 문단을 나누고 문단 안 줄바꿈은 공백으로 잇는다', () => {
-    expect(splitParagraphs('\n 첫 문단 1줄\n첫 문단 2줄 \n\n\n  \n둘째 문단\r\n\r\n셋째\n')).toEqual(['첫 문단 1줄 첫 문단 2줄', '둘째 문단', '셋째']);
+  it('인사말은 한 줄을 한 문단으로 보고 빈 줄(연속 포함)은 무시한다', () => {
+    expect(splitParagraphs('\n 첫째 \n둘째\n\n\n  \n셋째\r\n\r\n넷째\n')).toEqual(['첫째', '둘째', '셋째', '넷째']);
     expect(splitParagraphs(' \n \n')).toEqual([]);
     expect(mapSetting(setting('인사말', { text: { 값: ' \n ' } }))).toBeNull();
   });

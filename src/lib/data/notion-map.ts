@@ -127,17 +127,11 @@ export function cleanLink(v: string | null | undefined): string {
   return safeHref((v ?? '').replace(/\s+/g, ''));
 }
 
-/** 인사말 -> 빈 줄 기준 문단 배열 (문단 안의 줄바꿈은 공백 하나로) */
+/** 인사말 -> 한 줄이 한 문단인 배열 (빈 줄·연속 빈 줄은 무시) */
 export function splitParagraphs(v: string): string[] {
   return v
-    .split(/\r?\n[ \t ]*\r?\n/)
-    .map((para) =>
-      para
-        .split(/\r?\n/)
-        .map((l) => l.trim())
-        .filter(Boolean)
-        .join(' '),
-    )
+    .split(/\r?\n/)
+    .map((l) => l.trim())
     .filter(Boolean);
 }
 

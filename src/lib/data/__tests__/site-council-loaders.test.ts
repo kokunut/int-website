@@ -47,7 +47,7 @@ describe('설정 DB 연결', () => {
     listRows.mockResolvedValue([
       row({ ...title('항목', '카카오톡 채널'), 링크: { type: 'url', url: 'https://pf.kakao.com/_new' } }),
       row({ ...title('항목', '이메일'), 값: { type: 'rich_text', rich_text: rt('int@sejong.ac.kr') } }),
-      row({ ...title('항목', '인사말'), 값: { type: 'rich_text', rich_text: rt('하나\n\n둘') } }),
+      row({ ...title('항목', '인사말'), 값: { type: 'rich_text', rich_text: rt('하나\n둘') } }),
       row({ ...title('항목', '인스타그램 주소') }),
     ]);
     const d = await load();

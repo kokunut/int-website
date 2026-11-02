@@ -77,11 +77,11 @@ export function createApi(deps: ApiDeps): Api {
   };
 }
 
-/** 설정 항목의 현재 기본값(목 데이터). 인사말은 줄바꿈으로 잇고, 값이 없는 항목은 빈 글자 */
+/** 설정 항목의 현재 기본값(목 데이터). 인사말은 한 줄 = 한 문단으로 잇고, 값이 없는 항목은 빈 글자 */
 function settingDefault(id: SettingId): string {
   switch (id) {
     case 'greeting':
-      return aboutPage.greeting.join('\n\n');
+      return aboutPage.greeting.join('\n');
     case 'signer':
       return aboutPage.signer;
     case 'photo':

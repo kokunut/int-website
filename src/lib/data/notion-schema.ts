@@ -178,7 +178,7 @@ export const SETTING_KEYS = [
   { id: 'notionMilitary', label: '군입대 백서', kind: 'link', note: '병영 길라잡이 링크 카드·메인 바로가기' },
   { id: 'notionContest', label: '공모전 정보', kind: 'link', note: '공모전 정보 노션 링크' },
   { id: 'gcalSubscribe', label: '구글 캘린더 구독', kind: 'link', note: '캘린더 구독 버튼' },
-  { id: 'greeting', label: '인사말', kind: 'lines', note: '학생회 소개 인사말. 여러 문단 가능(빈 줄로 문단 구분)' },
+  { id: 'greeting', label: '인사말', kind: 'lines', note: '학생회 소개 인사말. 여러 문단 가능(줄을 바꿀 때마다 새 문단)' },
   { id: 'signer', label: '인사말 서명', kind: 'text', note: '인사말 아래 서명(예: 학생회장 OOO)' },
   { id: 'photo', label: '단체 사진', kind: 'file', note: '학생회 소개 단체 사진(첫 번째 파일)' },
 ] as const satisfies readonly { id: string; label: string; kind: SettingKind; note: string }[];
@@ -404,7 +404,7 @@ export const DB_SPECS: DbSpec[] = [
     bodyNote: '`항목`은 아래 정해진 이름 중 하나여야 합니다(모르는 이름은 무시). 행이 없거나 값이 비어 있으면 그 항목만 기본값을 씁니다.',
     props: [
       t(SETTING.key, 'title', true, '카카오톡 채널', '정해진 이름 중 하나(아래 항목 표)'),
-      t(SETTING.value, 'rich_text', false, '@int_sejong', '글자 값 항목(인스타그램 아이디·이메일·학생회실 주소·인사말·인사말 서명). 인사말은 빈 줄로 문단을 나눕니다'),
+      t(SETTING.value, 'rich_text', false, '@int_sejong', '글자 값 항목(인스타그램 아이디·이메일·학생회실 주소·인사말·인사말 서명). 인사말은 줄마다 한 문단입니다'),
       t(SETTING.link, 'url', false, 'https://pf.kakao.com/_xxxx', '링크 항목(카카오톡 채널·인스타그램 주소·폼·백서 등). https:// 또는 / 로 시작하는 주소만 허용'),
       t(SETTING.file, 'files', false, '(파일 업로드)', '이미지 항목(단체 사진). 첫 번째 파일 사용'),
       pub,
