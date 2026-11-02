@@ -1,5 +1,14 @@
-import { describe, expect, it } from 'vitest';
-import { allowedDbIdsFor, fileProxyPath, normalizeId, parseFileProxyParams, pickFileUrl } from '../file-proxy';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  allowedDbIdsFor,
+  fileProxyPath,
+  knownPageIds,
+  normalizeId,
+  pageIdSet,
+  parseFileProxyParams,
+  pickFileUrl,
+  resolveFileUrl,
+} from '../file-proxy';
 import type { NotionPage } from '../notion-types';
 
 const PAGE = '0123456789abcdef0123456789abcdef';
@@ -69,5 +78,50 @@ describe('file-proxy', () => {
     expect(pickFileUrl(page(), 'banner-image', 5, [DB])).toBeNull();
     expect(pickFileUrl(page({ files: [{ external: { url: 'http://x.example/a.png' } }] }), 'banner-image', 0, [DB])).toBeNull();
     expect(pickFileUrl(page({ files: [{ external: { url: 'javascript:alert(1)' } }] }), 'banner-image', 0, [DB])).toBeNull();
+  });
+
+  it('pageIdSet·knownPageIds: 공개 행만, 정규화된 id', async () => {
+    const hidden = { ...page({ pub: false }), id: 'f'.repeat(32) } as NotionPage;
+    const dashed = { ...page(), id: '01234567-89ab-cdef-0123-456789abcdef' } as NotionPage;
+    expect([...pageIdSet([dashed, hidden])]).toEqual([PAGE]);
+    expect([...(await knownPageIds(DB, async () => [dashed, hidden]))]).toEqual([PAGE]);
+  });
+
+  describe('resolveFileUrl', () => {
+    const params = { pageId: PAGE, field: 'banner-image' as const, index: 0 };
+
+    it('목록에 없는 pageId 는 fetchPage 호출 0회, null', async () => {
+      const fetchPage = vi.fn(async () => page());
+      const listPages = vi.fn(async () => [page()]);
+      const url = await resolveFileUrl({ ...params, pageId: 'a'.repeat(32) }, [DB], { listPages, fetchPage });
+      expect(url).toBeNull();
+      expect(fetchPage).not.toHaveBeenCalled();
+    });
+
+    it('비공개 행은 fetchPage 호출 없이 null', async () => {
+      const fetchPage = vi.fn(async () => page());
+      expect(await resolveFileUrl(params, [DB], { listPages: async () => [page({ pub: false })], fetchPage })).toBeNull();
+      expect(fetchPage).not.toHaveBeenCalled();
+    });
+
+    it('목록 행에 URL 이 있으면 fetchPage 없이 사용', async () => {
+      const fetchPage = vi.fn(async () => page());
+      const url = await resolveFileUrl(params, [DB], { listPages: async () => [page()], fetchPage });
+      expect(url).toBe('https://s3.example/a.png?sig=1');
+      expect(fetchPage).not.toHaveBeenCalled();
+    });
+
+    it('행은 있으나 URL 이 없으면 fetchPage 로 보충', async () => {
+      const fetchPage = vi.fn(async () => page());
+      const url = await resolveFileUrl(params, [DB], { listPages: async () => [page({ files: [] })], fetchPage });
+      expect(url).toBe('https://s3.example/a.png?sig=1');
+      expect(fetchPage).toHaveBeenCalledTimes(1);
+    });
+
+    it('허용 DB 가 없으면 목록도 조회하지 않는다', async () => {
+      const listPages = vi.fn(async () => [page()]);
+      expect(await resolveFileUrl(params, [], { listPages, fetchPage: vi.fn() })).toBeNull();
+      expect(listPages).not.toHaveBeenCalled();
+    });
   });
 });

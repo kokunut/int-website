@@ -73,3 +73,44 @@ export function pickFileUrl(page: NotionPage, field: FileField, index: number, a
     return null;
   }
 }
+
+/** 목록 조회 결과에서 공개 행의 정규화된 id 집합 */
+export function pageIdSet(pages: readonly NotionPage[]): Set<string> {
+  const ids = new Set<string>();
+  for (const p of pages) {
+    const id = normalizeId(p.id);
+    if (id && p.properties[P_PUBLIC]?.checkbox === true) ids.add(id);
+  }
+  return ids;
+}
+
+/** 이 DB 의 공개 행 id 집합. 목록은 데이터 레이어 캐시(`queryDatabase`)를 그대로 쓴다 */
+export async function knownPageIds(dbId: string, listPages: (dbId: string) => Promise<NotionPage[]>): Promise<Set<string>> {
+  return pageIdSet(await listPages(dbId));
+}
+
+export interface ResolveDeps {
+  listPages: (dbId: string) => Promise<NotionPage[]>;
+  fetchPage: (pageId: string) => Promise<NotionPage>;
+}
+
+/**
+ * 리다이렉트할 URL 결정.
+ * 1) 목록(캐시)에 없는 id 는 노션 호출 없이 null
+ * 2) 목록 행에 URL 이 있으면 그대로 사용
+ * 3) 행은 있으나 URL 이 없을 때만 `fetchPage` 로 보충
+ */
+export async function resolveFileUrl(
+  params: FileProxyParams,
+  allowedDbIds: readonly string[],
+  deps: ResolveDeps,
+): Promise<string | null> {
+  const dbId = allowedDbIds[0];
+  if (!dbId) return null;
+  const pages = await deps.listPages(dbId);
+  const row = pages.find((p) => normalizeId(p.id) === params.pageId);
+  if (!row || !pageIdSet([row]).has(params.pageId)) return null;
+  const fromList = pickFileUrl(row, params.field, params.index, allowedDbIds);
+  if (fromList) return fromList;
+  return pickFileUrl(await deps.fetchPage(params.pageId), params.field, params.index, allowedDbIds);
+}
