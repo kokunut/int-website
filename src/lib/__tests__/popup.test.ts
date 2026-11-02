@@ -1,6 +1,17 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { addDays, popupHideScript, isSuppressed, pickPopupContest, popupStorageKey, suppressUntil } from '../popup';
+import {
+  activePopups,
+  addDays,
+  buildPopups,
+  contestToPopup,
+  isSuppressed,
+  mergeSuppress,
+  popupHideScript,
+  popupStorageKey,
+  suppressUntil,
+} from '../popup';
 import type { PopupContest } from '../popup';
+import type { Popup } from '../types';
 
 const c = (id: string, start: string, end: string, popup = true): PopupContest => ({
   id,
@@ -11,26 +22,58 @@ const c = (id: string, start: string, end: string, popup = true): PopupContest =
   popup,
 });
 
-describe('pickPopupContest', () => {
-  const list = [c('off', '2026-10-01', '2026-12-01', false), c('a', '2026-10-20', '2026-11-15'), c('b', '2026-11-01', '2026-11-30')];
+const p = (id: string, start: string, end: string, order?: number): Popup => ({
+  id,
+  title: id,
+  cat: '제휴',
+  start,
+  end,
+  desc: '',
+  image: null,
+  href: '',
+  cta: '자세히 보기',
+  ...(order !== undefined ? { order } : {}),
+});
 
-  it('popup:true 이면서 기간 안인 첫 공모전', () => {
-    expect(pickPopupContest(list, '2026-11-01')?.id).toBe('a');
+describe('buildPopups', () => {
+  it('공모전은 popup:true 만 분류 "공모전"으로 변환해 합친다', () => {
+    const out = buildPopups([], [c('a', '2026-10-20', '2026-11-15'), c('off', '2026-10-01', '2026-12-01', false)]);
+    expect(out).toEqual([contestToPopup(c('a', '2026-10-20', '2026-11-15'))]);
+    expect(out[0]).toMatchObject({ cat: '공모전', href: '/contest/a', cta: '자세히 보기', image: null });
+  });
+  it('슬러그가 겹치면 팝업 DB 가 우선', () => {
+    const out = buildPopups([p('x', '2026-11-01', '2026-11-02', 1)], [c('x', '2026-10-20', '2026-11-15')]);
+    expect(out).toHaveLength(1);
+    expect(out[0].cat).toBe('제휴');
+  });
+  it('순서 오름차순, 비어 있으면(공모전 포함) 맨 뒤, 같으면 입력 순서', () => {
+    const d = ['2026-11-01', '2026-11-02'] as const;
+    const out = buildPopups(
+      [p('none', ...d), p('b', ...d, 2), p('a', ...d, 1), p('b2', ...d, 2)],
+      [c('contest', '2026-10-20', '2026-11-15')],
+    );
+    expect(out.map((x) => x.id)).toEqual(['a', 'b', 'b2', 'none', 'contest']);
+  });
+});
+
+describe('activePopups', () => {
+  const list = [p('a', '2026-10-20', '2026-11-15'), p('b', '2026-11-01', '2026-11-30')];
+
+  it('기간 안인 팝업들을 순서대로', () => {
+    expect(activePopups(list, '2026-11-01').map((x) => x.id)).toEqual(['a', 'b']);
   });
   it('시작일·마감일 당일 포함', () => {
-    expect(pickPopupContest(list, '2026-10-20')?.id).toBe('a');
-    expect(pickPopupContest(list, '2026-11-15')?.id).toBe('a');
+    expect(activePopups(list, '2026-10-20').map((x) => x.id)).toEqual(['a']);
+    expect(activePopups(list, '2026-11-15').map((x) => x.id)).toEqual(['a', 'b']);
+    expect(activePopups(list, '2026-11-30').map((x) => x.id)).toEqual(['b']);
   });
   it('기간 밖이면 없음', () => {
-    expect(pickPopupContest(list, '2026-10-19')).toBeUndefined();
-    expect(pickPopupContest(list, '2026-12-01')).toBeUndefined();
+    expect(activePopups(list, '2026-10-19')).toEqual([]);
+    expect(activePopups(list, '2026-12-01')).toEqual([]);
   });
-  it('숨김 처리된 공모전은 건너뛰고 다음 후보를 고른다', () => {
-    expect(pickPopupContest(list, '2026-11-01', (x) => x.id === 'a')?.id).toBe('b');
-    expect(pickPopupContest(list, '2026-11-01', () => true)).toBeUndefined();
-  });
-  it('popup:false 는 제외', () => {
-    expect(pickPopupContest([list[0]], '2026-11-01')).toBeUndefined();
+  it('숨김 처리된 팝업은 건너뛴다', () => {
+    expect(activePopups(list, '2026-11-01', (x) => x.id === 'a').map((x) => x.id)).toEqual(['b']);
+    expect(activePopups(list, '2026-11-01', () => true)).toEqual([]);
   });
 });
 
@@ -59,48 +102,66 @@ describe('isSuppressed', () => {
   });
 });
 
+describe('mergeSuppress', () => {
+  it('더 늦은 만료일이 이미 있으면 유지, 아니면 새 값', () => {
+    expect(mergeSuppress('2026-11-08', '2026-11-02')).toBe('2026-11-08');
+    expect(mergeSuppress('2026-11-02', '2026-11-02')).toBe('2026-11-02');
+    expect(mergeSuppress('2026-11-01', '2026-11-02')).toBe('2026-11-02');
+    expect(mergeSuppress(null, '2026-11-02')).toBe('2026-11-02');
+    expect(mergeSuppress('abc', '2026-11-02')).toBe('2026-11-02');
+  });
+});
+
 describe('popupStorageKey', () => {
-  it('공모전 id 별 키', () => {
+  it('팝업 슬러그별 키', () => {
     expect(popupStorageKey('c1')).toBe('int_popup_hide_c1');
   });
 });
 
 describe('popupHideScript', () => {
-  const run = (id: string, stored: string | null | 'throw', now: string) => {
+  /** stored: 슬러그 -> 저장값. 'throw' 면 저장소 접근 거부 */
+  const run = (ids: string[], stored: Record<string, string> | 'throw', now: string) => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(now));
     const doc = { documentElement: { dataset: {} as Record<string, string> } };
     const storage = {
       getItem: (k: string) => {
         if (stored === 'throw') throw new Error('denied');
-        return k === `int_popup_hide_${id}` ? stored : null;
+        return stored[k.replace('int_popup_hide_', '')] ?? null;
       },
     };
     const noop = () => {};
-    new Function('localStorage', 'document', popupHideScript(id))(storage, { ...doc, addEventListener: noop });
+    new Function('localStorage', 'document', popupHideScript(ids))(storage, { ...doc, addEventListener: noop });
     vi.useRealTimers();
     return doc.documentElement.dataset.popupHidden;
   };
   afterEach(() => vi.useRealTimers());
 
-  it('만료일 이전(KST 기준)이면 data-popup-hidden 을 id 로 표시한다', () => {
-    expect(run('c1', '2026-11-02', '2026-11-01T14:59:00Z')).toBe('c1');
+  it('묶음의 모든 슬러그가 만료일 이전(KST 기준)이면 data-popup-hidden 을 슬러그들로 표시한다', () => {
+    expect(run(['c1', 'c2'], { c1: '2026-11-02', c2: '2026-11-08' }, '2026-11-01T14:59:00Z')).toBe('c1,c2');
+    expect(run(['c1'], { c1: '2026-11-02' }, '2026-11-01T14:59:00Z')).toBe('c1');
+  });
+  it('하나라도 숨김이 아니면(새 팝업) 표시하지 않는다', () => {
+    expect(run(['c1', 'c2'], { c1: '2026-11-02' }, '2026-11-01T03:00:00Z')).toBeUndefined();
   });
   it('KST 자정이 지나면(UTC 15시) 표시하지 않는다', () => {
-    expect(run('c1', '2026-11-02', '2026-11-01T15:00:00Z')).toBeUndefined();
+    expect(run(['c1'], { c1: '2026-11-02' }, '2026-11-01T15:00:00Z')).toBeUndefined();
   });
   it('값이 없거나 형식이 틀리거나 저장소 접근이 막히면 표시하지 않는다', () => {
-    expect(run('c1', null, '2026-11-01T00:00:00Z')).toBeUndefined();
-    expect(run('c1', 'abc', '2026-11-01T00:00:00Z')).toBeUndefined();
-    expect(run('c1', 'throw', '2026-11-01T00:00:00Z')).toBeUndefined();
+    expect(run(['c1'], {}, '2026-11-01T00:00:00Z')).toBeUndefined();
+    expect(run(['c1'], { c1: 'abc' }, '2026-11-01T00:00:00Z')).toBeUndefined();
+    expect(run(['c1'], 'throw', '2026-11-01T00:00:00Z')).toBeUndefined();
+  });
+  it('슬러그가 없으면 표시하지 않는다', () => {
+    expect(run([], {}, '2026-11-01T00:00:00Z')).toBeUndefined();
   });
   it('isSuppressed 와 같은 결과를 낸다', () => {
     for (const stored of ['2026-11-01', '2026-11-02', '2026-10-31']) {
-      expect(run('c1', stored, '2026-11-01T03:00:00Z') === 'c1').toBe(isSuppressed(stored, '2026-11-01'));
+      expect(run(['c1'], { c1: stored }, '2026-11-01T03:00:00Z') === 'c1').toBe(isSuppressed(stored, '2026-11-01'));
     }
   });
-  it('id 의 태그 종료 문자가 이스케이프된다', () => {
-    const s = popupHideScript('a"</script>');
+  it('슬러그의 태그 종료 문자가 이스케이프된다', () => {
+    const s = popupHideScript(['a"</script>']);
     expect(s).not.toContain('</script>');
     expect(s).toContain('\\u003c');
   });
@@ -108,11 +169,11 @@ describe('popupHideScript', () => {
 
 describe('popupHideScript — 하이드레이션 전 닫기', () => {
   type Handler = (e: unknown) => void;
-  const setup = (opts: { ready?: boolean; checked?: 'day' | 'week' | null } = {}) => {
+  const setup = (opts: { ready?: boolean; checked?: 'day' | 'week' | null; stored?: Record<string, string> } = {}) => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-11-01T03:00:00Z')); // KST 2026-11-01
     const handlers: Record<string, Handler> = {};
-    const saved: Record<string, string> = {};
+    const saved: Record<string, string> = { ...(opts.stored ?? {}) };
     const doc = {
       documentElement: { dataset: {} as Record<string, string> },
       addEventListener: (type: string, fn: Handler) => {
@@ -125,8 +186,8 @@ describe('popupHideScript — 하이드레이션 전 닫기', () => {
         return null;
       },
     };
-    const storage = { getItem: () => null, setItem: (k: string, v: string) => (saved[k] = v) };
-    new Function('localStorage', 'document', popupHideScript('c1'))(storage, doc);
+    const storage = { getItem: (k: string) => saved[k] ?? null, setItem: (k: string, v: string) => (saved[k] = v) };
+    new Function('localStorage', 'document', popupHideScript(['c1', 'c2']))(storage, doc);
     const target = (match: 'close' | 'backdrop' | 'other') => ({
       closest: (s: string) => (match === 'close' && s === '.modal .close' ? {} : null),
       classList: { contains: (c: string) => match === 'backdrop' && c === 'modal' },
@@ -143,7 +204,7 @@ describe('popupHideScript — 하이드레이션 전 닫기', () => {
     ]) {
       const s = setup();
       fire(s);
-      expect(s.hidden()).toBe('c1');
+      expect(s.hidden()).toBe('c1,c2');
       expect(s.saved).toEqual({});
     }
   });
@@ -159,13 +220,20 @@ describe('popupHideScript — 하이드레이션 전 닫기', () => {
     s.handlers.keydown({ key: 'Escape' });
     expect(s.hidden()).toBeUndefined();
   });
-  it('체크박스 선택값을 suppressUntil 과 같은 규칙으로 저장한다', () => {
+  it('체크박스 선택값을 묶음의 모든 슬러그에 suppressUntil 과 같은 규칙으로 저장한다', () => {
     const day = setup({ checked: 'day' });
     day.handlers.click({ target: day.target('close') });
-    expect(day.saved).toEqual({ int_popup_hide_c1: suppressUntil('2026-11-01', 1) });
+    const d1 = suppressUntil('2026-11-01', 1);
+    expect(day.saved).toEqual({ int_popup_hide_c1: d1, int_popup_hide_c2: d1 });
     const week = setup({ checked: 'week' });
     week.handlers.keydown({ key: 'Escape' });
-    expect(week.saved).toEqual({ int_popup_hide_c1: suppressUntil('2026-11-01', 7) });
-    expect(week.hidden()).toBe('c1');
+    const d7 = suppressUntil('2026-11-01', 7);
+    expect(week.saved).toEqual({ int_popup_hide_c1: d7, int_popup_hide_c2: d7 });
+    expect(week.hidden()).toBe('c1,c2');
+  });
+  it('이미 더 늦은 만료일이 저장돼 있으면 줄이지 않는다', () => {
+    const s = setup({ checked: 'day', stored: { int_popup_hide_c1: '2026-11-08' } });
+    s.handlers.click({ target: s.target('close') });
+    expect(s.saved).toEqual({ int_popup_hide_c1: '2026-11-08', int_popup_hide_c2: '2026-11-02' });
   });
 });

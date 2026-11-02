@@ -395,6 +395,15 @@ a.ev:hover p{color:var(--text);text-decoration:underline;text-underline-offset:3
 .modal[hidden],html[data-popup-hidden] .modal{display:none}
 .modal-box{width:min(420px,100%);max-height:calc(100vh - 40px);overflow:auto;background:var(--bg);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.25)}
 .modal-img{aspect-ratio:4/3}
+.modal-photo{display:block;width:100%;object-fit:cover}
+.modal-nav{display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 16px;border-top:1px solid var(--line);font-size:14px;color:var(--text-2)}
+.modal-nav .nav-btn{width:32px;height:32px;border-radius:999px;border:1px solid var(--line);font-size:20px;line-height:1;color:var(--text)}
+.modal-nav .nav-btn:disabled{opacity:.35;cursor:default}
+.modal-nav .dots{display:flex;gap:2px}
+.modal-nav .dot{position:relative;width:24px;height:24px}
+.modal-nav .dot::before{content:'';position:absolute;left:8px;top:8px;width:8px;height:8px;border-radius:999px;background:var(--line)}
+.modal-nav .dot[aria-current=true]::before{background:var(--brand)}
+.modal-nav .count{min-width:44px;text-align:center}
 .modal-body{padding:22px 24px 20px}
 .modal-body h2{font-size:21px;font-weight:800;letter-spacing:-.03em;margin-top:8px}
 .modal-body p{color:var(--text-2);margin-top:6px;font-size:15px}

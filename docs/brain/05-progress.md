@@ -12,7 +12,7 @@
 
 ## 사람이 해야 할 일 (에이전트가 못 하는 것)
 - [ ] Vercel 프로젝트 연결·도메인
-- [ ] 노션 통합 생성·DB 7개 구성, 구글 시트 요약 탭 웹 게시, 캘린더 iCal 주소 → Vercel 환경변수 등록 (`06-content-ops.md`, `npm run content:check`로 점검)
+- [ ] 노션 통합 생성·DB 8개 구성(팝업 DB 포함), 구글 시트 요약 탭 웹 게시, 캘린더 iCal 주소 → Vercel 환경변수 등록 (`06-content-ops.md`, `npm run content:check`로 점검)
 - [ ] Vercel 프로젝트에서 **Analytics** 탭 → Enable, **Speed Insights** 탭 → Enable (`06-content-ops.md` 4-1)
 - [ ] 저장소 Settings → Advanced Security에서 **Dependabot alerts**와 **Dependabot security updates** 켜기 (보안 패치 자동 PR, 버전 업데이트는 `dependabot.yml`이 담당)
 - [ ] 실제 링크(카카오 채널, 인스타그램, 구글폼) 및 학생회실 주소 확정
@@ -37,3 +37,4 @@
 | 2026-11-01 | #29 | (본 PR) | 방문 통계: Vercel Analytics·Speed Insights(운영 배포에서만 렌더, `isVercelProduction()`), 커스텀 이벤트 3종(팝업 자세히 보기·페이백 신청·카카오 FAB, 밖에서는 no-op), ADR-011, 운영 매뉴얼 "방문 통계 보기" |
 | 2026-11-02 | #34 | (본 PR) | 노션 이미지 안정 경로 `/api/notion-file/[pageId]/[field]/[index]`(허용 필드·공개 행·DB 검증, 307, 5분 캐시), 배너 이미지·모바일 이미지에 적용, `file-proxy.ts` 순수 함수+테스트, ADR-012 |
 | 2026-11-02 | #37 | (본 PR) | 브랜드 적용: 색 토큰·배너/푸터/FAB 규칙, `Logo` 컴포넌트, Gmarket Sans(`--font-display`), 파비콘·theme-color. README 스크린샷은 머지 후 재촬영 필요 |
+| 2026-11-02 | #39 | (본 PR) | 범용 팝업: 노션 "팝업" DB(`NOTION_DB_POPUPS`, 제휴·행사·공지·공모전, 기간·이미지·링크·순서)+공모전 팝업 합치기, 한 모달 이전/다음(점·"1 / 3"·←/→), "보지 않기"는 열린 묶음 전체에 적용(`mergeSuppress`로 기간 단축 방지), 목 데이터 제휴·행사 각 1건, 단위·E2E 추가, 운영 매뉴얼 "팝업 올리기", ADR-013·014. 사람이 할 일: DB 8개 구성에 팝업 추가(`npm run notion:setup`은 없는 DB만 생성) |

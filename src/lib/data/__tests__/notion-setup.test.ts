@@ -5,7 +5,18 @@ import { docs } from '@/content/docs';
 import { faq, suggestAnswers } from '@/content/faq';
 import { notices } from '@/content/notices';
 import { partners } from '@/content/partners';
-import { blocksToLines, mapBanner, mapContest, mapDoc, mapFaq, mapNotice, mapPartner, mapSuggest } from '../notion-map';
+import { popups } from '@/content/popups';
+import {
+  blocksToLines,
+  mapBanner,
+  mapContest,
+  mapDoc,
+  mapFaq,
+  mapNotice,
+  mapPartner,
+  mapPopup,
+  mapSuggest,
+} from '../notion-map';
 import { DB_SPECS } from '../notion-schema';
 import type { NotionBlock, NotionPage, NotionProperty } from '../notion-types';
 import { buildDatabaseProperties, dbTitle, mergeEnv, parseNotionId, toNotionPage, type PagePayload } from '../notion-setup';
@@ -125,6 +136,10 @@ describe('toNotionPage 왕복 (매퍼의 역변환)', () => {
 
   it('배너', () => {
     for (const b of banners) expect(mapBanner(fakePage(toNotionPage('banners', b)))).toEqual(b);
+  });
+
+  it('팝업', () => {
+    for (const p of popups) expect(mapPopup(fakePage(toNotionPage('popups', p)))).toEqual(p);
   });
 
   it('모든 시드 행은 공개 체크, 순서·행사기간 처리', () => {

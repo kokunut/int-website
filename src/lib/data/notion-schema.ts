@@ -72,6 +72,22 @@ export const PARTNER = {
   order: '순서',
 } as const;
 
+/** 팝업 (메인 첫 화면 모달) */
+export const POPUP = {
+  title: '제목',
+  slug: '슬러그',
+  cat: '분류',
+  period: '기간',
+  desc: '내용',
+  image: '이미지',
+  href: '링크',
+  cta: '버튼문구',
+  order: '순서',
+} as const;
+
+/** 팝업 분류 선택값 */
+export const POPUP_CATEGORIES = ['제휴', '행사', '공지', '공모전'] as const;
+
 /** 자료실 (4개 분류를 DB 하나에 모으고 '분류' 선택으로 나눈다) */
 export const DOC = {
   title: '제목',
@@ -259,6 +275,23 @@ export const DB_SPECS: DbSpec[] = [
       t(BANNER.image, 'files', false, '(파일 업로드)', '첫 번째 파일 사용. 없으면 글자 배너'),
       t(BANNER.imageMobile, 'files', false, '(파일 업로드)', '모바일용 세로 이미지'),
       t(BANNER.order, 'number', false, '1', '작은 수가 먼저. 비우면 맨 뒤'),
+      pub,
+    ],
+  },
+  {
+    key: 'popups',
+    label: '팝업',
+    env: 'NOTION_DB_POPUPS',
+    props: [
+      t(POPUP.title, 'title', true, '○○카페 제휴 오픈'),
+      t(POPUP.slug, 'rich_text', true, 'p-cafe-open', '영문 소문자·숫자·하이픈만. "보지 않기" 저장 키라 겹치면 안 됩니다'),
+      t(POPUP.cat, 'select', true, '제휴', POPUP_CATEGORIES.join(' / '), [...POPUP_CATEGORIES]),
+      t(POPUP.period, 'date', true, '2026-11-01 → 2026-11-14', '시작일 → 종료일(한국 시간). 이 기간에만 메인에 뜹니다'),
+      t(POPUP.desc, 'rich_text', false, '학생증 제시 시 전 메뉴 10% 할인', '2~3줄 요약'),
+      t(POPUP.image, 'files', false, '(파일 업로드)', '포스터 1장(첫 번째 파일). 없으면 자리 표시'),
+      t(POPUP.href, 'url', false, '/partners/oo-restaurant', '"자세히 보기" 대상. 사이트 안 경로(/…) 또는 https:// 주소. 없으면 버튼 없음'),
+      t(POPUP.cta, 'rich_text', false, '자세히 보기', '버튼 글자. 비우면 "자세히 보기"'),
+      t(POPUP.order, 'number', false, '1', '작은 수가 먼저. 비우면 맨 뒤'),
       pub,
     ],
   },

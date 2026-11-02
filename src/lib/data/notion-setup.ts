@@ -2,7 +2,7 @@
  * 노션 DB 자동 생성(`npm run notion:setup`)에 쓰는 순수 함수들 (네트워크 없음).
  * 스키마(notion-schema.ts)로 속성 payload 를 만들고, 시드용으로 기존 매퍼의 역변환을 제공한다.
  */
-import type { Banner, Contest, DocCategory, DocItem, FaqItem, Notice, Partner, SuggestAnswer } from '../types';
+import type { Banner, Contest, DocCategory, DocItem, FaqItem, Notice, Partner, Popup, SuggestAnswer } from '../types';
 import {
   BANNER,
   CONTEST,
@@ -12,6 +12,7 @@ import {
   NOTICE,
   P_PUBLIC,
   PARTNER,
+  POPUP,
   SUGGEST,
   type DbSpec,
   type PropSpec,
@@ -105,7 +106,7 @@ function putUrl(props: Record<string, unknown>, name: string, v: string | undefi
   put(props, name, { url: href }, !!href);
 }
 
-export type SeedKind = 'notices' | 'contests' | 'partners' | 'faq' | 'docs' | 'banners' | 'suggest';
+export type SeedKind = 'notices' | 'contests' | 'partners' | 'faq' | 'docs' | 'banners' | 'popups' | 'suggest';
 
 export interface SeedItems {
   notices: Notice;
@@ -114,6 +115,7 @@ export interface SeedItems {
   faq: FaqItem;
   docs: { category: DocCategory; item: DocItem };
   banners: Banner;
+  popups: Popup;
   suggest: SuggestAnswer;
 }
 
@@ -208,6 +210,19 @@ const BUILDERS: { [K in SeedKind]: Builder<K> } = {
     putText(props, BANNER.place, b.place);
     putLines(props, BANNER.links, b.links.map((l) => `${l.label} | ${l.value}`));
     putOrder(props, BANNER.order, order);
+    return { properties: props };
+  },
+  popups: (p) => {
+    // 이미지는 파일 업로드가 필요해 시드하지 않는다 (자리 표시로 보임)
+    const props = base();
+    props[POPUP.title] = title(p.title);
+    props[POPUP.slug] = richText(p.id);
+    props[POPUP.cat] = { select: { name: p.cat } };
+    props[POPUP.period] = date(p.start, p.end);
+    putText(props, POPUP.desc, p.desc);
+    putUrl(props, POPUP.href, p.href);
+    putText(props, POPUP.cta, p.cta);
+    putOrder(props, POPUP.order, p.order);
     return { properties: props };
   },
   suggest: (s) => {

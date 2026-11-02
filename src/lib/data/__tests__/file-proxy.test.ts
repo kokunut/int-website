@@ -62,6 +62,8 @@ describe('file-proxy', () => {
   it('allowedDbIdsFor: 환경변수 없으면 빈 배열', () => {
     expect(allowedDbIdsFor('banner-image', {})).toEqual([]);
     expect(allowedDbIdsFor('banner-image', { NOTION_DB_BANNERS: DB })).toEqual([DB]);
+    expect(allowedDbIdsFor('popup-image', { NOTION_DB_POPUPS: DB, NOTION_DB_BANNERS: 'x' })).toEqual([DB]);
+    expect(allowedDbIdsFor('popup-image', { NOTION_DB_BANNERS: DB })).toEqual([]);
   });
 
   it('pickFileUrl: 정상(file·external)', () => {

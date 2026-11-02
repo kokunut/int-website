@@ -8,6 +8,7 @@ import {
   mapFaq,
   mapNotice,
   mapPartner,
+  mapPopup,
   mapSuggest,
   safeHref,
   safeImageSrc,
@@ -177,6 +178,67 @@ describe('notion mappers', () => {
     expect(mapDoc(mk('활동계획서·결산'))?.category).toBe('plans');
     expect(mapDoc(mk('서식'))?.category).toBe('forms');
     expect(mapDoc(mk('양식'))?.category).toBe('forms');
+  });
+
+  describe('mapPopup', () => {
+    const rt = (s: string) => ({ type: 'rich_text', rich_text: [{ plain_text: s }] });
+    const base = (over: Record<string, unknown> = {}) =>
+      pg({
+        id: '0123456789abcdef0123456789abcdef',
+        properties: {
+          제목: { type: 'title', title: [{ plain_text: 'OO식당 제휴' }] },
+          슬러그: rt('p-open'),
+          분류: { type: 'select', select: { name: '제휴' } },
+          기간: { type: 'date', date: { start: '2026-11-01', end: '2026-11-14' } },
+          내용: rt('10% 할인'),
+          링크: { type: 'url', url: '/partners/p1' },
+          버튼문구: rt(''),
+          순서: { type: 'number', number: 2 },
+          공개: { type: 'checkbox', checkbox: true },
+          ...over,
+        },
+      });
+
+    it('필수·선택 속성을 읽고 버튼 문구는 기본값으로 채운다', () => {
+      expect(mapPopup(base())).toEqual({
+        id: 'p-open',
+        title: 'OO식당 제휴',
+        cat: '제휴',
+        start: '2026-11-01',
+        end: '2026-11-14',
+        desc: '10% 할인',
+        image: null,
+        href: '/partners/p1',
+        cta: '자세히 보기',
+        order: 2,
+      });
+    });
+
+    it('이미지: 업로드는 안정 경로, 외부 https 는 그대로, http 는 제외', () => {
+      const upload = mapPopup(base({ 이미지: { type: 'files', files: [{ file: { url: 'https://s3.example/a.png?sig=1' } }] } }));
+      expect(upload?.image).toBe('/api/notion-file/0123456789abcdef0123456789abcdef/popup-image/0');
+      expect(mapPopup(base({ 이미지: { type: 'files', files: [{ external: { url: 'https://cdn.example/a.png' } }] } }))?.image).toBe(
+        'https://cdn.example/a.png',
+      );
+      expect(mapPopup(base({ 이미지: { type: 'files', files: [{ external: { url: 'http://cdn.example/a.png' } }] } }))?.image).toBeNull();
+    });
+
+    it('버튼문구·순서 없음, 기간 하루, 위험한 링크는 비운다', () => {
+      const m = mapPopup(
+        base({ 버튼문구: rt('신청하기'), 순서: { type: 'number', number: null }, 기간: { type: 'date', date: { start: '2026-11-03' } }, 링크: { type: 'url', url: 'javascript:alert(1)' } }),
+      );
+      expect(m).toMatchObject({ cta: '신청하기', start: '2026-11-03', end: '2026-11-03', href: '' });
+      expect(m).not.toHaveProperty('order');
+    });
+
+    it('슬러그·제목·분류·기간이 잘못되면 DB 이름과 함께 건너뛴다', () => {
+      expect(mapPopup(base({ 슬러그: rt('Bad Slug') }))).toBeNull();
+      expect(mapPopup(base({ 제목: { type: 'title', title: [] } }))).toBeNull();
+      expect(mapPopup(base({ 분류: { type: 'select', select: { name: '기타' } } }))).toBeNull();
+      expect(mapPopup(base({ 기간: { type: 'date', date: null } }))).toBeNull();
+      expect(warn).toHaveBeenCalledTimes(4);
+      expect(warn.mock.calls.every((c: unknown[]) => String(c[0]).includes('NOTION_DB_POPUPS'))).toBe(true);
+    });
   });
 
   it('dedupeBy: 먼저 나온 것만 남기고 경고', () => {

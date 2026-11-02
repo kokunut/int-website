@@ -3,6 +3,7 @@
  * 인메모리 가짜 노션으로 테스트할 수 있다.
  */
 import { banners } from '../../content/banners';
+import { popups } from '../../content/popups';
 import { contests } from '../../content/contests';
 import { docs } from '../../content/docs';
 import { faq, suggestAnswers } from '../../content/faq';
@@ -94,6 +95,8 @@ export function seedRows(key: string): PagePayload[] {
       );
     case 'banners':
       return ordered('banners', banners);
+    case 'popups':
+      return popups.map((p) => toNotionPage('popups', p, p.order));
     case 'suggest':
       return suggestAnswers.map((s) => toNotionPage('suggest', s));
     default:

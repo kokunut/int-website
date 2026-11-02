@@ -16,6 +16,7 @@ import { notices } from '@/content/notices';
 import { aboutPage, departmentsPage, faqPage, partnersPage, paybackPage, suggestPage } from '@/content/pages';
 import { PARTNER_DEFAULT, partners } from '@/content/partners';
 import { payback } from '@/content/payback';
+import { popups } from '@/content/popups';
 import { siteLinks } from '@/content/site';
 import { cache } from 'react';
 import { buildEvents } from '../events';
@@ -37,13 +38,14 @@ import type {
   Partner,
   PartnersPage,
   PaybackPage,
+  Popup,
   SuggestPage,
   ResolvedPartner,
   Payback,
   SiteLinks,
   SuggestAnswer,
 } from '../types';
-import { BANNER, FAQ, PARTNER } from './notion-schema';
+import { BANNER, FAQ, PARTNER, POPUP } from './notion-schema';
 import {
   DB,
   blocksToLines,
@@ -54,6 +56,7 @@ import {
   mapFaq,
   mapNotice,
   mapPartner,
+  mapPopup,
   mapSuggest,
   sortByOrder,
 } from './notion-map';
@@ -101,7 +104,16 @@ const loadBanners = cache(async (): Promise<Banner[]> => {
   return withFallback(DB.banners, id ? () => notionRows(DB.banners, id, mapBanner, BANNER.order) : null, () => [...banners]);
 });
 
-const loadAcademic = cache(async (): Promise<AcademicEvent[]> => {
+const loadPopups = cache(async (): Promise<Popup[]> => {
+  const id = notionDb(DB.popups);
+  return withFallback(
+    DB.popups,
+    id ? async () => dedupeBy(DB.popups, await notionRows(DB.popups, id, mapPopup, POPUP.order), (p) => p.id) : null,
+    () => [...popups],
+  );
+});
+
+const loadAcademic =cache(async (): Promise<AcademicEvent[]> => {
   const url = process.env.ACADEMIC_ICS_URL;
   return withFallback('ACADEMIC_ICS_URL', url ? () => fetchAcademic(url) : null, () => [...academic]);
 });
@@ -190,6 +202,11 @@ export async function getSiteLinks(): Promise<SiteLinks> {
 
 export async function getBanners(): Promise<Banner[]> {
   return loadBanners();
+}
+
+/** 팝업 DB 의 공개 행 (기간 필터 전). 공모전과 합치는 일은 `buildPopups` 가 한다 */
+export async function getPopups(): Promise<Popup[]> {
+  return loadPopups();
 }
 
 export async function getAcademic(): Promise<AcademicEvent[]> {

@@ -14,9 +14,24 @@ import type {
   LabelValue,
   Notice,
   Partner,
+  Popup,
   SuggestAnswer,
 } from '../types';
-import { BANNER, CONTEST, DOC, DOC_CATEGORY_ALIASES, DOC_CATEGORY_LABELS, FAQ, NOTICE, NOTICE_TYPES, PARTNER, SUGGEST } from './notion-schema';
+import {
+  BANNER,
+  CONTEST,
+  DOC,
+  DOC_CATEGORY_ALIASES,
+  DOC_CATEGORY_LABELS,
+  FAQ,
+  NOTICE,
+  NOTICE_TYPES,
+  PARTNER,
+  POPUP,
+  POPUP_CATEGORIES,
+  SUGGEST,
+} from './notion-schema';
+import { POPUP_DEFAULT_CTA } from '../popup';
 import { fileProxyPath, type FileField } from './file-proxy';
 import type { NotionBlock, NotionFile, NotionPage, NotionProperty, NotionRichText } from './notion-types';
 
@@ -31,6 +46,7 @@ export const DB = {
   faq: 'NOTION_DB_FAQ',
   docs: 'NOTION_DB_DOCS',
   banners: 'NOTION_DB_BANNERS',
+  popups: 'NOTION_DB_POPUPS',
   suggest: 'NOTION_DB_SUGGEST',
 } as const;
 
@@ -299,6 +315,32 @@ export function mapBanner(page: NotionPage): Banner | null {
     placeLabel: text(page, BANNER.placeLabel),
     place: text(page, BANNER.place),
     links: parseLabelValues(textLines(page, BANNER.links)),
+  };
+}
+
+export function mapPopup(page: NotionPage): Popup | null {
+  const db = DB.popups;
+  const id = text(page, POPUP.slug);
+  if (!SLUG_RE.test(id)) return skip(db, page, `${POPUP.slug} 형식 오류 (${id || '비어 있음'})`);
+  const title = text(page, POPUP.title);
+  if (!title) return skip(db, page, `${POPUP.title} 없음`);
+  const catName = select(page, POPUP.cat);
+  const cat = POPUP_CATEGORIES.find((c) => c === catName);
+  if (!cat) return skip(db, page, `${POPUP.cat} 는 ${POPUP_CATEGORIES.join('/')} 중 하나여야 함 (${catName || '비어 있음'})`);
+  const period = dateRange(page, POPUP.period);
+  if (!period) return skip(db, page, `${POPUP.period} 없음/잘못됨`);
+  const order = num(page, POPUP.order);
+  return {
+    id,
+    title,
+    cat,
+    start: period.start,
+    end: period.end,
+    desc: text(page, POPUP.desc),
+    image: fileUrl(page, POPUP.image, 'popup-image'),
+    href: url(page, POPUP.href),
+    cta: text(page, POPUP.cta) || POPUP_DEFAULT_CTA,
+    ...(order !== null ? { order } : {}),
   };
 }
 
