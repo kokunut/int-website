@@ -3,7 +3,7 @@
  * 서버 전용. 실패하면 throw 하고, 폴백은 index.ts 가 처리한다.
  */
 import type { NotionBlock, NotionPage } from './notion-types';
-import { P_PUBLIC } from './notion-schema';
+import { DB_QUERY, P_PUBLIC } from './notion-schema';
 
 const API = 'https://api.notion.com/v1';
 const NOTION_VERSION = '2022-06-28';
@@ -24,7 +24,7 @@ interface ListResponse<T> {
   next_cursor: string | null;
 }
 
-async function notionFetch<T>(path: string, init: { method: 'GET' | 'POST'; body?: unknown }): Promise<T> {
+async function notionFetch<T>(path: string, init: { method: 'GET' | 'POST'; body?: unknown; revalidate?: number }): Promise<T> {
   const token = process.env.NOTION_TOKEN;
   if (!token) throw new Error('NOTION_TOKEN 없음');
   const res = await fetch(`${API}${path}`, {
@@ -36,7 +36,7 @@ async function notionFetch<T>(path: string, init: { method: 'GET' | 'POST'; body
     },
     body: init.body === undefined ? undefined : JSON.stringify(init.body),
     signal: AbortSignal.timeout(TIMEOUT_MS),
-    next: { revalidate: REVALIDATE_SECONDS, tags: [REMOTE_TAG] },
+    next: { revalidate: init.revalidate ?? REVALIDATE_SECONDS, tags: [REMOTE_TAG] },
   });
   if (!res.ok) {
     let detail = '';
@@ -70,6 +70,11 @@ export async function queryDatabase(dbId: string, sorts: NotionSort[] = []): Pro
   return pages;
 }
 
+/** DB 환경변수 이름(dbKey)에 정해진 조회 인자(`DB_QUERY`)로 공개 행 목록을 가져온다. 로더와 이미지 프록시가 공유 */
+export function listRows(dbKey: string, dbId: string): Promise<NotionPage[]> {
+  return queryDatabase(dbId, DB_QUERY[dbKey]?.sorts ?? []);
+}
+
 /** 페이지 본문 블록 (최상위만) */
 export async function fetchBlocks(pageId: string): Promise<NotionBlock[]> {
   const blocks: NotionBlock[] = [];
@@ -83,4 +88,14 @@ export async function fetchBlocks(pageId: string): Promise<NotionBlock[]> {
     cursor = res.has_more && res.next_cursor ? res.next_cursor : undefined;
   } while (cursor);
   return blocks;
+}
+
+/** 이미지 안정 경로 전용 페이지 조회. 서명 URL(약 1시간)보다 짧게 5분 캐시 */
+export const FILE_REVALIDATE_SECONDS = 300;
+
+export async function fetchPage(pageId: string): Promise<NotionPage> {
+  return notionFetch<NotionPage>(`/pages/${encodeURIComponent(pageId)}`, {
+    method: 'GET',
+    revalidate: FILE_REVALIDATE_SECONDS,
+  });
 }

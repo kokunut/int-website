@@ -127,6 +127,13 @@ describe('notion mappers', () => {
     });
   });
 
+  it('mapBanner: 업로드 파일은 내부 안정 경로, 외부 링크는 원래 URL', () => {
+    const id = '0123456789abcdef0123456789abcdef';
+    const b = mapBanner(pg({ ...banner, id }));
+    expect(b?.image).toBe(`/api/notion-file/${id}/banner-image/0`);
+    expect(b?.imageMobile).toBe('https://cdn.example/m.png');
+  });
+
   it('mapFaq / mapSuggest', () => {
     expect(mapFaq(pg(faq))).toEqual({ q: '언제 지급되나요?', a: '지급일에 일괄 지급' });
     expect(mapSuggest(pg(suggest))).toEqual({ title: '열람실 연장', answer: '확정되었습니다', date: '2026-10-20' });
