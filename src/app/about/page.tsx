@@ -60,8 +60,8 @@ export default async function AboutPage() {
               <h3 id={`roster-${u.id}`}>{u.name}</h3>
               <p>{u.desc}</p>
               <ul className="roster-list">
-                {u.members.map((m) => (
-                  <li key={m.name} className="roster-item">
+                {u.members.map((m, i) => (
+                  <li key={`${m.name}-${i}`} className="roster-item">
                     <span className="roster-name">{m.name}</span>
                     {m.major && (
                       <span className="roster-major" title={majorNames[m.major]}>

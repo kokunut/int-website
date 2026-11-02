@@ -24,6 +24,14 @@ export default function Footer({ links }: { links: SiteLinks }) {
               </a>
             </span>
           </p>
+          {links.email && (
+            <p>
+              <b>이메일</b>
+              <span>
+                <a href={`mailto:${links.email}`}>{links.email}</a>
+              </span>
+            </p>
+          )}
           <p>
             <b>문의</b>
             <span>
