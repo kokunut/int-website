@@ -64,7 +64,7 @@ public/                   # 정적 파일 (로고, 이미지)
 - 학과·학생회 조직·페이지 문구·사이트 링크는 코드(`src/content`) 그대로.
 - 운영 방법(속성표, 설정 절차)은 [06-content-ops.md](06-content-ops.md).
 - 모든 원격 fetch 는 `next: { revalidate: 600, tags: ['notion'] }`. `POST /api/revalidate` 가 이 태그와 레이아웃 경로를 무효화한다. 노션 이미지 URL은 약 1시간 후 만료되므로 이 주기보다 길게 잡지 않는다.
-- **이미지 경로**: 노션에 직접 올린 파일(`file`)은 `notion-map.ts`가 `/api/notion-file/{pageId}/{field}/{index}` 로 바꿔 내보낸다. 이 라우트가 요청 때 `GET /v1/pages/{id}`(5분 캐시)로 새 서명 URL을 받아 307 리다이렉트한다(`Cache-Control: public, max-age=300, s-maxage=300`). 외부 링크(`external`)는 `safeImageSrc`를 거친 원래 URL 그대로. 검증·URL 선택은 순수 함수(`src/lib/data/file-proxy.ts`), 라우트는 얇게 유지한다. 허용 필드는 `FILE_FIELDS` 목록에만 추가한다.
+- **이미지 경로**: 노션에 직접 올린 파일(`file`)은 `notion-map.ts`가 `/api/notion-file/{pageId}/{field}/{index}` 로 바꿔 내보낸다. 이 라우트가 먼저 캐시된 DB 목록에서 pageId를 확인(없으면 404)하고, 목록 행의 서명 URL을 쓰되 없을 때만 `GET /v1/pages/{id}`(5분 캐시)로 새 서명 URL을 받아 307 리다이렉트한다(`Cache-Control: public, max-age=300, s-maxage=300`). 외부 링크(`external`)는 `safeImageSrc`를 거친 원래 URL 그대로. 검증·URL 선택은 순수 함수(`src/lib/data/file-proxy.ts`), 라우트는 얇게 유지한다. 허용 필드는 `FILE_FIELDS` 목록에만 추가한다.
 - API 키는 서버 전용 환경변수(`NEXT_PUBLIC_` 접두사 금지).
 
 ## 날짜 규칙
