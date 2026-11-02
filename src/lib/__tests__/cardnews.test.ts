@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cardAlt, clampIndex, counterText, indexFromScroll, isCardNews, ogImageUrl, stepIndex, swipeDelta } from '../cardnews';
+import { cardAlt, clampIndex, counterText, indexFromScroll, isCardNews, ogImageUrl, stepIndex } from '../cardnews';
 import { absoluteUrl } from '../site';
 
 describe('슬라이더 인덱스', () => {
@@ -28,18 +28,6 @@ describe('슬라이더 인덱스', () => {
   it('표시 문구', () => {
     expect(counterText(1, 6)).toBe('2 / 6');
     expect(cardAlt('제목', 0, 3)).toBe('제목 카드뉴스 1/3');
-  });
-});
-
-describe('swipeDelta', () => {
-  it('가로가 40px 초과이고 세로보다 클 때만 넘긴다', () => {
-    expect(swipeDelta(-60, 5)).toBe(1);
-    expect(swipeDelta(60, -5)).toBe(-1);
-    expect(swipeDelta(-40, 0)).toBe(0);
-    expect(swipeDelta(-41, 0)).toBe(1);
-    expect(swipeDelta(-60, 80)).toBe(0);
-    expect(swipeDelta(-60, 60)).toBe(0);
-    expect(swipeDelta(0, 0)).toBe(0);
   });
 });
 
