@@ -242,3 +242,16 @@ test('이미지 없는 팝업은 이미지 영역이 없고, 있으면 의미 �
   await expect(img).toBeVisible();
   await expect(img).toHaveCSS('object-fit', 'contain');
 });
+
+test('390×700 모바일에서 포스터 팝업도 닫기·보지 않기·넘기기가 스크롤 없이 화면 안에 있다', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 700 });
+  await page.goto('/');
+  const dialog = page.getByRole('dialog');
+  await page.locator('.modal[data-ready=true]').waitFor();
+
+  await dialog.getByRole('button', { name: '다음 팝업' }).click();
+  await expect(dialog.getByRole('img', { name: `${EVENT_TITLE} 포스터` })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '닫기' })).toBeInViewport();
+  await expect(dialog.getByLabel('일주일간 보지 않기')).toBeInViewport();
+  await expect(dialog.getByRole('button', { name: '다음 팝업' })).toBeInViewport();
+});

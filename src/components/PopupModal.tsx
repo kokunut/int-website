@@ -150,6 +150,7 @@ export default function PopupModal({ popups, serverToday }: { popups: Popup[]; s
       }}
     >
       <div className="modal-box" ref={boxRef}>
+        <div className="modal-scroll">
         {p.image && (
           // 노션 이미지(안정 경로·외부 URL)라 next/image 최적화 대상이 아니다
           // eslint-disable-next-line @next/next/no-img-element
@@ -177,6 +178,7 @@ export default function PopupModal({ popups, serverToday }: { popups: Popup[]; s
               <span className="sr-only"> · {p.title}</span>
             </AppLink>
           )}
+        </div>
         </div>
         {total > 1 && (
           <div className="modal-nav">
