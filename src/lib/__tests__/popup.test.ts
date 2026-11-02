@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { addDays, popupHideScript,isSuppressed, pickPopupContest, popupStorageKey, suppressUntil } from '../popup';
+import { addDays, popupHideScript, isSuppressed, pickPopupContest, popupStorageKey, suppressUntil } from '../popup';
 import type { PopupContest } from '../popup';
 
 const c = (id: string, start: string, end: string, popup = true): PopupContest => ({
@@ -76,7 +76,8 @@ describe('popupHideScript', () => {
         return k === `int_popup_hide_${id}` ? stored : null;
       },
     };
-    new Function('localStorage', 'document', popupHideScript(id))(storage, doc);
+    const noop = () => {};
+    new Function('localStorage', 'document', popupHideScript(id))(storage, { ...doc, addEventListener: noop });
     vi.useRealTimers();
     return doc.documentElement.dataset.popupHidden;
   };
@@ -102,5 +103,69 @@ describe('popupHideScript', () => {
     const s = popupHideScript('a"</script>');
     expect(s).not.toContain('</script>');
     expect(s).toContain('\\u003c');
+  });
+});
+
+describe('popupHideScript — 하이드레이션 전 닫기', () => {
+  type Handler = (e: unknown) => void;
+  const setup = (opts: { ready?: boolean; checked?: 'day' | 'week' | null } = {}) => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-01T03:00:00Z')); // KST 2026-11-01
+    const handlers: Record<string, Handler> = {};
+    const saved: Record<string, string> = {};
+    const doc = {
+      documentElement: { dataset: {} as Record<string, string> },
+      addEventListener: (type: string, fn: Handler) => {
+        handlers[type] = fn;
+      },
+      querySelector: (sel: string) => {
+        if (sel === '.modal:not([data-ready])') return opts.ready ? null : {};
+        if (sel === '.modal input[data-hide]:checked')
+          return opts.checked ? { getAttribute: () => opts.checked } : null;
+        return null;
+      },
+    };
+    const storage = { getItem: () => null, setItem: (k: string, v: string) => (saved[k] = v) };
+    new Function('localStorage', 'document', popupHideScript('c1'))(storage, doc);
+    const target = (match: 'close' | 'backdrop' | 'other') => ({
+      closest: (s: string) => (match === 'close' && s === '.modal .close' ? {} : null),
+      classList: { contains: (c: string) => match === 'backdrop' && c === 'modal' },
+    });
+    return { handlers, saved, hidden: () => doc.documentElement.dataset.popupHidden, target };
+  };
+  afterEach(() => vi.useRealTimers());
+
+  it('닫기 버튼·배경 클릭·Esc 로 data-popup-hidden 을 표시한다', () => {
+    for (const fire of [
+      (s: ReturnType<typeof setup>) => s.handlers.click({ target: s.target('close') }),
+      (s: ReturnType<typeof setup>) => s.handlers.click({ target: s.target('backdrop') }),
+      (s: ReturnType<typeof setup>) => s.handlers.keydown({ key: 'Escape' }),
+    ]) {
+      const s = setup();
+      fire(s);
+      expect(s.hidden()).toBe('c1');
+      expect(s.saved).toEqual({});
+    }
+  });
+  it('다른 클릭·다른 키는 무시한다', () => {
+    const s = setup();
+    s.handlers.click({ target: s.target('other') });
+    s.handlers.keydown({ key: 'Enter' });
+    expect(s.hidden()).toBeUndefined();
+  });
+  it('모달에 data-ready 가 붙은 뒤에는 컴포넌트에 맡기고 처리하지 않는다', () => {
+    const s = setup({ ready: true });
+    s.handlers.click({ target: s.target('close') });
+    s.handlers.keydown({ key: 'Escape' });
+    expect(s.hidden()).toBeUndefined();
+  });
+  it('체크박스 선택값을 suppressUntil 과 같은 규칙으로 저장한다', () => {
+    const day = setup({ checked: 'day' });
+    day.handlers.click({ target: day.target('close') });
+    expect(day.saved).toEqual({ int_popup_hide_c1: suppressUntil('2026-11-01', 1) });
+    const week = setup({ checked: 'week' });
+    week.handlers.keydown({ key: 'Escape' });
+    expect(week.saved).toEqual({ int_popup_hide_c1: suppressUntil('2026-11-01', 7) });
+    expect(week.hidden()).toBe('c1');
   });
 });

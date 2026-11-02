@@ -49,7 +49,7 @@
 
 ## ADR-010 팝업 SSR + 첫 페인트 전 숨김
 - 2026-11-01 · 채택
-- 결정: 메인 팝업은 서버(`page.tsx`, `todayKST()` 기준)에서 후보를 골라 초기 HTML에 포함한다. "보지 않기"는 팝업 앞의 인라인 스크립트(`popupHideScript`)가 `localStorage`와 KST 오늘 날짜를 비교해 `<html data-popup-hidden>`을 표시하고, CSS(`html[data-popup-hidden] .modal{display:none}`)가 첫 페인트 전에 숨긴다. 클라이언트 컴포넌트는 하이드레이션 후 기존 로직으로 재판정하며(ADR-006) 서버와 다르면 클라이언트가 우선한다. 초기 상태는 localStorage를 쓰지 않아 하이드레이션 경고가 없다. `requestIdleCallback` 지연은 제거.
+- 결정: 메인 팝업은 서버(`page.tsx`, `todayKST()` 기준)에서 후보를 골라 초기 HTML에 포함한다. "보지 않기"는 팝업 앞의 인라인 스크립트(`popupHideScript`)가 `localStorage`와 KST 오늘 날짜를 비교해 `<html data-popup-hidden>`을 표시하고, CSS(`html[data-popup-hidden] .modal{display:none}`)가 첫 페인트 전에 숨긴다. 클라이언트 컴포넌트는 하이드레이션 후 기존 로직으로 재판정하며(ADR-006) 서버와 다르면 클라이언트가 우선한다. 초기 상태는 localStorage를 쓰지 않아 하이드레이션 경고가 없다. `requestIdleCallback` 지연은 제거. 하이드레이션 전에는 같은 스크립트가 "닫기"·배경 클릭·Esc를 위임 이벤트로 처리해 `data-popup-hidden`을 표시하고(체크박스 값은 localStorage에도 저장), 컴포넌트는 마운트 시 이 표시를 닫힌 상태로 이어받으며 모달에 `data-ready="true"`를 붙인다. E2E는 `[data-ready=true]`를 기다린다.
 - 이유: 마운트 후에 그리면 팝업 본문이 LCP가 되어 늦어지고, 유휴 지연은 오히려 더 늦춤. 스크립트의 규칙은 `isSuppressed`와 같으며 단위 테스트로 고정.
 
 ## ADR-012 노션 이미지 안정 경로(프록시)
