@@ -123,6 +123,15 @@ export const SUGGEST = {
 
 export const NOTICE_TYPES = ['일반', '행사'] as const;
 
+/**
+ * DB 환경변수 이름별 노션 조회 인자(정렬). 데이터 로더와 이미지 프록시가 같은 값을 써야
+ * 요청 본문이 같아져 Next 데이터 캐시를 공유한다. 정렬이 필요 없으면 비워 두고 메모리에서 정렬한다.
+ */
+export const DB_QUERY: Record<string, { sorts: { property: string; direction: 'ascending' | 'descending' }[] }> = {
+  NOTION_DB_NOTICES: { sorts: [{ property: NOTICE.date, direction: 'descending' }] },
+  NOTION_DB_SUGGEST: { sorts: [{ property: SUGGEST.date, direction: 'descending' }] },
+};
+
 export interface DbSpec {
   key: string;
   label: string;

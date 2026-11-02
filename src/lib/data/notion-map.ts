@@ -17,6 +17,7 @@ import type {
   SuggestAnswer,
 } from '../types';
 import { BANNER, CONTEST, DOC, DOC_CATEGORY_ALIASES, DOC_CATEGORY_LABELS, FAQ, NOTICE, NOTICE_TYPES, PARTNER, SUGGEST } from './notion-schema';
+import { fileProxyPath, type FileField } from './file-proxy';
 import type { NotionBlock, NotionFile, NotionPage, NotionProperty, NotionRichText } from './notion-types';
 
 const SLUG_RE = /^[a-z0-9-]+$/;
@@ -88,9 +89,11 @@ export function safeImageSrc(v: string | null | undefined): string | null {
 
 const url = (page: NotionPage, name: string): string => safeHref(prop(page, name)?.url);
 
-function fileUrl(page: NotionPage, name: string): string | null {
+/** 업로드 파일(file)은 만료되지 않는 내부 경로로, 외부 링크(external)는 https 만 원래 URL 로 */
+function fileUrl(page: NotionPage, name: string, field: FileField): string | null {
   const f: NotionFile | undefined = prop(page, name)?.files?.[0];
-  return safeImageSrc(f?.file?.url ?? f?.external?.url);
+  if (f?.file?.url) return fileProxyPath(page.id, field, 0) ?? safeImageSrc(f.file.url);
+  return safeImageSrc(f?.external?.url);
 }
 
 /** '순서' 숫자 속성 오름차순 (비어 있으면 맨 뒤, 같으면 원래 순서 유지) */
@@ -288,8 +291,8 @@ export function mapBanner(page: NotionPage): Banner | null {
   const href = safeHref(text(page, BANNER.href));
   if (!slogan || !href) return skip(DB.banners, page, `${BANNER.slogan}/${BANNER.href} 는 필수 (링크는 https:// 또는 /경로)`);
   return {
-    image: fileUrl(page, BANNER.image),
-    imageMobile: fileUrl(page, BANNER.imageMobile),
+    image: fileUrl(page, BANNER.image, 'banner-image'),
+    imageMobile: fileUrl(page, BANNER.imageMobile, 'banner-image-mobile'),
     href,
     word: text(page, BANNER.word),
     slogan,

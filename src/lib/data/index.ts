@@ -43,7 +43,7 @@ import type {
   SiteLinks,
   SuggestAnswer,
 } from '../types';
-import { BANNER, FAQ, NOTICE, PARTNER, SUGGEST } from './notion-schema';
+import { BANNER, FAQ, PARTNER } from './notion-schema';
 import {
   DB,
   blocksToLines,
@@ -57,7 +57,7 @@ import {
   mapSuggest,
   sortByOrder,
 } from './notion-map';
-import { fetchBlocks, queryDatabase } from './notion';
+import { fetchBlocks, listRows } from './notion';
 import type { NotionPage } from './notion-types';
 import { fetchAcademic, fetchPayback } from './remote';
 
@@ -91,14 +91,14 @@ async function withFallback<T>(source: string, remote: (() => Promise<T>) | null
 }
 
 /** 노션 DB 하나를 읽어 행마다 map 한다 */
-async function notionRows<T>(dbId: string, map: (p: NotionPage) => T | null, order?: string, sorts: Parameters<typeof queryDatabase>[1] = []): Promise<T[]> {
-  const pages = await queryDatabase(dbId, sorts);
+async function notionRows<T>(dbKey: string, dbId: string, map: (p: NotionPage) => T | null, order?: string): Promise<T[]> {
+  const pages = await listRows(dbKey, dbId);
   return compact((order ? sortByOrder(pages, order) : pages).map(map));
 }
 
 const loadBanners = cache(async (): Promise<Banner[]> => {
   const id = notionDb(DB.banners);
-  return withFallback(DB.banners, id ? () => notionRows(id, mapBanner, BANNER.order) : null, () => [...banners]);
+  return withFallback(DB.banners, id ? () => notionRows(DB.banners, id, mapBanner, BANNER.order) : null, () => [...banners]);
 });
 
 const loadAcademic = cache(async (): Promise<AcademicEvent[]> => {
@@ -113,7 +113,7 @@ interface NoticeIndex {
 }
 
 async function fetchNotices(dbId: string): Promise<NoticeIndex> {
-  const pages = await queryDatabase(dbId, [{ property: NOTICE.date, direction: 'descending' }]);
+  const pages = await listRows(DB.notices, dbId);
   const list: Notice[] = [];
   const pageIds = new Map<number, string>();
   for (const p of pages) {
@@ -141,7 +141,7 @@ const loadNotices = async (): Promise<Notice[]> => (await loadNoticeIndex()).lis
 
 const loadContests = cache(async (): Promise<Contest[]> => {
   const id = notionDb(DB.contests);
-  return withFallback(DB.contests, id ? async () => dedupeBy(DB.contests, await notionRows(id, mapContest), (c) => c.id) : null, () => [...contests]);
+  return withFallback(DB.contests, id ? async () => dedupeBy(DB.contests, await notionRows(DB.contests, id, mapContest), (c) => c.id) : null, () => [...contests]);
 });
 
 const loadPayback = cache(async (): Promise<Payback> => {
@@ -151,7 +151,7 @@ const loadPayback = cache(async (): Promise<Payback> => {
 
 const loadPartners = cache(async (): Promise<Partner[]> => {
   const id = notionDb(DB.partners);
-  return withFallback(DB.partners, id ? async () => dedupeBy(DB.partners, await notionRows(id, mapPartner, PARTNER.order), (p) => p.id) : null, () => [...partners]);
+  return withFallback(DB.partners, id ? async () => dedupeBy(DB.partners, await notionRows(DB.partners, id, mapPartner, PARTNER.order), (p) => p.id) : null, () => [...partners]);
 });
 
 const loadDocs = cache(async (): Promise<Record<DocCategory, DocItem[]>> => {
@@ -161,7 +161,7 @@ const loadDocs = cache(async (): Promise<Record<DocCategory, DocItem[]>> => {
     id
       ? async () => {
           const out: Record<DocCategory, DocItem[]> = { rules: [], minutes: [], plans: [], forms: [] };
-          const rows = dedupeBy(DB.docs, await notionRows(id, mapDoc), (r) => `${r.category}/${r.item.id}`);
+          const rows = dedupeBy(DB.docs, await notionRows(DB.docs, id, mapDoc), (r) => `${r.category}/${r.item.id}`);
           for (const row of rows) out[row.category].push(row.item);
           return out;
         }
@@ -172,14 +172,14 @@ const loadDocs = cache(async (): Promise<Record<DocCategory, DocItem[]>> => {
 
 const loadFaq = cache(async (): Promise<FaqItem[]> => {
   const id = notionDb(DB.faq);
-  return withFallback(DB.faq, id ? () => notionRows(id, mapFaq, FAQ.order) : null, () => [...faq]);
+  return withFallback(DB.faq, id ? () => notionRows(DB.faq, id, mapFaq, FAQ.order) : null, () => [...faq]);
 });
 
 const loadSuggestAnswers = cache(async (): Promise<SuggestAnswer[]> => {
   const id = notionDb(DB.suggest);
   return withFallback(
     DB.suggest,
-    id ? () => notionRows(id, mapSuggest, undefined, [{ property: SUGGEST.date, direction: 'descending' }]) : null,
+    id ? () => notionRows(DB.suggest, id, mapSuggest) : null,
     () => [...suggestAnswers],
   );
 });
