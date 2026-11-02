@@ -78,6 +78,12 @@
 - 블록 렌더링: 본문은 `ContentBlock`(문단·제목·목록·인용·콜아웃·구분선·이미지·체크리스트)으로 변환(`blocksToContent`, 연속 목록 항목은 하나로 묶음)해 공지·아카이브가 `NotionBlocks` 하나로 그린다. `heading_1`은 페이지 `h1`과 겹치지 않도록 `h2`로 그린다. 공지의 `body: string[]`는 캘린더 등 기존 사용처를 위해 그대로 두고 `blocks`를 더한다. 하위(중첩) 블록은 요청하지 않는다.
 - 이유: 취업·병영 정보를 코드 수정 없이 올리고(활용 방식 d), 지금까지 텍스트 줄만 보이던 본문을 구조 그대로 보여 주기 위함. 한계: 업로드 이미지 블록은 서명 URL이 만료돼 아직 지원하지 않는다(외부 https 이미지만, 업로드 이미지는 후속). 글자 서식(굵게·링크)은 일반 글자로 표시된다. 기존 노션에는 아카이브 DB를 새로 만들어야 한다.
 
+## ADR-017 사이트 설정·집행부 명단을 노션에서 관리
+- 2026-11-02 · 채택
+- 결정: 코드에 남아 있던 운영 정보를 노션 DB 3개(`DB_SPECS` 포함 → `notion:setup`·`content:check` 자동)로 옮긴다. (1) **사이트 설정**(`NOTION_DB_SETTINGS`): `항목`(title, 코드 상수 `SETTING_KEYS`의 정해진 이름)·`값`(rich_text)·`링크`(url, `safeHref`)·`파일`(files, 안정 경로 키 `settings-file`)·`공개`. 항목마다 채우는 칸이 정해져 있다(링크·글자·여러 줄·파일). 카카오톡 채널·인스타그램 주소/아이디·이메일·학생회실 주소·폼 2개·군입대 백서·공모전 정보·캘린더 구독·인사말·서명·단체 사진. 모르는 항목은 경고 후 무시, 비어 있거나 행이 없으면 그 항목만 목 데이터(`siteLinks`·`aboutPage`) 기본값, 같은 항목이 여럿이면 먼저 나온 값. `getSiteLinks`·`getAboutPage`가 항목 단위로 덮어쓴다. 이메일은 목 데이터에 값이 없어 푸터에 노션 값이 있을 때만 보인다(환경변수 없을 때 화면 동일). (2) **부서**(`NOTION_DB_UNITS`: 이름·설명·순서·공개)와 **집행부**(`NOTION_DB_COUNCIL`: 이름·학과·부서(select)·직책·부장·순서·공개). `buildOrg`: 부서 DB에 없는 부서의 사람은 "기타" 그룹(경고), 부서마다 부장은 첫 번째만(경고), 총원은 데이터에서 계산. 집행부 DB가 없거나 실패하면 목 명단 전체, 부서 DB만 없으면 목 데이터의 부서 목록으로 묶는다. 연결돼 있으면 빈 목록도 유효(다른 DB와 동일).
+- 반영: 설정·명단 모두 `listRows`(태그 `notion`, 10분 재검증)를 쓰므로 레이아웃(헤더·푸터·FAB)과 `/api/revalidate`(태그 + `revalidatePath('/', 'layout')`) 대상에 그대로 포함된다. `--seed`는 설정 13개 항목을 현재 기본값으로, 부서 6개·명단 25명을 만든다(단체 사진은 업로드 필요해 빈 행).
+- 이유: 매년 바뀌는 명단·링크·인사말을 개발자 없이 고치게 한다. 학과 소개는 연 1회 미만 변경이고 웹 조사 기반이라 확인 후 일괄 수정하도록 코드에 남긴다(`majorNames`, 페이지 안내 문구 포함). 한계: 부서 id는 노션 순서 기반(`u1`…)이라 부서를 재정렬하면 `#unit-…` 앵커가 바뀐다. 기존 노션에는 DB 3개를 새로 만들어야 한다.
+
 ## ADR-011 방문 통계: Vercel Analytics·Speed Insights, 운영 배포에서만 렌더
 - 2026-11-01 · 채택
 - 결정: `@vercel/analytics`, `@vercel/speed-insights`를 쓰고 `layout.tsx`(서버 컴포넌트)에서 `isVercelProduction()`(`process.env.VERCEL_ENV === "production"`)일 때만 `<Analytics />`, `<SpeedInsights />`를 렌더한다. 커스텀 이벤트(`popup_detail`, `payback_apply`, `kakao_fab`)는 `src/lib/analytics.ts`의 `EVENTS`로 상수화하고, 클라이언트에서는 `next.config.ts`가 주입한 `NEXT_PUBLIC_ANALYTICS`가 `1`일 때만 전송한다(그 외 no-op). `track`은 이벤트 발생 시 동적 import 해 초기 JS에 포함하지 않는다.

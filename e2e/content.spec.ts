@@ -26,3 +26,11 @@ test('FAQ 아코디언이 열린다', async ({ page }) => {
   await expect(first).toHaveAttribute('open', '');
   await expect(first.locator('.a')).toBeVisible();
 });
+
+test('푸터: 노션 설정이 없으면 이메일 행 없이 기존 항목만 보인다', async ({ page }) => {
+  await page.goto('/');
+  const info = page.locator('#foot-info');
+  await expect(info.getByText('주소')).toBeVisible();
+  await expect(info.getByText('Instagram')).toBeVisible();
+  await expect(info.getByText('이메일')).toHaveCount(0);
+});

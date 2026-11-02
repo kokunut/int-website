@@ -11,6 +11,8 @@ export interface SiteLinks {
   paybackForm: string;
   gcalSubscribe: string;
   address: string;
+  /** 문의 이메일. 없으면 푸터에 표시하지 않는다 */
+  email?: string;
 }
 
 export interface LabelValue {

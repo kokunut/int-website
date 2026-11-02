@@ -3,6 +3,8 @@
  * 노션에서 속성 이름을 바꾸면 여기도 같이 바꿔야 한다.
  */
 
+import { org } from '../../content/council';
+
 export type NotionPropType =
   | 'title'
   | 'rich_text'
@@ -153,6 +155,55 @@ export const BANNER = {
   links: '정보',
   order: '순서',
 } as const;
+
+/** 사이트 설정 (항목 이름이 정해져 있고, 항목마다 값·링크·파일 중 하나를 쓴다) */
+export const SETTING = {
+  key: '항목',
+  value: '값',
+  link: '링크',
+  file: '파일',
+} as const;
+
+export type SettingKind = 'text' | 'lines' | 'link' | 'file';
+
+/** 정해진 설정 항목. `label` 이 노션 `항목` 칸의 글자(정확히 같아야 함)이고 `kind` 가 채울 칸을 정한다 */
+export const SETTING_KEYS = [
+  { id: 'kakao', label: '카카오톡 채널', kind: 'link', note: '푸터·문의 버튼·플로팅 버튼' },
+  { id: 'instagram', label: '인스타그램 주소', kind: 'link', note: '푸터 인스타그램 링크' },
+  { id: 'instagramId', label: '인스타그램 아이디', kind: 'text', note: '푸터에 보이는 글자(예: @int_sejong)' },
+  { id: 'email', label: '이메일', kind: 'text', note: '푸터 문의 칸. 비우면 표시 안 함' },
+  { id: 'address', label: '학생회실 주소', kind: 'text', note: '푸터 주소' },
+  { id: 'suggestForm', label: '건의함 폼', kind: 'link', note: '건의함 구글폼' },
+  { id: 'paybackForm', label: '페이백 신청 폼', kind: 'link', note: '검정비 페이백 신청 구글폼' },
+  { id: 'notionMilitary', label: '군입대 백서', kind: 'link', note: '병영 길라잡이 링크 카드·메인 바로가기' },
+  { id: 'notionContest', label: '공모전 정보', kind: 'link', note: '공모전 정보 노션 링크' },
+  { id: 'gcalSubscribe', label: '구글 캘린더 구독', kind: 'link', note: '캘린더 구독 버튼' },
+  { id: 'greeting', label: '인사말', kind: 'lines', note: '학생회 소개 인사말. 여러 문단 가능(줄을 바꿀 때마다 새 문단)' },
+  { id: 'signer', label: '인사말 서명', kind: 'text', note: '인사말 아래 서명(예: 학생회장 OOO)' },
+  { id: 'photo', label: '단체 사진', kind: 'file', note: '학생회 소개 단체 사진(첫 번째 파일)' },
+] as const satisfies readonly { id: string; label: string; kind: SettingKind; note: string }[];
+
+export type SettingId = (typeof SETTING_KEYS)[number]['id'];
+
+/** 부서 (집행부 명단의 묶음) */
+export const UNIT = {
+  name: '이름',
+  desc: '설명',
+  order: '순서',
+} as const;
+
+/** 집행부 명단 */
+export const COUNCIL = {
+  name: '이름',
+  major: '학과',
+  unit: '부서',
+  role: '직책',
+  lead: '부장',
+  order: '순서',
+} as const;
+
+/** 부서 DB 에 없는 부서의 사람을 모으는 그룹 이름 */
+export const UNIT_FALLBACK = '기타';
 
 /** 건의 답변 */
 export const SUGGEST = {
@@ -343,6 +394,51 @@ export const DB_SPECS: DbSpec[] = [
       t(POPUP.href, 'url', false, '/partners/oo-restaurant', '"자세히 보기" 대상. 사이트 안 경로(/…) 또는 https:// 주소. 없으면 버튼 없음'),
       t(POPUP.cta, 'rich_text', false, '자세히 보기', '버튼 글자. 비우면 "자세히 보기"'),
       t(POPUP.order, 'number', false, '1', '작은 수가 먼저. 비우면 맨 뒤'),
+      pub,
+    ],
+  },
+  {
+    key: 'settings',
+    label: '사이트 설정',
+    env: 'NOTION_DB_SETTINGS',
+    bodyNote: '`항목`은 아래 정해진 이름 중 하나여야 합니다(모르는 이름은 무시). 행이 없거나 값이 비어 있으면 그 항목만 기본값을 씁니다.',
+    props: [
+      t(SETTING.key, 'title', true, '카카오톡 채널', '정해진 이름 중 하나(아래 항목 표)'),
+      t(SETTING.value, 'rich_text', false, '@int_sejong', '글자 값 항목(인스타그램 아이디·이메일·학생회실 주소·인사말·인사말 서명). 인사말은 줄마다 한 문단입니다'),
+      t(SETTING.link, 'url', false, 'https://pf.kakao.com/_xxxx', '링크 항목(카카오톡 채널·인스타그램 주소·폼·백서 등). https:// 또는 / 로 시작하는 주소만 허용'),
+      t(SETTING.file, 'files', false, '(파일 업로드)', '이미지 항목(단체 사진). 첫 번째 파일 사용'),
+      pub,
+    ],
+  },
+  {
+    key: 'units',
+    label: '부서',
+    env: 'NOTION_DB_UNITS',
+    props: [
+      t(UNIT.name, 'title', true, '홍보부', '집행부 DB 의 `부서` 선택값과 같은 이름'),
+      t(UNIT.desc, 'rich_text', false, 'SNS·웹사이트 운영, 디자인'),
+      t(UNIT.order, 'number', false, '1', '작은 수가 먼저. 비우면 맨 뒤'),
+      pub,
+    ],
+  },
+  {
+    key: 'council',
+    label: '집행부',
+    env: 'NOTION_DB_COUNCIL',
+    props: [
+      t(COUNCIL.name, 'title', true, '홍길동'),
+      t(COUNCIL.major, 'rich_text', false, '컴공', '학과·전공 약칭'),
+      t(
+        COUNCIL.unit,
+        'select',
+        true,
+        '홍보부',
+        '부서 DB 의 이름과 같게. 부서 DB 에 없는 이름이면 "기타" 그룹에 보입니다',
+        org.map((u) => u.name),
+      ),
+      t(COUNCIL.role, 'rich_text', false, '회장', '회장·부회장 등. 일반 부원은 비웁니다'),
+      t(COUNCIL.lead, 'checkbox', false, '체크', '부장. 부서마다 한 명(여러 명이면 순서가 앞선 사람만 부장 표시)'),
+      t(COUNCIL.order, 'number', false, '1', '작은 수가 먼저(부서 안 표시 순서). 비우면 맨 뒤'),
       pub,
     ],
   },
