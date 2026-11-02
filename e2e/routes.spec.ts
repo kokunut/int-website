@@ -56,3 +56,8 @@ test('카카오톡 FAB 클릭은 새 탭을 열고 콘솔 에러·통계 요청�
   expect(vercelRequests).toEqual([]);
   expect(errors).toEqual([]);
 });
+
+test('노션 이미지 안정 경로는 환경변수가 없으면 404', async ({ request }) => {
+  const res = await request.get('/api/notion-file/0123456789abcdef0123456789abcdef/banner-image/0', { maxRedirects: 0 });
+  expect(res.status()).toBe(404);
+});

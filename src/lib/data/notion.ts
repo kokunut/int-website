@@ -24,7 +24,7 @@ interface ListResponse<T> {
   next_cursor: string | null;
 }
 
-async function notionFetch<T>(path: string, init: { method: 'GET' | 'POST'; body?: unknown }): Promise<T> {
+async function notionFetch<T>(path: string, init: { method: 'GET' | 'POST'; body?: unknown; revalidate?: number }): Promise<T> {
   const token = process.env.NOTION_TOKEN;
   if (!token) throw new Error('NOTION_TOKEN 없음');
   const res = await fetch(`${API}${path}`, {
@@ -36,7 +36,7 @@ async function notionFetch<T>(path: string, init: { method: 'GET' | 'POST'; body
     },
     body: init.body === undefined ? undefined : JSON.stringify(init.body),
     signal: AbortSignal.timeout(TIMEOUT_MS),
-    next: { revalidate: REVALIDATE_SECONDS, tags: [REMOTE_TAG] },
+    next: { revalidate: init.revalidate ?? REVALIDATE_SECONDS, tags: [REMOTE_TAG] },
   });
   if (!res.ok) {
     let detail = '';
@@ -83,4 +83,14 @@ export async function fetchBlocks(pageId: string): Promise<NotionBlock[]> {
     cursor = res.has_more && res.next_cursor ? res.next_cursor : undefined;
   } while (cursor);
   return blocks;
+}
+
+/** 이미지 안정 경로 전용 페이지 조회. 서명 URL(약 1시간)보다 짧게 5분 캐시 */
+export const FILE_REVALIDATE_SECONDS = 300;
+
+export async function fetchPage(pageId: string): Promise<NotionPage> {
+  return notionFetch<NotionPage>(`/pages/${encodeURIComponent(pageId)}`, {
+    method: 'GET',
+    revalidate: FILE_REVALIDATE_SECONDS,
+  });
 }

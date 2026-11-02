@@ -35,3 +35,4 @@
 | 2026-11-01 | #24 | (본 PR) | Lighthouse 점검 반영: 폰트 자체 호스팅(ADR-009), `--text-3` 대비 4.5:1↑, 배너 점 히트 영역 24px, `icon.svg`, 링크 텍스트(sr-only 보강)·제목 순서(h1→h2), `lighthouserc.json`·`npm run lhci`. CI job은 사람이 `ci.yml`에 추가 |
 | 2026-11-01 | #27 | (본 PR) | `.github/dependabot.yml`(npm·github-actions 주간, 그룹·major 개별 PR), Dependabot PR 처리 절차 문서화 |
 | 2026-11-01 | #29 | (본 PR) | 방문 통계: Vercel Analytics·Speed Insights(운영 배포에서만 렌더, `isVercelProduction()`), 커스텀 이벤트 3종(팝업 자세히 보기·페이백 신청·카카오 FAB, 밖에서는 no-op), ADR-011, 운영 매뉴얼 "방문 통계 보기" |
+| 2026-11-02 | #34 | (본 PR) | 노션 이미지 안정 경로 `/api/notion-file/[pageId]/[field]/[index]`(허용 필드·공개 행·DB 검증, 307, 5분 캐시), 배너 이미지·모바일 이미지에 적용, `file-proxy.ts` 순수 함수+테스트, ADR-012 |

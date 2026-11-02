@@ -23,6 +23,7 @@ export interface NotionProperty {
 
 export interface NotionPage {
   id: string;
+  parent?: { type?: string; database_id?: string };
   properties: Record<string, NotionProperty | undefined>;
 }
 

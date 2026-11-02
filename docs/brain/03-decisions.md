@@ -52,6 +52,11 @@
 - 결정: 메인 팝업은 서버(`page.tsx`, `todayKST()` 기준)에서 후보를 골라 초기 HTML에 포함한다. "보지 않기"는 팝업 앞의 인라인 스크립트(`popupHideScript`)가 `localStorage`와 KST 오늘 날짜를 비교해 `<html data-popup-hidden>`을 표시하고, CSS(`html[data-popup-hidden] .modal{display:none}`)가 첫 페인트 전에 숨긴다. 클라이언트 컴포넌트는 하이드레이션 후 기존 로직으로 재판정하며(ADR-006) 서버와 다르면 클라이언트가 우선한다. 초기 상태는 localStorage를 쓰지 않아 하이드레이션 경고가 없다. `requestIdleCallback` 지연은 제거.
 - 이유: 마운트 후에 그리면 팝업 본문이 LCP가 되어 늦어지고, 유휴 지연은 오히려 더 늦춤. 스크립트의 규칙은 `isSuppressed`와 같으며 단위 테스트로 고정.
 
+## ADR-012 노션 이미지 안정 경로(프록시)
+- 2026-11-02 · 채택
+- 결정: 노션 업로드 파일은 `GET /api/notion-file/[pageId]/[field]/[index]`(307 리다이렉트, 5분 캐시)로 내보낸다. `field`는 허용 목록(`banner-image`, `banner-image-mobile`, 이후 확장), `index`는 0~19. 페이지의 `parent.database_id`가 해당 필드의 `NOTION_DB_*`이고 `공개`가 체크된 행이며 https 파일일 때만 응답하고, 그 외·토큰 없음·조회 실패는 이유 없이 404. 외부 링크(`external`)는 기존대로 원래 URL.
+- 이유: 서명 URL은 약 1시간 뒤 만료되어 ISR 캐시가 길면 이미지가 깨진다. 내부 경로는 만료되지 않고, 공개 행·허용 필드만 열어 임의 페이지 파일 노출을 막는다. 한계: 이미지 요청마다 서버 함수가 한 번 실행될 수 있다(5분 캐시로 완화).
+
 ## ADR-011 방문 통계: Vercel Analytics·Speed Insights, 운영 배포에서만 렌더
 - 2026-11-01 · 채택
 - 결정: `@vercel/analytics`, `@vercel/speed-insights`를 쓰고 `layout.tsx`(서버 컴포넌트)에서 `isVercelProduction()`(`process.env.VERCEL_ENV === "production"`)일 때만 `<Analytics />`, `<SpeedInsights />`를 렌더한다. 커스텀 이벤트(`popup_detail`, `payback_apply`, `kakao_fab`)는 `src/lib/analytics.ts`의 `EVENTS`로 상수화하고, 클라이언트에서는 `next.config.ts`가 주입한 `NEXT_PUBLIC_ANALYTICS`가 `1`일 때만 전송한다(그 외 no-op). `track`은 이벤트 발생 시 동적 import 해 초기 JS에 포함하지 않는다.
