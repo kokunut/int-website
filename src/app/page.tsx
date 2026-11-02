@@ -3,37 +3,38 @@ import AppLink from '@/components/AppLink';
 import BannerCarousel from '@/components/BannerCarousel';
 import Calendar from '@/components/Calendar';
 import ContestList from '@/components/ContestList';
-import ContestPopup from '@/components/ContestPopup';
 import NoticeList from '@/components/NoticeList';
 import PaybackCard from '@/components/PaybackCard';
+import PopupModal from '@/components/PopupModal';
 import Link from 'next/link';
-import { getBanners, getCalendarEvents, getContests, getNotices, getPayback, getSiteLinks } from '@/lib/data';
+import { getBanners, getCalendarEvents, getContests, getNotices, getPayback, getPopups, getSiteLinks } from '@/lib/data';
 import { todayKST } from '@/lib/date';
-import { pickPopupContest, popupHideScript } from '@/lib/popup';
+import { activePopups, buildPopups, popupHideScript } from '@/lib/popup';
 
 export const revalidate = 600;
 
 export const metadata: Metadata = { title: { absolute: '인트 | 인공지능융합대학 학생회' } };
 
 export default async function HomePage() {
-  const [banners, events, contests, notices, payback, links] = await Promise.all([
+  const [banners, events, contests, popupRows, notices, payback, links] = await Promise.all([
     getBanners(),
     getCalendarEvents(),
     getContests(),
+    getPopups(),
     getNotices(),
     getPayback(),
     getSiteLinks(),
   ]);
   const today = todayKST();
-  const popupContests = contests
-    .filter((c) => c.popup)
-    .map(({ id, title, desc, start, end, popup }) => ({ id, title, desc, start, end, popup }));
-  const serverPopup = pickPopupContest(popupContests, today);
+  const popups = buildPopups(popupRows, contests);
+  const serverPopups = activePopups(popups, today);
 
   return (
     <div className="container">
-      {serverPopup && <script dangerouslySetInnerHTML={{ __html: popupHideScript(serverPopup.id) }} />}
-      <ContestPopup contests={popupContests} serverToday={today} />
+      {serverPopups.length > 0 && (
+        <script dangerouslySetInnerHTML={{ __html: popupHideScript(serverPopups.map((p) => p.id)) }} />
+      )}
+      <PopupModal popups={popups} serverToday={today} />
       <h1 className="sr-only">인트 · 인공지능융합대학 학생회</h1>
       <section id="banner" aria-label="배너">
         <BannerCarousel banners={banners} />
@@ -71,13 +72,13 @@ export default async function HomePage() {
         </div>
       </section>
       <section className="section quick" aria-label="바로가기">
-        <AppLink className="qk" href={links.notionMilitary}>
+        <Link className="qk" href="/archive/military">
           <div>
-            <small>노션 바로가기</small>
-            <strong>군입대 백서</strong>
+            <small>아카이브</small>
+            <strong>병영 길라잡이</strong>
           </div>
-          <span className="arr">↗</span>
-        </AppLink>
+          <span className="arr">→</span>
+        </Link>
         <AppLink className="qk" href={links.notionContest}>
           <div>
             <small>노션 바로가기</small>

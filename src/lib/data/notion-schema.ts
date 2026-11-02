@@ -35,6 +35,8 @@ export const NOTICE = {
   type: '유형',
   date: '날짜',
   event: '행사기간',
+  cards: '카드뉴스',
+  instagram: '인스타그램',
 } as const;
 
 /** 공모전 */
@@ -72,6 +74,22 @@ export const PARTNER = {
   order: '순서',
 } as const;
 
+/** 팝업 (메인 첫 화면 모달) */
+export const POPUP = {
+  title: '제목',
+  slug: '슬러그',
+  cat: '분류',
+  period: '기간',
+  desc: '내용',
+  image: '이미지',
+  href: '링크',
+  cta: '버튼문구',
+  order: '순서',
+} as const;
+
+/** 팝업 분류 선택값 */
+export const POPUP_CATEGORIES = ['제휴', '행사', '공지', '공모전'] as const;
+
 /** 자료실 (4개 분류를 DB 하나에 모으고 '분류' 선택으로 나눈다) */
 export const DOC = {
   title: '제목',
@@ -93,6 +111,28 @@ export const DOC_CATEGORY_LABELS = {
 
 /** 예전/약식 이름도 받아 준다 (매뉴얼에는 싣지 않음) */
 export const DOC_CATEGORY_ALIASES = { '계획·결산': 'plans', 양식: 'forms' } as const;
+
+/** 아카이브 (취업 아카이브·병영 길라잡이를 DB 하나에 모으고 '분류'로 나눈다) */
+export const ARCHIVE = {
+  title: '제목',
+  slug: '슬러그',
+  category: '분류',
+  topic: '주제',
+  date: '날짜',
+  summary: '요약',
+  files: '첨부',
+  link: '링크',
+  pinned: '고정',
+} as const;
+
+/** 분류 선택값 -> 코드 */
+export const ARCHIVE_CATEGORY_LABELS = { 취업: 'career', 병영: 'military' } as const;
+
+/** 분류별 주제 선택지 (노션에서 자유롭게 더 추가할 수 있다) */
+export const ARCHIVE_TOPICS = {
+  career: ['채용공고', '취업후기', '자격증', '대외활동', '특강'],
+  military: ['입대준비', '복무', '전역', '병역특례', '예비군'],
+} as const;
 
 /** 자주 묻는 질문 */
 export const FAQ = {
@@ -121,7 +161,7 @@ export const SUGGEST = {
   date: '날짜',
 } as const;
 
-export const NOTICE_TYPES = ['일반', '행사'] as const;
+export const NOTICE_TYPES = ['일반', '행사', '카드뉴스'] as const;
 
 /**
  * DB 환경변수 이름별 노션 조회 인자(정렬). 데이터 로더와 이미지 프록시가 같은 값을 써야
@@ -170,9 +210,11 @@ export const DB_SPECS: DbSpec[] = [
     props: [
       t(NOTICE.title, 'title', true, '2026 학술제 참가팀 모집'),
       t(NOTICE.no, 'number', true, '6', '겹치지 않는 양의 정수. 주소(/notice/6)에 쓰입니다'),
-      t(NOTICE.type, 'select', true, '행사', '일반 또는 행사', [...NOTICE_TYPES]),
+      t(NOTICE.type, 'select', true, '행사', '일반·행사·카드뉴스 중 하나', [...NOTICE_TYPES]),
       t(NOTICE.date, 'date', true, '2026-10-26', '게시일'),
       t(NOTICE.event, 'date', false, '2026-11-03 → 2026-11-14', '캘린더에도 표시할 때만. 하루면 시작일만'),
+      t(NOTICE.cards, 'files', false, '(이미지 여러 장 업로드)', '카드뉴스 이미지를 인스타그램 업로드 순서대로, 최대 20장. 없으면 일반 공지'),
+      t(NOTICE.instagram, 'url', false, 'https://www.instagram.com/p/xxxx', '인스타그램 원본 게시물 링크(instagram.com 주소만 허용)'),
       pub,
     ],
   },
@@ -246,6 +288,31 @@ export const DB_SPECS: DbSpec[] = [
     ],
   },
   {
+    key: 'archive',
+    label: '아카이브',
+    env: 'NOTION_DB_ARCHIVE',
+    bodyNote: '본문은 노션 페이지를 열어 그 안에 적습니다 (문단·제목·글머리·번호 목록·인용·콜아웃·구분선·체크리스트, 외부 주소 이미지).',
+    props: [
+      t(ARCHIVE.title, 'title', true, '자격증 준비 로드맵 (예시)'),
+      t(ARCHIVE.slug, 'rich_text', true, 'cert-roadmap', '영문 소문자·숫자·하이픈만. 같은 분류 안에서 겹치면 안 됩니다. 주소는 /archive/<분류>/<슬러그>'),
+      t(ARCHIVE.category, 'select', true, '취업', Object.keys(ARCHIVE_CATEGORY_LABELS).join(' / '), Object.keys(ARCHIVE_CATEGORY_LABELS)),
+      t(
+        ARCHIVE.topic,
+        'select',
+        false,
+        '자격증',
+        '취업: 채용공고·취업후기·자격증·대외활동·특강 / 병영: 입대준비·복무·전역·병역특례·예비군 (새 주제를 만들어도 됩니다)',
+        [...ARCHIVE_TOPICS.career, ...ARCHIVE_TOPICS.military],
+      ),
+      t(ARCHIVE.date, 'date', true, '2026-10-20', '게시일'),
+      t(ARCHIVE.summary, 'rich_text', false, '준비 순서를 한눈에 정리했어요.', '목록에 보이는 1~2줄'),
+      t(ARCHIVE.files, 'files', false, '(PDF·이미지 여러 개 업로드)', '최대 20개. 상세 페이지에서 내려받기'),
+      t(ARCHIVE.link, 'url', false, 'https://www.mma.go.kr/', '외부 원문(채용공고, 병무청 등) 링크'),
+      t(ARCHIVE.pinned, 'checkbox', false, '체크', '목록 맨 위에 고정'),
+      pub,
+    ],
+  },
+  {
     key: 'banners',
     label: '메인 배너',
     env: 'NOTION_DB_BANNERS',
@@ -259,6 +326,23 @@ export const DB_SPECS: DbSpec[] = [
       t(BANNER.image, 'files', false, '(파일 업로드)', '첫 번째 파일 사용. 없으면 글자 배너'),
       t(BANNER.imageMobile, 'files', false, '(파일 업로드)', '모바일용 세로 이미지'),
       t(BANNER.order, 'number', false, '1', '작은 수가 먼저. 비우면 맨 뒤'),
+      pub,
+    ],
+  },
+  {
+    key: 'popups',
+    label: '팝업',
+    env: 'NOTION_DB_POPUPS',
+    props: [
+      t(POPUP.title, 'title', true, '○○카페 제휴 오픈'),
+      t(POPUP.slug, 'rich_text', true, 'p-cafe-open', '영문 소문자·숫자·하이픈만. "보지 않기" 저장 키라 겹치면 안 됩니다'),
+      t(POPUP.cat, 'select', true, '제휴', POPUP_CATEGORIES.join(' / '), [...POPUP_CATEGORIES]),
+      t(POPUP.period, 'date', true, '2026-11-01 → 2026-11-14', '시작일 → 종료일(한국 시간). 이 기간에만 메인에 뜹니다'),
+      t(POPUP.desc, 'rich_text', false, '학생증 제시 시 전 메뉴 10% 할인', '2~3줄 요약'),
+      t(POPUP.image, 'files', false, '(파일 업로드)', '포스터 1장(첫 번째 파일). 없으면 자리 표시'),
+      t(POPUP.href, 'url', false, '/partners/oo-restaurant', '"자세히 보기" 대상. 사이트 안 경로(/…) 또는 https:// 주소. 없으면 버튼 없음'),
+      t(POPUP.cta, 'rich_text', false, '자세히 보기', '버튼 글자. 비우면 "자세히 보기"'),
+      t(POPUP.order, 'number', false, '1', '작은 수가 먼저. 비우면 맨 뒤'),
       pub,
     ],
   },

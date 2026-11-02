@@ -26,5 +26,17 @@
 
 라이선스: G마켓 산스는 무료·상업적 사용 가능, 폰트 파일 자체 판매 금지 (출처: G마켓 공식 배포, 확인 필요).
 
+## 구현 위치 (#37)
+| 항목 | 위치 |
+| --- | --- |
+| 색 토큰 | `src/app/globals.css`의 `:root` (`--brand`, `--accent`, `--page`, `--line`, `--text`, `--brand-grad`) |
+| 컴포넌트 규칙 | `src/app/globals.css` (`.banner`, `.footer`, `.fab` 등) |
+| 로고 컴포넌트 | `src/components/Logo.tsx` (인라인 SVG, `currentColor`) — 헤더 30px, 푸터 34px |
+| 폰트 등록 | `src/app/layout.tsx` (`next/font/local`, `--font-display`, `preload: false`) |
+| 파비콘 | `src/app/icon.svg` (잉크 배경 + 블루 로고) |
+| `theme-color` | `src/app/layout.tsx`의 `viewport` (`#181A16`) |
+
+**운영 안내:** 색을 바꾸려면 `:root`의 `--brand`·`--accent`만 고친다. (그라데이션 `--brand-grad`, 파비콘, `theme-color`에는 같은 값이 따로 적혀 있으니 함께 확인한다.)
+
 ## 미리보기 기준
 Artifact 미리보기에 적용한 토큰·규칙: `docs/brain/brand-preview.css` (구현 참고용, 사이트에서 직접 import 하지 않음).

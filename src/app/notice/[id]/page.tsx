@@ -1,9 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import NotionBlocks, { linesToBlocks } from '@/components/NotionBlocks';
 import Pager from '@/components/Pager';
 import { getNotice, getNotices } from '@/lib/data';
+import CardSlider from '@/components/CardSlider';
+import { isCardNews, ogImageUrl } from '@/lib/cardnews';
 import { full } from '@/lib/date';
+import { absoluteUrl } from '@/lib/site';
 
 export const revalidate = 600;
 
@@ -20,7 +24,12 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const id = parseId((await params).id);
   const notice = id === null ? undefined : await getNotice(id);
-  return { title: notice ? notice.title : '공지사항' };
+  if (!notice) return { title: '공지사항' };
+  const og = ogImageUrl(notice.cards?.[0], absoluteUrl);
+  return {
+    title: notice.title,
+    ...(og ? { openGraph: { title: notice.title, images: [{ url: og, width: 1080, height: 1350 }] }, twitter: { card: 'summary_large_image' as const, images: [og] } } : {}),
+  };
 }
 
 export default async function NoticeDetailPage({ params }: Props) {
@@ -41,7 +50,7 @@ export default async function NoticeDetailPage({ params }: Props) {
           ← 공지사항 목록
         </Link>
         <p className="mt-24">
-          <span className="badge">{notice.type}</span>
+          <span className="badge">{isCardNews(notice) ? '카드뉴스' : notice.type}</span>
         </p>
         <h1>{notice.title}</h1>
         <p className="meta">{full(notice.date)} 작성</p>
@@ -58,11 +67,10 @@ export default async function NoticeDetailPage({ params }: Props) {
             </Link>
           </div>
         )}
-        <div className="body">
-          {notice.body.map((p, k) => (
-            <p key={k}>{p}</p>
-          ))}
-        </div>
+        {notice.cards && notice.cards.length > 0 && (
+          <CardSlider title={notice.title} images={notice.cards} instagram={notice.instagram} />
+        )}
+        <NotionBlocks blocks={notice.blocks ?? linesToBlocks(notice.body)} />
         <Pager prev={newer && toItem(newer)} next={older && toItem(older)} labels={['최신 글', '이전 글']} />
       </div>
     </section>

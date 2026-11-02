@@ -7,12 +7,14 @@ import { existsSync } from 'node:fs';
 import { mapPayback, parseCsv } from '../src/lib/data/csv';
 import { parseIcs } from '../src/lib/data/ics';
 import {
+  mapArchive,
   mapBanner,
   mapContest,
   mapDoc,
   mapFaq,
   mapNotice,
   mapPartner,
+  mapPopup,
   mapSuggest,
 } from '../src/lib/data/notion-map';
 import { DB_SPECS, P_PUBLIC, type PropSpec } from '../src/lib/data/notion-schema';
@@ -35,7 +37,9 @@ const MAPPERS: Record<string, (p: NotionPage) => unknown> = {
   partners: mapPartner,
   faq: mapFaq,
   docs: mapDoc,
+  archive: (p) => mapArchive(p),
   banners: mapBanner,
+  popups: mapPopup,
   suggest: mapSuggest,
 };
 

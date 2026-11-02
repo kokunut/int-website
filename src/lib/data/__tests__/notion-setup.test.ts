@@ -5,7 +5,18 @@ import { docs } from '@/content/docs';
 import { faq, suggestAnswers } from '@/content/faq';
 import { notices } from '@/content/notices';
 import { partners } from '@/content/partners';
-import { blocksToLines, mapBanner, mapContest, mapDoc, mapFaq, mapNotice, mapPartner, mapSuggest } from '../notion-map';
+import { popups } from '@/content/popups';
+import {
+  blocksToLines,
+  mapBanner,
+  mapContest,
+  mapDoc,
+  mapFaq,
+  mapNotice,
+  mapPartner,
+  mapPopup,
+  mapSuggest,
+} from '../notion-map';
 import { DB_SPECS } from '../notion-schema';
 import type { NotionBlock, NotionPage, NotionProperty } from '../notion-types';
 import { buildDatabaseProperties, dbTitle, mergeEnv, parseNotionId, toNotionPage, type PagePayload } from '../notion-setup';
@@ -47,7 +58,9 @@ describe('buildDatabaseProperties', () => {
 
   it('select 는 옵션을 미리 만든다', () => {
     const notice = buildDatabaseProperties(DB_SPECS.find((s) => s.key === 'notices')!);
-    expect(notice['유형']).toEqual({ select: { options: [{ name: '일반' }, { name: '행사' }] } });
+    expect(notice['유형']).toEqual({ select: { options: [{ name: '일반' }, { name: '행사' }, { name: '카드뉴스' }] } });
+    expect(notice['카드뉴스']).toEqual({ files: {} });
+    expect(notice['인스타그램']).toEqual({ url: {} });
     const doc = buildDatabaseProperties(DB_SPECS.find((s) => s.key === 'docs')!);
     expect((doc['분류'] as { select: { options: { name: string }[] } }).select.options.map((o) => o.name)).toEqual([
       '회칙',
@@ -96,7 +109,9 @@ describe('toNotionPage 왕복 (매퍼의 역변환)', () => {
   it('공지(본문 포함)', () => {
     for (const n of notices) {
       const payload = toNotionPage('notices', n);
-      expect(mapNotice(fakePage(payload), blocksToLines(fakeBlocks(payload)))).toEqual(n);
+      // 카드뉴스 이미지는 파일 업로드가 필요해 시드하지 않는다
+      const expected = { ...n, cards: undefined };
+      expect(mapNotice(fakePage(payload), blocksToLines(fakeBlocks(payload)))).toEqual(expected);
     }
   });
 
@@ -125,6 +140,11 @@ describe('toNotionPage 왕복 (매퍼의 역변환)', () => {
 
   it('배너', () => {
     for (const b of banners) expect(mapBanner(fakePage(toNotionPage('banners', b)))).toEqual(b);
+  });
+
+  it('팝업', () => {
+    // 이미지는 노션에서 직접 올리므로 시드하지 않는다(왕복 대상 아님)
+    for (const p of popups) expect(mapPopup(fakePage(toNotionPage('popups', p)))).toEqual({ ...p, image: null });
   });
 
   it('모든 시드 행은 공개 체크, 순서·행사기간 처리', () => {

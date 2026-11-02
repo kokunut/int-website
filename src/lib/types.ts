@@ -40,7 +40,18 @@ export interface AcademicEvent {
   end: DateString;
 }
 
-export type NoticeType = '일반' | '행사';
+/** 노션 본문 블록을 구조 그대로 옮긴 것. 텍스트는 서식 없는 일반 글자 */
+export type ContentBlock =
+  | { type: 'paragraph'; text: string }
+  | { type: 'heading'; level: 2 | 3; text: string }
+  | { type: 'list'; ordered: boolean; items: string[] }
+  | { type: 'quote'; text: string }
+  | { type: 'callout'; text: string; icon?: string }
+  | { type: 'divider' }
+  | { type: 'image'; src: string; caption: string }
+  | { type: 'todo'; text: string; checked: boolean };
+
+export type NoticeType = '일반' | '행사' | '카드뉴스';
 
 export interface Notice {
   id: number;
@@ -50,6 +61,12 @@ export interface Notice {
   /** 있으면 캘린더에도 표시된다 */
   event?: DateRange;
   body: string[];
+  /** 노션 본문 구조(상세에서만 채워진다). 없으면 body 를 문단으로 그린다 */
+  blocks?: ContentBlock[];
+  /** 카드뉴스 이미지(순서대로, https 또는 /api/notion-file/… 또는 /mock/…). 없으면 생략 */
+  cards?: string[];
+  /** 인스타그램 원본 게시물 링크 */
+  instagram?: string;
 }
 
 export interface ContestPrize {
@@ -83,6 +100,27 @@ export interface Contest {
 }
 
 export type ContestStatus = '예정' | '진행중' | '마감';
+
+/** 팝업 분류 */
+export type PopupCategory = '제휴' | '행사' | '공지' | '공모전';
+
+/** 메인 팝업 한 건 (노션 팝업 DB 또는 공모전 변환). id 는 "보지 않기" 저장 키·중복 판정에 쓰인다 */
+export interface Popup {
+  id: string;
+  title: string;
+  cat: PopupCategory;
+  start: DateString;
+  end: DateString;
+  desc: string;
+  /** 포스터 이미지 경로(https 또는 /api/notion-file/…). 없으면 자리 표시 */
+  image: string | null;
+  /** "자세히 보기" 대상 (내부 경로 또는 https). 없으면 버튼 없음 */
+  href: string;
+  /** 버튼 문구 */
+  cta: string;
+  /** 작을수록 먼저. 없으면 맨 뒤 */
+  order?: number;
+}
 
 export interface Payback {
   budget: number;
@@ -233,4 +271,29 @@ export interface DepartmentsPage {
 export interface FaqPage {
   contactTitle: string;
   contactDesc: string;
+}
+
+export type ArchiveCategory = 'career' | 'military';
+
+export interface ArchiveAttachment {
+  name: string;
+  /** /api/notion-file/… 또는 https 또는 /mock/… */
+  href: string;
+}
+
+export interface ArchivePost {
+  /** 슬러그. 주소는 /archive/<분류>/<id> */
+  id: string;
+  category: ArchiveCategory;
+  title: string;
+  /** 주제(자유 입력). 없으면 '' */
+  topic: string;
+  date: DateString;
+  summary: string;
+  attachments: ArchiveAttachment[];
+  /** 외부 원문 링크. 없으면 '' */
+  link: string;
+  pinned: boolean;
+  /** 상세에서만 채워진다 */
+  blocks: ContentBlock[];
 }

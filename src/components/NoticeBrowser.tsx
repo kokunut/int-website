@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { isCardNews } from '@/lib/cardnews';
 import type { Notice } from '@/lib/types';
 import NoticeList from './NoticeList';
 
-const FILTERS = ['전체', '행사', '일반'] as const;
+const FILTERS = ['전체', '행사', '일반', '카드뉴스'] as const;
 type Filter = (typeof FILTERS)[number];
 
 /** 공지 목록 + 유형 탭 + 제목 검색 */
@@ -12,7 +13,8 @@ export default function NoticeBrowser({ notices }: { notices: Notice[] }) {
   const [filter, setFilter] = useState<Filter>('전체');
   const [query, setQuery] = useState('');
   const q = query.trim();
-  const shown = notices.filter((n) => (filter === '전체' || n.type === filter) && n.title.includes(q));
+  const matches = (n: Notice) => (filter === '전체' ? true : filter === '카드뉴스' ? isCardNews(n) : n.type === filter);
+  const shown = notices.filter((n) => matches(n) && n.title.includes(q));
 
   return (
     <>

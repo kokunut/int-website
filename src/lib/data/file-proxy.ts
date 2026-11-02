@@ -2,13 +2,16 @@
  * 노션 업로드 파일(약 1시간 뒤 만료)을 사이트 내부 안정 경로로 내보내기 위한 순수 함수.
  * 네트워크 없음. 라우트(`/api/notion-file/...`)와 매퍼가 함께 쓴다.
  */
-import { BANNER, P_PUBLIC } from './notion-schema';
+import { ARCHIVE, BANNER, NOTICE, POPUP, P_PUBLIC } from './notion-schema';
 import type { NotionPage } from './notion-types';
 
 /** 안정 경로가 받는 영문 키 -> 노션 속성 이름과 소속 DB 환경변수 (허용 목록) */
 export const FILE_FIELDS = {
   'banner-image': { property: BANNER.image, dbEnv: 'NOTION_DB_BANNERS' },
   'banner-image-mobile': { property: BANNER.imageMobile, dbEnv: 'NOTION_DB_BANNERS' },
+  'popup-image': { property: POPUP.image, dbEnv: 'NOTION_DB_POPUPS' },
+  'notice-images': { property: NOTICE.cards, dbEnv: 'NOTION_DB_NOTICES' },
+  'archive-files': { property: ARCHIVE.files, dbEnv: 'NOTION_DB_ARCHIVE' },
 } as const;
 
 export type FileField = keyof typeof FILE_FIELDS;

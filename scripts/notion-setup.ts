@@ -1,6 +1,6 @@
 /**
  * 노션 DB 자동 생성: `npm run notion:setup -- [--parent <id|URL>] [--dry-run] [--seed] [--write-env]`
- * 부모 페이지 아래에 DB 7개를 만들고(이미 같은 제목이 있으면 재사용), DB id 를 출력한다.
+ * 부모 페이지 아래에 DB 9개를 만들고(이미 같은 제목이 있으면 재사용), DB id 를 출력한다.
  * 비밀값이 필요하므로 CI 에는 넣지 않는다. 실행 흐름은 src/lib/data/notion-setup-run.ts.
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
