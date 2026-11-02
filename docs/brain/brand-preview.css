@@ -1,0 +1,33 @@
+/* 브랜드: 로고 블루 #548AEC · 잉크 #181A16 · 배경 #F8FAFD · 라인 #D5D5D5 */
+:root{
+  --bg:#ffffff; --page:#F8FAFD; --surface:#F0F4FB; --surface-2:#E6ECF6; --line:#D5D5D5;
+  --text:#181A16; --text-2:#4B4F57; --text-3:#5F636B;
+  --brand:#548AEC; --accent:#181A16; --accent-ink:#ffffff;
+  --brand-grad:linear-gradient(90deg,#181A16 0%,#548AEC 100%);
+  --cat-academic:#181A16; --cat-event:#548AEC; --cat-contest:#181A16;
+  --font-display:'Gmarket Sans','GmarketSans','Noto Sans KR','Pretendard Variable',Pretendard,sans-serif;
+}
+body{background:var(--page)}
+h1,h2,.bn-word,.pb-big,.logo-sub{font-family:var(--font-display)}
+h1,h2{letter-spacing:-.02em}
+.logo-svg{display:inline-flex;align-items:center;color:var(--brand)}
+.logo-svg svg{height:30px;width:auto;display:block}
+.footer .logo-svg svg{height:34px}
+.menu-top.active{box-shadow:inset 0 -3px 0 var(--brand)}
+.dots-row button.on{background:var(--brand)}
+.bar i{background:var(--brand-grad)}
+.day.today .num{box-shadow:inset 0 0 0 2px var(--brand)}
+.day.sel .num,.day.sel:hover .num{background:var(--brand);color:#181A16}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+/* 배너: 브랜드 잉크 배경 + 블루 워드마크 */
+.banner{background:#181A16;--text:#F8FAFD;--text-2:#C9CED8;--line:rgba(248,250,253,.28);color:var(--text);position:relative}
+.banner::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:var(--brand-grad)}
+.bn-word{color:var(--brand)}
+.bn-lines i{background:var(--line)}
+/* 푸터: 잉크 배경 */
+.footer{background:#181A16;border-top:0;--text:#F8FAFD;--text-2:#C3C8D2;--text-3:#A9AFBA;--line:#34372F;color:var(--text-2);position:relative}
+.footer::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--brand-grad)}
+.footer a:hover{color:var(--brand)}
+/* 카카오톡 버튼: 브랜드 그라데이션 */
+.fab{background:linear-gradient(120deg,#181A16 0%,#2B3D5E 60%,#548AEC 130%);color:#fff}
+.fab svg{color:var(--brand)}
