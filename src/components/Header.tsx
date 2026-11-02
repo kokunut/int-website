@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import Logo from '@/components/Logo';
 import { groupForPath, topHref, type NavGroup } from '@/lib/nav';
 
 const isCurrent = (pathname: string, href: string): boolean =>
@@ -32,7 +33,7 @@ export default function Header({ nav }: { nav: NavGroup[] }) {
     <header className={`gnb${open ? ' open' : ''}`} id="gnb">
       <div className="container gnb-inner">
         <Link href="/" className="logo" aria-label="인트 홈">
-          <span className="logo-mark">int</span>
+          <Logo />
           <span className="logo-sub">인공지능융합대학 학생회</span>
         </Link>
         <nav id="gnb-nav" aria-label="주 메뉴" onClick={() => setOpenedAt(null)}>

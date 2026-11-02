@@ -36,3 +36,4 @@
 | 2026-11-01 | #27 | (본 PR) | `.github/dependabot.yml`(npm·github-actions 주간, 그룹·major 개별 PR), Dependabot PR 처리 절차 문서화 |
 | 2026-11-01 | #29 | (본 PR) | 방문 통계: Vercel Analytics·Speed Insights(운영 배포에서만 렌더, `isVercelProduction()`), 커스텀 이벤트 3종(팝업 자세히 보기·페이백 신청·카카오 FAB, 밖에서는 no-op), ADR-011, 운영 매뉴얼 "방문 통계 보기" |
 | 2026-11-02 | #34 | (본 PR) | 노션 이미지 안정 경로 `/api/notion-file/[pageId]/[field]/[index]`(허용 필드·공개 행·DB 검증, 307, 5분 캐시), 배너 이미지·모바일 이미지에 적용, `file-proxy.ts` 순수 함수+테스트, ADR-012 |
+| 2026-11-02 | #37 | (본 PR) | 브랜드 적용: 색 토큰·배너/푸터/FAB 규칙, `Logo` 컴포넌트, Gmarket Sans(`--font-display`), 파비콘·theme-color. README 스크린샷은 머지 후 재촬영 필요 |
