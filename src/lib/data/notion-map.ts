@@ -122,6 +122,31 @@ export function safeImageSrc(v: string | null | undefined): string | null {
 
 const url = (page: NotionPage, name: string): string => safeHref(prop(page, name)?.url);
 
+/** 설정 링크: 안에 섞인 공백·줄바꿈(복사·붙여넣기)을 모두 제거한 뒤 safeHref */
+export function cleanLink(v: string | null | undefined): string {
+  return safeHref((v ?? '').replace(/\s+/g, ''));
+}
+
+/** 인사말 -> 빈 줄 기준 문단 배열 (문단 안의 줄바꿈은 공백 하나로) */
+export function splitParagraphs(v: string): string[] {
+  return v
+    .split(/\r?\n[ \t ]*\r?\n/)
+    .map((para) =>
+      para
+        .split(/\r?\n/)
+        .map((l) => l.trim())
+        .filter(Boolean)
+        .join(' '),
+    )
+    .filter(Boolean);
+}
+
+/** 인스타그램 아이디: 앞에 `@` 가 없으면 붙인다 (빈 값은 그대로) */
+export function normalizeInstagramId(v: string): string {
+  const s = v.trim().replace(/^@+/, '');
+  return s ? `@${s}` : '';
+}
+
 /** 업로드 파일(file)은 만료되지 않는 내부 경로로, 외부 링크(external)는 https 만 원래 URL 로 */
 function fileUrl(page: NotionPage, name: string, field: FileField): string | null {
   const f: NotionFile | undefined = prop(page, name)?.files?.[0];
@@ -520,14 +545,16 @@ export function mapSetting(page: NotionPage): { id: SettingId; value: string | s
   let value: string | string[] | null;
   switch (def.kind) {
     case 'link':
-      value = url(page, SETTING.link);
+      value = cleanLink(prop(page, SETTING.link)?.url);
       break;
-    case 'text':
-      value = text(page, SETTING.value);
+    case 'text': {
+      const v = text(page, SETTING.value);
+      value = def.id === 'instagramId' ? normalizeInstagramId(v) : v;
       break;
+    }
     case 'lines': {
-      const lines = textLines(page, SETTING.value);
-      value = lines.length ? lines : null;
+      const paras = splitParagraphs(join(prop(page, SETTING.value)?.rich_text ?? []));
+      value = paras.length ? paras : null;
       break;
     }
     case 'file':
@@ -582,6 +609,14 @@ export function mapMember(page: NotionPage): MemberRow | null {
     ...(role ? { role } : {}),
     ...(checked(page, COUNCIL.lead) ? { lead: true } : {}),
   };
+}
+
+/** 집행부 행의 부서 값 중 부서 DB 에 없는 이름(중복 제거, 빈 값은 '(비어 있음)'). 순수 함수 */
+export function unknownUnitNames(units: { name: string }[], members: { unit: string }[]): string[] {
+  const known = new Set(units.map((u) => u.name));
+  const out = new Set<string>();
+  for (const m of members) if (!known.has(m.unit)) out.add(m.unit || '(비어 있음)');
+  return [...out];
 }
 
 /**

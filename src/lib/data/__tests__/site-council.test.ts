@@ -5,7 +5,22 @@ import { org } from '@/content/council';
 import { aboutPage } from '@/content/pages';
 import { siteLinks } from '@/content/site';
 import { DB_SPECS, SETTING_KEYS } from '../notion-schema';
-import { buildOrg, mapMember, mapSetting, mapSettings, mapUnit } from '../notion-map';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import Footer from '@/components/Footer';
+import type { SiteLinks } from '@/lib/types';
+import {
+  buildOrg,
+  cleanLink,
+  mapMember,
+  mapSetting,
+  mapSettings,
+  mapUnit,
+  normalizeInstagramId,
+  splitParagraphs,
+  unknownUnitNames,
+} from '../notion-map';
+import { buildDatabaseProperties } from '../notion-setup';
 import type { NotionPage } from '../notion-types';
 import { seedRows } from '../notion-setup-run';
 
@@ -204,5 +219,73 @@ describe('buildOrg: 부서 매칭·기타 그룹·부장 중복', () => {
   it('시드는 현재 25명·6개 부서를 그대로 만든다', () => {
     expect(seedRows('units')).toHaveLength(org.length);
     expect(seedRows('council')).toHaveLength(25);
+  });
+});
+
+describe('집행부 `부서` 선택지', () => {
+  it('집행부 DB 를 만들 때 `부서` 옵션을 현재 부서 목록으로 미리 만든다', () => {
+    const spec = DB_SPECS.find((s) => s.key === 'council')!;
+    const payload = buildDatabaseProperties(spec) as Record<string, { select?: { options: { name: string }[] } }>;
+    expect(payload['부서'].select?.options.map((o) => o.name)).toEqual(org.map((u) => u.name));
+  });
+});
+
+describe('unknownUnitNames: 집행부 부서 값 중 부서 DB 에 없는 이름', () => {
+  const units = [{ name: '회장단' }, { name: '홍보부' }];
+
+  it('모두 있으면 빈 목록', () => {
+    expect(unknownUnitNames(units, [{ unit: '회장단' }, { unit: '홍보부' }])).toEqual([]);
+  });
+
+  it('없는 이름은 중복 없이 나오고 빈 값은 (비어 있음)', () => {
+    expect(unknownUnitNames(units, [{ unit: '홍뽀부' }, { unit: '홍보부' }, { unit: '홍뽀부' }, { unit: '' }])).toEqual(['홍뽀부', '(비어 있음)']);
+  });
+
+  it('띄어쓰기가 다르면 다른 이름', () => {
+    expect(unknownUnitNames(units, [{ unit: '홍보 부' }])).toEqual(['홍보 부']);
+  });
+});
+
+describe('설정 값 정리', () => {
+  it('값 앞뒤 공백·줄바꿈은 제거한다', () => {
+    expect(mapSetting(setting('이메일', { text: { 값: '\n  int@sejong.ac.kr \n' } }))?.value).toBe('int@sejong.ac.kr');
+    expect(mapSetting(setting('인사말 서명', { text: { 값: '  학생회장 홍길동\n' } }))?.value).toBe('학생회장 홍길동');
+  });
+
+  it('링크는 안에 섞인 공백·줄바꿈도 지운 뒤 safeHref 를 통과해야 한다', () => {
+    expect(mapSetting(setting('카카오톡 채널', { url: { 링크: ' https://pf.kakao.com/_ab\nc  ' } }))?.value).toBe('https://pf.kakao.com/_abc');
+    expect(cleanLink(' /military ')).toBe('/military');
+    expect(cleanLink('java script:alert(1)')).toBe('');
+    expect(cleanLink('  ')).toBe('');
+    expect(cleanLink(null)).toBe('');
+  });
+
+  it('인사말은 빈 줄 기준으로 문단을 나누고 문단 안 줄바꿈은 공백으로 잇는다', () => {
+    expect(splitParagraphs('\n 첫 문단 1줄\n첫 문단 2줄 \n\n\n  \n둘째 문단\r\n\r\n셋째\n')).toEqual(['첫 문단 1줄 첫 문단 2줄', '둘째 문단', '셋째']);
+    expect(splitParagraphs(' \n \n')).toEqual([]);
+    expect(mapSetting(setting('인사말', { text: { 값: ' \n ' } }))).toBeNull();
+  });
+
+  it('인스타그램 아이디는 @ 가 없으면 붙인다', () => {
+    expect(normalizeInstagramId('int_sejong')).toBe('@int_sejong');
+    expect(normalizeInstagramId(' @int_sejong ')).toBe('@int_sejong');
+    expect(normalizeInstagramId('@@int_sejong')).toBe('@int_sejong');
+    expect(normalizeInstagramId('  ')).toBe('');
+    expect(mapSetting(setting('인스타그램 아이디', { text: { 값: ' int_sejong\n' } }))?.value).toBe('@int_sejong');
+    expect(mapSetting(setting('인스타그램 아이디', { text: { 값: '@' } }))).toBeNull();
+  });
+});
+
+describe('푸터 이메일', () => {
+  const render = (links: SiteLinks) => renderToStaticMarkup(createElement(Footer, { links }));
+
+  it('이메일이 없으면 이메일 행을 그리지 않는다 (기존 화면과 동일)', () => {
+    expect(render(siteLinks)).not.toContain('이메일');
+  });
+
+  it('이메일이 있으면 mailto 링크로 보인다', () => {
+    const html = render({ ...siteLinks, email: 'int@sejong.ac.kr' });
+    expect(html).toContain('이메일');
+    expect(html).toContain('href="mailto:int@sejong.ac.kr"');
   });
 });

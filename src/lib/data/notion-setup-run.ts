@@ -81,7 +81,7 @@ export function createApi(deps: ApiDeps): Api {
 function settingDefault(id: SettingId): string {
   switch (id) {
     case 'greeting':
-      return aboutPage.greeting.join('\n');
+      return aboutPage.greeting.join('\n\n');
     case 'signer':
       return aboutPage.signer;
     case 'photo':

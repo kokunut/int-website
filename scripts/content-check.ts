@@ -19,6 +19,7 @@ import {
   mapSetting,
   mapSuggest,
   mapUnit,
+  unknownUnitNames,
 } from '../src/lib/data/notion-map';
 import { DB_SPECS, P_PUBLIC, type PropSpec } from '../src/lib/data/notion-schema';
 import { queryDatabase } from '../src/lib/data/notion';
@@ -102,6 +103,24 @@ async function checkNotion(): Promise<void> {
   }
 }
 
+/** 집행부 행의 부서 값 중 부서 DB 에 없는 이름 점검 (둘 다 연결돼 있을 때만) */
+async function checkUnitNames(): Promise<void> {
+  const unitsId = process.env.NOTION_DB_UNITS;
+  const councilId = process.env.NOTION_DB_COUNCIL;
+  if (!process.env.NOTION_TOKEN || !unitsId || !councilId) return;
+  console.log('\n[노션] 집행부 ↔ 부서 대조');
+  try {
+    const [unitPages, memberPages] = await Promise.all([queryDatabase(unitsId), queryDatabase(councilId)]);
+    const units = unitPages.map(mapUnit).filter((u) => u !== null);
+    const members = memberPages.map(mapMember).filter((m) => m !== null);
+    const unknown = unknownUnitNames(units, members);
+    if (unknown.length) warn(`부서 DB 에 없는 부서 이름 (사이트에서는 "기타" 그룹으로 보임): ${unknown.join(', ')}`);
+    else ok(`집행부 ${members.length}명의 부서가 모두 부서 DB 에 있음`);
+  } catch (e) {
+    bad(`대조 실패: ${(e as Error).message}`);
+  }
+}
+
 async function text(url: string): Promise<string> {
   const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -135,6 +154,7 @@ async function checkCsv(): Promise<void> {
 
 console.log('콘텐츠 연동 점검');
 await checkNotion();
+await checkUnitNames();
 await checkIcs();
 await checkCsv();
 if (!process.env.REVALIDATE_SECRET) console.log('\n[참고] REVALIDATE_SECRET 설정 안 됨 -> /api/revalidate 는 500 을 돌려줍니다');
