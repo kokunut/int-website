@@ -285,6 +285,7 @@ a.ev:hover p{color:var(--text);text-decoration:underline;text-underline-offset:3
 .toolbar{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin-bottom:16px}
 .toolbar .tabs{margin:0}
 .search{height:42px;width:min(280px,100%);padding:0 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+@media (max-width:560px){.toolbar .search{width:100%;flex:1 1 100%}}
 .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
 .dept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:stretch}
 .dept-card{display:flex;flex-direction:column;min-width:0}
