@@ -227,3 +227,18 @@ test('기간 중간에 끝난 팝업만 빠진다 (11/12: 행사 종료 후 제�
   await dialog.getByRole('button', { name: '다음 팝업' }).click();
   await expect(dialog.getByRole('heading', { name: TITLE })).toBeVisible();
 });
+
+test('이미지 없는 팝업은 이미지 영역이 없고, 있으면 의미 있는 alt 와 contain 으로 보여 준다', async ({ page }) => {
+  await page.goto('/');
+  const dialog = page.getByRole('dialog');
+  await page.locator('.modal[data-ready=true]').waitFor();
+
+  await expect(dialog.getByRole('heading', { name: PARTNER_TITLE })).toBeVisible();
+  await expect(dialog.locator('.modal-photo, .placeholder')).toHaveCount(0);
+
+  await dialog.getByRole('button', { name: '다음 팝업' }).click();
+  await expect(dialog.getByRole('heading', { name: EVENT_TITLE })).toBeVisible();
+  const img = dialog.getByRole('img', { name: `${EVENT_TITLE} 포스터` });
+  await expect(img).toBeVisible();
+  await expect(img).toHaveCSS('object-fit', 'contain');
+});

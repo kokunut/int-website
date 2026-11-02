@@ -139,7 +139,8 @@ describe('toNotionPage 왕복 (매퍼의 역변환)', () => {
   });
 
   it('팝업', () => {
-    for (const p of popups) expect(mapPopup(fakePage(toNotionPage('popups', p)))).toEqual(p);
+    // 이미지는 노션에서 직접 올리므로 시드하지 않는다(왕복 대상 아님)
+    for (const p of popups) expect(mapPopup(fakePage(toNotionPage('popups', p)))).toEqual({ ...p, image: null });
   });
 
   it('모든 시드 행은 공개 체크, 순서·행사기간 처리', () => {

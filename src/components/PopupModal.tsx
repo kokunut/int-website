@@ -150,12 +150,10 @@ export default function PopupModal({ popups, serverToday }: { popups: Popup[]; s
       }}
     >
       <div className="modal-box" ref={boxRef}>
-        {p.image ? (
+        {p.image && (
           // 노션 이미지(안정 경로·외부 URL)라 next/image 최적화 대상이 아니다
           // eslint-disable-next-line @next/next/no-img-element
-          <img className="modal-img modal-photo" src={p.image} alt="" />
-        ) : (
-          <div className="placeholder modal-img">{p.cat} 포스터 자리</div>
+          <img className="modal-photo" src={p.image} alt={`${p.title} 포스터`} />
         )}
         <div className="modal-body">
           <span className="badge solid">

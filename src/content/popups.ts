@@ -22,7 +22,7 @@ export const popups: Popup[] = [
     start: '2026-10-30',
     end: '2026-11-10',
     desc: '인공지능융합대학 연구실을 직접 둘러보는 오픈랩 탐방에 참여해 보세요.',
-    image: null,
+    image: '/mock/popup-lab.svg', // 이미지 있는 상태 확인용 (제휴 팝업은 이미지 없는 상태로 둔다)
     href: '/notice',
     cta: '공지 확인하기',
     order: 2,
