@@ -49,29 +49,36 @@ import type {
   SiteLinks,
   SuggestAnswer,
 } from '../types';
-import { BANNER, FAQ, PARTNER, POPUP } from './notion-schema';
+import { BANNER, COUNCIL, FAQ, PARTNER, POPUP, UNIT } from './notion-schema';
 import {
   DB,
   blocksToContent,
   blocksToLines,
+  buildOrg,
   dedupeBy,
   mapArchive,
   mapBanner,
   mapContest,
   mapDoc,
   mapFaq,
+  mapMember,
   mapNotice,
   mapPartner,
   mapPopup,
+  mapSettings,
   mapSuggest,
+  mapUnit,
   sortByOrder,
+  type SettingValues,
 } from './notion-map';
 import { fetchBlocks, listRows } from './notion';
 import type { NotionPage } from './notion-types';
 import { fetchAcademic, fetchPayback } from './remote';
 
 
-const compact = <T>(list: (T | null)[]): T[] => list.filter((x): x is T => x !== null);
+const PHOTO_ALT = '학생회 단체 사진';
+
+const compact =<T>(list: (T | null)[]): T[] => list.filter((x): x is T => x !== null);
 
 /** 노션 DB 환경변수가 모두 있으면 DB id, 아니면 null */
 function notionDb(env: string): string | null {
@@ -236,8 +243,23 @@ const loadSuggestAnswers = cache(async (): Promise<SuggestAnswer[]> => {
   );
 });
 
+/** 설정 DB: 항목별 값. 환경변수가 없거나 실패하면 빈 값(= 모든 항목 기본값) */
+const loadSettings = cache(async (): Promise<SettingValues> => {
+  const id = notionDb(DB.settings);
+  return withFallback(DB.settings, id ? async () => mapSettings(await listRows(DB.settings, id)) : null, () => ({}));
+});
+
+const SITE_LINK_IDS = ['kakao', 'instagram', 'instagramId', 'email', 'address', 'suggestForm', 'paybackForm', 'notionMilitary', 'notionContest', 'gcalSubscribe'] as const;
+
+/** 노션 값이 있는 항목만 기본값 위에 덮어쓴다 */
 export async function getSiteLinks(): Promise<SiteLinks> {
-  return siteLinks;
+  const s = await loadSettings();
+  const links: SiteLinks = { ...siteLinks };
+  for (const k of SITE_LINK_IDS) {
+    const v = s[k];
+    if (typeof v === 'string' && v) links[k] = v;
+  }
+  return links;
 }
 
 export async function getBanners(): Promise<Banner[]> {
@@ -298,12 +320,37 @@ export function sortMembers(members: Member[]): Member[] {
   return [...members.filter((m) => m.lead), ...members.filter((m) => !m.lead)];
 }
 
+/**
+ * 조직도. 집행부 DB 가 없거나 실패하면 목 데이터. 부서 DB 가 없으면 목 데이터의 부서 목록을 쓴다.
+ * 연결돼 있으면 노션 내용 그대로(빈 것도 유효)
+ */
+const loadOrg = cache(async (): Promise<OrgUnit[]> => {
+  const councilId = notionDb(DB.council);
+  const unitsId = notionDb(DB.units);
+  return withFallback(
+    DB.council,
+    councilId
+      ? async () => {
+          const [units, members] = await Promise.all([
+            unitsId
+              ? notionRows(DB.units, unitsId, mapUnit, UNIT.order)
+              : Promise.resolve(org.map((u) => ({ name: u.name, desc: u.desc }))),
+            notionRows(DB.council, councilId, mapMember, COUNCIL.order),
+          ]);
+          return buildOrg(units, members);
+        }
+      : null,
+    () => org,
+  );
+});
+
 export async function getOrg(): Promise<OrgUnit[]> {
-  return org.map((u) => ({ ...u, members: sortMembers(u.members) }));
+  return (await loadOrg()).map((u) => ({ ...u, members: sortMembers(u.members) }));
 }
 
+/** 총원은 데이터에서 계산한다 */
 export async function getCouncilSummary(): Promise<{ total: number }> {
-  return { total: org.reduce((n, u) => n + u.members.length, 0) };
+  return { total: (await loadOrg()).reduce((n, u) => n + u.members.length, 0) };
 }
 
 /** 비어 있는 항목(영업시간·기간·주소·상세·조건)은 PARTNER_DEFAULT 로 채운다 */
@@ -361,7 +408,11 @@ export async function getCalendarEvents(): Promise<CalendarEvent[]> {
 
 /** 페이지별 편집 문구 */
 export async function getAboutPage(): Promise<AboutPage> {
-  return aboutPage;
+  const s = await loadSettings();
+  const greeting = Array.isArray(s.greeting) ? s.greeting : aboutPage.greeting;
+  const signer = typeof s.signer === 'string' ? s.signer : aboutPage.signer;
+  const photo = typeof s.photo === 'string' ? { src: s.photo, alt: PHOTO_ALT } : aboutPage.photo;
+  return { ...aboutPage, greeting, signer, ...(photo ? { photo } : {}) };
 }
 export async function getDepartmentsPage(): Promise<DepartmentsPage> {
   return departmentsPage;

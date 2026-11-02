@@ -10,8 +10,11 @@ import { docs } from '../../content/docs';
 import { faq, suggestAnswers } from '../../content/faq';
 import { notices } from '../../content/notices';
 import { partners } from '../../content/partners';
+import { org } from '../../content/council';
+import { aboutPage } from '../../content/pages';
+import { siteLinks } from '../../content/site';
 import type { DocCategory } from '../types';
-import { DB_SPECS } from './notion-schema';
+import { DB_SPECS, SETTING_KEYS, type SettingId } from './notion-schema';
 import {
   buildDatabaseProperties,
   dbTitle,
@@ -74,6 +77,20 @@ export function createApi(deps: ApiDeps): Api {
   };
 }
 
+/** 설정 항목의 현재 기본값(목 데이터). 인사말은 줄바꿈으로 잇고, 값이 없는 항목은 빈 글자 */
+function settingDefault(id: SettingId): string {
+  switch (id) {
+    case 'greeting':
+      return aboutPage.greeting.join('\n');
+    case 'signer':
+      return aboutPage.signer;
+    case 'photo':
+      return '';
+    default:
+      return siteLinks[id] ?? '';
+  }
+}
+
 /** 순서 속성이 있는 DB 용: 1부터 순번을 붙인다 */
 function ordered<K extends 'partners' | 'faq' | 'banners'>(kind: K, items: SeedItems[K][]): PagePayload[] {
   return items.map((it, i) => toNotionPage(kind, it, i + 1));
@@ -102,6 +119,12 @@ export function seedRows(key: string): PagePayload[] {
       return popups.map((p) => toNotionPage('popups', p, p.order));
     case 'suggest':
       return suggestAnswers.map((s) => toNotionPage('suggest', s));
+    case 'settings':
+      return SETTING_KEYS.map((k) => toNotionPage('settings', { label: k.label, kind: k.kind, value: settingDefault(k.id) }));
+    case 'units':
+      return org.map((u, i) => toNotionPage('units', { name: u.name, desc: u.desc }, i + 1));
+    case 'council':
+      return org.flatMap((u) => u.members.map((m) => ({ ...m, unit: u.name }))).map((m, i) => toNotionPage('council', m, i + 1));
     default:
       return [];
   }

@@ -14,8 +14,11 @@ import {
   mapFaq,
   mapNotice,
   mapPartner,
+  mapMember,
   mapPopup,
+  mapSetting,
   mapSuggest,
+  mapUnit,
 } from '../src/lib/data/notion-map';
 import { DB_SPECS, P_PUBLIC, type PropSpec } from '../src/lib/data/notion-schema';
 import { queryDatabase } from '../src/lib/data/notion';
@@ -41,6 +44,9 @@ const MAPPERS: Record<string, (p: NotionPage) => unknown> = {
   banners: mapBanner,
   popups: mapPopup,
   suggest: mapSuggest,
+  settings: mapSetting,
+  units: mapUnit,
+  council: mapMember,
 };
 
 interface DbInfo {

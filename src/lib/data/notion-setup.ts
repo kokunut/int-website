@@ -8,6 +8,7 @@ import {
   ARCHIVE_CATEGORY_LABELS,
   BANNER,
   CONTEST,
+  COUNCIL,
   DOC,
   DOC_CATEGORY_LABELS,
   FAQ,
@@ -15,11 +16,14 @@ import {
   P_PUBLIC,
   PARTNER,
   POPUP,
+  SETTING,
   SUGGEST,
+  UNIT,
   type DbSpec,
   type PropSpec,
+  type SettingKind,
 } from './notion-schema';
-import { safeHref, safeInstagramUrl } from './notion-map';
+import { safeHref, safeInstagramUrl, type MemberRow } from './notion-map';
 
 /** 노션 속성 한 개의 생성 payload */
 function propertyPayload(p: PropSpec): unknown {
@@ -108,9 +112,25 @@ function putUrl(props: Record<string, unknown>, name: string, v: string | undefi
   put(props, name, { url: href }, !!href);
 }
 
-export type SeedKind = 'notices' | 'contests' | 'partners' | 'faq' | 'docs' | 'archive' | 'banners' | 'popups' | 'suggest';
+export type SeedKind =
+  | 'notices'
+  | 'contests'
+  | 'partners'
+  | 'faq'
+  | 'docs'
+  | 'archive'
+  | 'banners'
+  | 'popups'
+  | 'suggest'
+  | 'settings'
+  | 'units'
+  | 'council';
 
 export interface SeedItems {
+  /** 설정 항목 하나: 이름(`SETTING_KEYS` 의 label)·종류·기본값(여러 줄은 줄바꿈으로 이은 글자) */
+  settings: { label: string; kind: SettingKind; value: string };
+  units: { name: string; desc: string };
+  council: MemberRow;
   notices: Notice;
   contests: Contest;
   partners: Partner;
@@ -274,6 +294,31 @@ const BUILDERS: { [K in SeedKind]: Builder<K> } = {
     putUrl(props, POPUP.href, p.href);
     putText(props, POPUP.cta, p.cta);
     putOrder(props, POPUP.order, p.order);
+    return { properties: props };
+  },
+  settings: (s) => {
+    // 파일(단체 사진)은 업로드가 필요해 시드하지 않는다 (빈 행만 만든다)
+    const props = base();
+    props[SETTING.key] = title(s.label);
+    if (s.kind === 'link') putUrl(props, SETTING.link, s.value);
+    else if (s.kind !== 'file') putText(props, SETTING.value, s.value);
+    return { properties: props };
+  },
+  units: (u, order) => {
+    const props = base();
+    props[UNIT.name] = title(u.name);
+    putText(props, UNIT.desc, u.desc);
+    putOrder(props, UNIT.order, order);
+    return { properties: props };
+  },
+  council: (m, order) => {
+    const props = base();
+    props[COUNCIL.name] = title(m.name);
+    putText(props, COUNCIL.major, m.major);
+    props[COUNCIL.unit] = { select: { name: m.unit } };
+    putText(props, COUNCIL.role, m.role);
+    put(props, COUNCIL.lead, checkbox(true), !!m.lead);
+    putOrder(props, COUNCIL.order, order);
     return { properties: props };
   },
   suggest: (s) => {

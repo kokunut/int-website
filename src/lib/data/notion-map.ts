@@ -15,7 +15,9 @@ import type {
   DocItem,
   FaqItem,
   LabelValue,
+  Member,
   Notice,
+  OrgUnit,
   Partner,
   Popup,
   SuggestAnswer,
@@ -25,6 +27,12 @@ import {
   ARCHIVE_CATEGORY_LABELS,
   BANNER,
   CONTEST,
+  COUNCIL,
+  SETTING,
+  SETTING_KEYS,
+  UNIT,
+  UNIT_FALLBACK,
+  type SettingId,
   DOC,
   DOC_CATEGORY_ALIASES,
   DOC_CATEGORY_LABELS,
@@ -54,6 +62,9 @@ export const DB = {
   banners: 'NOTION_DB_BANNERS',
   popups: 'NOTION_DB_POPUPS',
   suggest: 'NOTION_DB_SUGGEST',
+  settings: 'NOTION_DB_SETTINGS',
+  units: 'NOTION_DB_UNITS',
+  council: 'NOTION_DB_COUNCIL',
 } as const;
 
 function skip(db: string, page: NotionPage, reason: string): null {
@@ -493,4 +504,118 @@ export function mapSuggest(page: NotionPage): SuggestAnswer | null {
   const date = singleDate(page, SUGGEST.date);
   if (!title || !answer || !date) return skip(DB.suggest, page, `${SUGGEST.title}/${SUGGEST.answer}/${SUGGEST.date} 는 필수`);
   return { title, answer, date };
+}
+
+// ---- 사이트 설정 ----
+
+export type SettingValues = Partial<Record<SettingId, string | string[]>>;
+
+/** 설정 행 하나 -> 항목 id 와 값. 모르는 항목은 경고 후 null, 값이 비어 있으면 조용히 null(기본값 사용) */
+export function mapSetting(page: NotionPage): { id: SettingId; value: string | string[] } | null {
+  const label = text(page, SETTING.key);
+  const def = SETTING_KEYS.find((k) => k.label === label);
+  if (!def) {
+    return skip(DB.settings, page, `모르는 항목 이름 (${label || '비어 있음'}) — 정해진 이름만 사용: ${SETTING_KEYS.map((k) => k.label).join(', ')}`);
+  }
+  let value: string | string[] | null;
+  switch (def.kind) {
+    case 'link':
+      value = url(page, SETTING.link);
+      break;
+    case 'text':
+      value = text(page, SETTING.value);
+      break;
+    case 'lines': {
+      const lines = textLines(page, SETTING.value);
+      value = lines.length ? lines : null;
+      break;
+    }
+    case 'file':
+      value = fileUrl(page, SETTING.file, 'settings-file');
+      break;
+  }
+  return value ? { id: def.id, value } : null;
+}
+
+/** 설정 행들 -> 항목별 값. 같은 항목이 여러 행이면 먼저 나온 값만 쓴다 */
+export function mapSettings(pages: NotionPage[]): SettingValues {
+  const out: SettingValues = {};
+  for (const p of pages) {
+    const s = mapSetting(p);
+    if (!s) continue;
+    if (out[s.id] !== undefined) {
+      console.warn(`[data] ${DB.settings} 중복 건너뜀: ${text(p, SETTING.key)} (먼저 나온 행만 사용)`);
+      continue;
+    }
+    out[s.id] = s.value;
+  }
+  return out;
+}
+
+// ---- 집행부 ----
+
+export interface UnitRow {
+  name: string;
+  desc: string;
+}
+
+export interface MemberRow extends Member {
+  /** 부서 이름 (비어 있을 수 있음) */
+  unit: string;
+}
+
+export function mapUnit(page: NotionPage): UnitRow | null {
+  const name = text(page, UNIT.name);
+  if (!name) return skip(DB.units, page, `${UNIT.name} 없음`);
+  return { name, desc: text(page, UNIT.desc) };
+}
+
+export function mapMember(page: NotionPage): MemberRow | null {
+  const name = text(page, COUNCIL.name);
+  if (!name) return skip(DB.council, page, `${COUNCIL.name} 없음`);
+  const major = text(page, COUNCIL.major);
+  const role = text(page, COUNCIL.role);
+  return {
+    name,
+    unit: select(page, COUNCIL.unit),
+    ...(major ? { major } : {}),
+    ...(role ? { role } : {}),
+    ...(checked(page, COUNCIL.lead) ? { lead: true } : {}),
+  };
+}
+
+/**
+ * 부서·명단(이미 순서대로) -> 조직도.
+ * 부서 목록에 없는 부서의 사람은 "기타" 그룹(경고), 부서마다 부장은 첫 번째만 인정(경고).
+ */
+export function buildOrg(units: UnitRow[], members: MemberRow[]): OrgUnit[] {
+  const result: OrgUnit[] = [];
+  const byName = new Map<string, OrgUnit>();
+  const add = (name: string, desc: string): OrgUnit => {
+    const unit: OrgUnit = { id: `u${result.length + 1}`, name, desc, members: [] };
+    byName.set(name, unit);
+    result.push(unit);
+    return unit;
+  };
+  for (const u of units) {
+    if (byName.has(u.name)) {
+      console.warn(`[data] ${DB.units} 중복 건너뜀: ${u.name} (먼저 나온 행만 사용)`);
+      continue;
+    }
+    add(u.name, u.desc);
+  }
+  for (const { unit: unitName, ...m } of members) {
+    let unit = byName.get(unitName);
+    if (!unit) {
+      console.warn(`[data] ${DB.council} 부서 없음: ${m.name} (${unitName || '비어 있음'}) -> "${UNIT_FALLBACK}" 그룹`);
+      unit = byName.get(UNIT_FALLBACK) ?? add(UNIT_FALLBACK, '');
+    }
+    if (m.lead && unit.members.some((x) => x.lead)) {
+      console.warn(`[data] ${DB.council} 부장이 여러 명: ${m.name} (${unit.name}) -> 첫 번째만 부장으로 표시`);
+      unit.members.push({ ...m, lead: false });
+      continue;
+    }
+    unit.members.push(m);
+  }
+  return result;
 }
