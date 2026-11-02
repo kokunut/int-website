@@ -1,5 +1,3 @@
-import type { SiteLinks } from './types';
-
 export interface NavItem {
   label: string;
   href: string;
@@ -14,8 +12,7 @@ export interface NavGroup {
   items: NavItem[];
 }
 
-/** 외부 링크(군입대 백서)는 사이트 링크 설정에서 가져온다. */
-export function buildNav(links: Pick<SiteLinks, 'notionMilitary'>): NavGroup[] {
+export function buildNav(): NavGroup[] {
   return [
     {
       key: 'intro',
@@ -40,7 +37,6 @@ export function buildNav(links: Pick<SiteLinks, 'notionMilitary'>): NavGroup[] {
       items: [
         { label: '검정비 페이백', href: '/payback' },
         { label: '제휴', href: '/partners' },
-        { label: '군입대 백서', href: links.notionMilitary, external: true },
         { label: '건의함', href: '/suggest' },
       ],
     },
@@ -52,6 +48,14 @@ export function buildNav(links: Pick<SiteLinks, 'notionMilitary'>): NavGroup[] {
         { label: '회의록', href: '/docs/minutes' },
         { label: '활동계획서·결산', href: '/docs/plans' },
         { label: '서식', href: '/docs/forms' },
+      ],
+    },
+    {
+      key: 'archive',
+      label: '아카이브',
+      items: [
+        { label: '취업 아카이브', href: '/archive/career' },
+        { label: '병영 길라잡이', href: '/archive/military' },
       ],
     },
     { key: 'faq', label: 'FAQ', href: '/faq', items: [] },
@@ -68,6 +72,7 @@ export const ROUTE_GROUP: Record<string, string> = {
   partners: 'welfare',
   suggest: 'welfare',
   docs: 'docs',
+  archive: 'archive',
   faq: 'faq',
 };
 

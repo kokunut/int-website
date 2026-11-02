@@ -12,7 +12,7 @@
 
 ## 사람이 해야 할 일 (에이전트가 못 하는 것)
 - [ ] Vercel 프로젝트 연결·도메인
-- [ ] 노션 통합 생성·DB 8개 구성(팝업 DB 포함), 구글 시트 요약 탭 웹 게시, 캘린더 iCal 주소 → Vercel 환경변수 등록 (`06-content-ops.md`, `npm run content:check`로 점검)
+- [ ] 노션 통합 생성·DB 9개 구성(팝업·아카이브 DB 포함), 구글 시트 요약 탭 웹 게시, 캘린더 iCal 주소 → Vercel 환경변수 등록 (`06-content-ops.md`, `npm run content:check`로 점검)
 - [ ] Vercel 프로젝트에서 **Analytics** 탭 → Enable, **Speed Insights** 탭 → Enable (`06-content-ops.md` 4-1)
 - [ ] 저장소 Settings → Advanced Security에서 **Dependabot alerts**와 **Dependabot security updates** 켜기 (보안 패치 자동 PR, 버전 업데이트는 `dependabot.yml`이 담당)
 - [ ] 실제 링크(카카오 채널, 인스타그램, 구글폼) 및 학생회실 주소 확정
@@ -38,4 +38,5 @@
 | 2026-11-02 | #34 | (본 PR) | 노션 이미지 안정 경로 `/api/notion-file/[pageId]/[field]/[index]`(허용 필드·공개 행·DB 검증, 307, 5분 캐시), 배너 이미지·모바일 이미지에 적용, `file-proxy.ts` 순수 함수+테스트, ADR-012 |
 | 2026-11-02 | #37 | (본 PR) | 브랜드 적용: 색 토큰·배너/푸터/FAB 규칙, `Logo` 컴포넌트, Gmarket Sans(`--font-display`), 파비콘·theme-color. README 스크린샷은 머지 후 재촬영 필요 |
 | 2026-11-02 | #39 | (본 PR) | 범용 팝업: 노션 "팝업" DB(`NOTION_DB_POPUPS`, 제휴·행사·공지·공모전, 기간·이미지·링크·순서)+공모전 팝업 합치기, 한 모달 이전/다음(점·"1 / 3"·←/→), "보지 않기"는 열린 묶음 전체에 적용(`mergeSuppress`로 기간 단축 방지), 목 데이터 제휴·행사 각 1건, 단위·E2E 추가, 운영 매뉴얼 "팝업 올리기", ADR-013·014. 사람이 할 일: DB 8개 구성에 팝업 추가(`npm run notion:setup`은 없는 DB만 생성) |
+| 2026-11-02 | #43 | (본 PR) | 취업 아카이브·병영 길라잡이: 노션 "아카이브" DB(`NOTION_DB_ARCHIVE`, 분류·주제·첨부·링크·고정), 새 상위 메뉴 "아카이브"(복지의 군입대 백서 외부 링크는 병영 길라잡이 상단 링크 카드로 이동), 주제 탭·제목 검색·고정 상단·첨부 개수 목록, 상세(배지·본문·첨부·원문·이전/다음), `archive-files` 안정 경로, sitemap, 목 데이터 취업 3·병영 3("예시" 문구). 본문 블록 확대: `blocksToContent`+`NotionBlocks`(문단·제목·목록·인용·콜아웃·구분선·체크리스트·외부 이미지)를 공지와 공유. 단위·E2E 추가, 운영 매뉴얼 "취업·병영 글 올리기", ADR-016. 사람이 할 일: 노션에 아카이브 DB 생성(`npm run notion:setup`은 없는 DB만 생성)·`NOTION_DB_ARCHIVE` 등록, 업로드 이미지 블록은 후속 |
 | 2026-11-02 | #41 | (본 PR) | 카드뉴스 공지: 공지 DB `카드뉴스`(files)·`인스타그램`(url)·유형 "카드뉴스" 추가(`notice-images` 안정 경로, `safeInstagramUrl`), 공지 상세 슬라이더(`CardSlider`: 스와이프·이전/다음·점·"2 / 6"·←/→·4:5), 목록·메인 배지·장수·"카드뉴스" 탭, 첫 장 OG 이미지, 목 데이터 6번(SVG 3장), 단위·E2E 추가, 운영 매뉴얼 "카드뉴스 올리기", ADR-015. 사람이 할 일: 기존 공지 DB에 `카드뉴스`·`인스타그램` 속성과 유형 옵션 수동 추가 |
