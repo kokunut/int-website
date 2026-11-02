@@ -67,6 +67,11 @@
 - 결정: "오늘 하루/일주일간 보지 않기"는 현재 보이는 팝업 한 건이 아니라 **지금 열린 묶음 전체**에 적용한다. 저장 키는 기존 `int_popup_hide_<슬러그>` 그대로, 묶음의 모든 슬러그에 같은 만료일을 기록하되 이미 더 늦은 만료일이 있으면 줄이지 않는다(`mergeSuppress`). 새 팝업이 추가되면 그 슬러그만 키가 없어 다시 뜬다. 첫 페인트 전 스크립트(`popupHideScript(ids)`)는 묶음의 모든 슬러그가 숨김일 때만 `data-popup-hidden="<슬러그,…>"`를 표시하고, 일부만 숨김이면 하이드레이션 후 컴포넌트가 걸러낸다(ADR-006, 클라이언트 우선). 하이드레이션 전에는 이전/다음이 동작하지 않는다(닫기·Esc·배경 클릭만 처리).
 - 이유: 여러 개를 넘겨 보는 한 모달에서 한 건에만 적용하면 사용자 기대("이 팝업창을 오늘 안 본다")와 다르다. 슬러그별 키를 유지해 새 팝업만 다시 띄울 수 있다. 한계: 일부만 숨김일 때 서버 HTML에는 숨긴 팝업도 포함되어 하이드레이션 직후 슬라이드 수가 줄 수 있다.
 
+## ADR-015 카드뉴스 공지: 노션 공지 DB 속성 + 슬라이더
+- 2026-11-02 · 채택
+- 결정: 인스타그램 카드뉴스와 같은 내용을 공지로 게시하기 위해 공지 DB에 `카드뉴스`(files, 여러 장)·`인스타그램`(url) 속성과 `유형`의 **카드뉴스** 옵션을 추가한다(`DB_SPECS` → `notion:setup`·`content:check` 자동 반영). 업로드 파일은 `/api/notion-file/[pageId]/notice-images/[index]`(ADR-012, 인덱스 0~19)로, 외부 링크는 https만 원래 URL로 내보내며 순서를 유지한다. 인스타그램 링크는 `https://instagram.com`·`*.instagram.com`만 허용(`safeInstagramUrl`). 공지 상세는 본문 위에 슬라이더(`CardSlider`: scroll-snap 스와이프·이전/다음·점·"2 / 6"·←/→, 4:5 상자 + `contain`, 최대 560px, 첫 장 외 `loading="lazy"`)를 보여주고, 목록은 "카드뉴스" 배지·장수와 유형 탭을 제공한다(`isCardNews`: 유형이 카드뉴스이거나 이미지가 있는 공지). 첫 장은 `openGraph.images`(내부 경로는 절대 URL)로 쓴다. 버튼·키로 넘기는 중에는 목표 장을 ref로 들고 있어 애니메이션 중간 스크롤 위치가 현재 장을 덮어쓰지 않게 한다.
+- 이유: 관리자가 노션에서 이미지만 올려 인스타그램과 같은 내용을 사이트에도 게시하게 하려는 것(활용 방식 c). 이미지 속 글은 검색·스크린리더가 읽지 못하므로 매뉴얼에서 본문 요약을 안내한다. 한계: 시드(`notion:setup --seed`)는 이미지 업로드가 필요해 카드뉴스 이미지를 넣지 않는다. 기존 DB는 속성·옵션을 수동 추가해야 한다.
+
 ## ADR-011 방문 통계: Vercel Analytics·Speed Insights, 운영 배포에서만 렌더
 - 2026-11-01 · 채택
 - 결정: `@vercel/analytics`, `@vercel/speed-insights`를 쓰고 `layout.tsx`(서버 컴포넌트)에서 `isVercelProduction()`(`process.env.VERCEL_ENV === "production"`)일 때만 `<Analytics />`, `<SpeedInsights />`를 렌더한다. 커스텀 이벤트(`popup_detail`, `payback_apply`, `kakao_fab`)는 `src/lib/analytics.ts`의 `EVENTS`로 상수화하고, 클라이언트에서는 `next.config.ts`가 주입한 `NEXT_PUBLIC_ANALYTICS`가 `1`일 때만 전송한다(그 외 no-op). `track`은 이벤트 발생 시 동적 import 해 초기 JS에 포함하지 않는다.

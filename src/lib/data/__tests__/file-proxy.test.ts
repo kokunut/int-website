@@ -64,6 +64,8 @@ describe('file-proxy', () => {
     expect(allowedDbIdsFor('banner-image', { NOTION_DB_BANNERS: DB })).toEqual([DB]);
     expect(allowedDbIdsFor('popup-image', { NOTION_DB_POPUPS: DB, NOTION_DB_BANNERS: 'x' })).toEqual([DB]);
     expect(allowedDbIdsFor('popup-image', { NOTION_DB_BANNERS: DB })).toEqual([]);
+    expect(allowedDbIdsFor('notice-images', { NOTION_DB_NOTICES: DB })).toEqual([DB]);
+    expect(parseFileProxyParams({ pageId: PAGE, field: 'notice-images', index: '19' })).toEqual({ pageId: PAGE, field: 'notice-images', index: 19 });
   });
 
   it('pickFileUrl: 정상(file·external)', () => {

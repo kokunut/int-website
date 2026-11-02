@@ -35,6 +35,8 @@ export const NOTICE = {
   type: '유형',
   date: '날짜',
   event: '행사기간',
+  cards: '카드뉴스',
+  instagram: '인스타그램',
 } as const;
 
 /** 공모전 */
@@ -137,7 +139,7 @@ export const SUGGEST = {
   date: '날짜',
 } as const;
 
-export const NOTICE_TYPES = ['일반', '행사'] as const;
+export const NOTICE_TYPES = ['일반', '행사', '카드뉴스'] as const;
 
 /**
  * DB 환경변수 이름별 노션 조회 인자(정렬). 데이터 로더와 이미지 프록시가 같은 값을 써야
@@ -186,9 +188,11 @@ export const DB_SPECS: DbSpec[] = [
     props: [
       t(NOTICE.title, 'title', true, '2026 학술제 참가팀 모집'),
       t(NOTICE.no, 'number', true, '6', '겹치지 않는 양의 정수. 주소(/notice/6)에 쓰입니다'),
-      t(NOTICE.type, 'select', true, '행사', '일반 또는 행사', [...NOTICE_TYPES]),
+      t(NOTICE.type, 'select', true, '행사', '일반·행사·카드뉴스 중 하나', [...NOTICE_TYPES]),
       t(NOTICE.date, 'date', true, '2026-10-26', '게시일'),
       t(NOTICE.event, 'date', false, '2026-11-03 → 2026-11-14', '캘린더에도 표시할 때만. 하루면 시작일만'),
+      t(NOTICE.cards, 'files', false, '(이미지 여러 장 업로드)', '카드뉴스 이미지를 인스타그램 업로드 순서대로, 최대 20장. 없으면 일반 공지'),
+      t(NOTICE.instagram, 'url', false, 'https://www.instagram.com/p/xxxx', '인스타그램 원본 게시물 링크(instagram.com 주소만 허용)'),
       pub,
     ],
   },

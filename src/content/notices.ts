@@ -48,4 +48,16 @@ export const notices: Notice[] = [
     event: { start: '2026-11-18', end: '2026-11-18' },
     body: ['교내 연구실을 직접 방문하는 오픈랩 탐방을 진행합니다.'],
   },
+  {
+    id: 6,
+    type: '카드뉴스',
+    title: '인트 10월 활동 모아보기',
+    date: '2026-10-30',
+    body: [
+      '10월 한 달 동안의 인트 활동을 카드뉴스로 정리했습니다.',
+      '이미지 속 내용은 인스타그램 게시물과 같습니다.',
+    ],
+    cards: ['/mock/cardnews-1.svg', '/mock/cardnews-2.svg', '/mock/cardnews-3.svg'],
+    instagram: 'https://www.instagram.com/int_sejong/',
+  },
 ];
