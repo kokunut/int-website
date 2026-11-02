@@ -35,7 +35,7 @@ npm run test:e2e   # E2E 테스트 (Playwright, 최초 1회 npx playwright insta
 npm run build      # 프로덕션 빌드
 npm run screenshots # README 화면 캡처 (서버 실행 후, docs/images/)
 npm run content:check  # 노션·구글 연동 점검 (.env.local 필요, CI 제외)
-npm run notion:setup -- --dry-run  # 노션 DB 7개 자동 생성 계획 (실행은 --dry-run 제거, 옵션: --seed --write-env --parent)
+npm run notion:setup -- --dry-run  # 노션 DB 8개 자동 생성 계획 (실행은 --dry-run 제거, 옵션: --seed --write-env --parent)
 ```
 PR 전에는 `lint`, `typecheck`, `test`, `build` 가 모두 통과해야 한다.
 

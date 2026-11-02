@@ -57,6 +57,16 @@
 - 결정: 노션 업로드 파일은 `GET /api/notion-file/[pageId]/[field]/[index]`(307 리다이렉트, 5분 캐시)로 내보낸다. `field`는 허용 목록(`banner-image`, `banner-image-mobile`, 이후 확장), `index`는 0~19. 페이지의 `parent.database_id`가 해당 필드의 `NOTION_DB_*`이고 `공개`가 체크된 행이며 https 파일일 때만 응답하고, 그 외·토큰 없음·조회 실패는 이유 없이 404. 외부 링크(`external`)는 기존대로 원래 URL.
 - 이유: 서명 URL은 약 1시간 뒤 만료되어 ISR 캐시가 길면 이미지가 깨진다. 내부 경로는 만료되지 않고, 공개 행·허용 필드만 열어 임의 페이지 파일 노출을 막는다. 남용 방지: 노션 호출 전에 해당 DB의 캐시된 목록 조회(`queryDatabase`, 배너 로더와 같은 요청·10분 캐시)에 pageId가 있는지 확인하고 없으면 노션 호출 없이 404, 목록 행에 서명 URL이 있으면 그대로 사용하며 `fetchPage`는 행은 있으나 URL이 없을 때만 보충한다(`resolveFileUrl`). 한계: 이미지 요청마다 서버 함수가 한 번 실행될 수 있다(5분 캐시로 완화).
 
+## ADR-013 범용 팝업: 노션 "팝업" DB + 공모전 합치기
+- 2026-11-02 · 채택
+- 결정: 제휴·행사·공지 팝업은 노션 "팝업" DB(`NOTION_DB_POPUPS`, `DB_SPECS`에 포함 → `notion:setup`·`content:check` 자동 반영)에서 관리자가 직접 추가·수정·삭제한다. 속성: 제목·슬러그·분류(제휴/행사/공지/공모전)·기간(KST)·내용·이미지(`popup-image` 안정 경로, ADR-012)·링크(`safeHref`)·버튼문구·순서·공개. 메인(`/`)에서만, 오늘(KST)이 기간 안인 팝업과 기존 `팝업` 체크 공모전(분류 "공모전"으로 변환, `buildPopups`)을 합쳐 순서대로 보여준다. 슬러그가 겹치면 팝업 DB 우선, 순서가 없으면(공모전 포함) 맨 뒤, 같으면 입력 순서. 환경변수가 없으면 `src/content/popups.ts` 목 데이터.
+- 이유: 제휴·행사 공지를 코드 수정 없이 노션 행 추가만으로 올리고 `공개` 해제·삭제로 내리게 하려는 것(활용 방식 e). 공모전은 이미 `팝업` 체크 흐름이 있어 별도 입력 없이 같은 모달로 합친다. 한계: 팝업 행도 10분 ISR 캐시를 따른다(즉시 반영은 `/api/revalidate`).
+
+## ADR-014 "보지 않기"는 열린 팝업 묶음 단위
+- 2026-11-02 · 채택
+- 결정: "오늘 하루/일주일간 보지 않기"는 현재 보이는 팝업 한 건이 아니라 **지금 열린 묶음 전체**에 적용한다. 저장 키는 기존 `int_popup_hide_<슬러그>` 그대로, 묶음의 모든 슬러그에 같은 만료일을 기록하되 이미 더 늦은 만료일이 있으면 줄이지 않는다(`mergeSuppress`). 새 팝업이 추가되면 그 슬러그만 키가 없어 다시 뜬다. 첫 페인트 전 스크립트(`popupHideScript(ids)`)는 묶음의 모든 슬러그가 숨김일 때만 `data-popup-hidden="<슬러그,…>"`를 표시하고, 일부만 숨김이면 하이드레이션 후 컴포넌트가 걸러낸다(ADR-006, 클라이언트 우선). 하이드레이션 전에는 이전/다음이 동작하지 않는다(닫기·Esc·배경 클릭만 처리).
+- 이유: 여러 개를 넘겨 보는 한 모달에서 한 건에만 적용하면 사용자 기대("이 팝업창을 오늘 안 본다")와 다르다. 슬러그별 키를 유지해 새 팝업만 다시 띄울 수 있다. 한계: 일부만 숨김일 때 서버 HTML에는 숨긴 팝업도 포함되어 하이드레이션 직후 슬라이드 수가 줄 수 있다.
+
 ## ADR-011 방문 통계: Vercel Analytics·Speed Insights, 운영 배포에서만 렌더
 - 2026-11-01 · 채택
 - 결정: `@vercel/analytics`, `@vercel/speed-insights`를 쓰고 `layout.tsx`(서버 컴포넌트)에서 `isVercelProduction()`(`process.env.VERCEL_ENV === "production"`)일 때만 `<Analytics />`, `<SpeedInsights />`를 렌더한다. 커스텀 이벤트(`popup_detail`, `payback_apply`, `kakao_fab`)는 `src/lib/analytics.ts`의 `EVENTS`로 상수화하고, 클라이언트에서는 `next.config.ts`가 주입한 `NEXT_PUBLIC_ANALYTICS`가 `1`일 때만 전송한다(그 외 no-op). `track`은 이벤트 발생 시 동적 import 해 초기 JS에 포함하지 않는다.

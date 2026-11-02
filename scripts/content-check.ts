@@ -13,6 +13,7 @@ import {
   mapFaq,
   mapNotice,
   mapPartner,
+  mapPopup,
   mapSuggest,
 } from '../src/lib/data/notion-map';
 import { DB_SPECS, P_PUBLIC, type PropSpec } from '../src/lib/data/notion-schema';
@@ -36,6 +37,7 @@ const MAPPERS: Record<string, (p: NotionPage) => unknown> = {
   faq: mapFaq,
   docs: mapDoc,
   banners: mapBanner,
+  popups: mapPopup,
   suggest: mapSuggest,
 };
 

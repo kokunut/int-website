@@ -84,6 +84,27 @@ export interface Contest {
 
 export type ContestStatus = '예정' | '진행중' | '마감';
 
+/** 팝업 분류 */
+export type PopupCategory = '제휴' | '행사' | '공지' | '공모전';
+
+/** 메인 팝업 한 건 (노션 팝업 DB 또는 공모전 변환). id 는 "보지 않기" 저장 키·중복 판정에 쓰인다 */
+export interface Popup {
+  id: string;
+  title: string;
+  cat: PopupCategory;
+  start: DateString;
+  end: DateString;
+  desc: string;
+  /** 포스터 이미지 경로(https 또는 /api/notion-file/…). 없으면 자리 표시 */
+  image: string | null;
+  /** "자세히 보기" 대상 (내부 경로 또는 https). 없으면 버튼 없음 */
+  href: string;
+  /** 버튼 문구 */
+  cta: string;
+  /** 작을수록 먼저. 없으면 맨 뒤 */
+  order?: number;
+}
+
 export interface Payback {
   budget: number;
   paid: number;
