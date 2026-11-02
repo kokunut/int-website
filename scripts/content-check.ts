@@ -7,6 +7,7 @@ import { existsSync } from 'node:fs';
 import { mapPayback, parseCsv } from '../src/lib/data/csv';
 import { parseIcs } from '../src/lib/data/ics';
 import {
+  mapArchive,
   mapBanner,
   mapContest,
   mapDoc,
@@ -36,6 +37,7 @@ const MAPPERS: Record<string, (p: NotionPage) => unknown> = {
   partners: mapPartner,
   faq: mapFaq,
   docs: mapDoc,
+  archive: (p) => mapArchive(p),
   banners: mapBanner,
   popups: mapPopup,
   suggest: mapSuggest,

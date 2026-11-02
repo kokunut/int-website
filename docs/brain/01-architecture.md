@@ -53,7 +53,7 @@ public/                   # 정적 파일 (로고, 이미지)
 
 ## 데이터 흐름
 ```
-노션 DB(8개) ──────┐  fetch + Notion-Version 고정
+노션 DB(9개) ──────┐  fetch + Notion-Version 고정
 구글 캘린더 iCal ──┼─> src/lib/data/*.ts (서버, fetch 캐시 10분, 태그 'notion') ─> 페이지(서버 컴포넌트) ─> 클라이언트 컴포넌트(props)
 구글 시트 CSV(요약탭)┘        │ 환경변수 없거나 실패 시
                               └─> src/content/* 목 데이터 폴백 (소스별로 독립)

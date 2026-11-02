@@ -112,6 +112,28 @@ export const DOC_CATEGORY_LABELS = {
 /** 예전/약식 이름도 받아 준다 (매뉴얼에는 싣지 않음) */
 export const DOC_CATEGORY_ALIASES = { '계획·결산': 'plans', 양식: 'forms' } as const;
 
+/** 아카이브 (취업 아카이브·병영 길라잡이를 DB 하나에 모으고 '분류'로 나눈다) */
+export const ARCHIVE = {
+  title: '제목',
+  slug: '슬러그',
+  category: '분류',
+  topic: '주제',
+  date: '날짜',
+  summary: '요약',
+  files: '첨부',
+  link: '링크',
+  pinned: '고정',
+} as const;
+
+/** 분류 선택값 -> 코드 */
+export const ARCHIVE_CATEGORY_LABELS = { 취업: 'career', 병영: 'military' } as const;
+
+/** 분류별 주제 선택지 (노션에서 자유롭게 더 추가할 수 있다) */
+export const ARCHIVE_TOPICS = {
+  career: ['채용공고', '취업후기', '자격증', '대외활동', '특강'],
+  military: ['입대준비', '복무', '전역', '병역특례', '예비군'],
+} as const;
+
 /** 자주 묻는 질문 */
 export const FAQ = {
   q: '질문',
@@ -262,6 +284,31 @@ export const DB_SPECS: DbSpec[] = [
       t(DOC.by, 'rich_text', false, '사무부'),
       t(DOC.summary, 'rich_text', false, '안건 1: 학술제 일정 확정', '한 줄에 하나'),
       t(DOC.file, 'url', false, 'https://drive.google.com/file/d/…/view', '구글 드라이브 공유 링크(PDF)'),
+      pub,
+    ],
+  },
+  {
+    key: 'archive',
+    label: '아카이브',
+    env: 'NOTION_DB_ARCHIVE',
+    bodyNote: '본문은 노션 페이지를 열어 그 안에 적습니다 (문단·제목·글머리·번호 목록·인용·콜아웃·구분선·체크리스트, 외부 주소 이미지).',
+    props: [
+      t(ARCHIVE.title, 'title', true, '자격증 준비 로드맵 (예시)'),
+      t(ARCHIVE.slug, 'rich_text', true, 'cert-roadmap', '영문 소문자·숫자·하이픈만. 같은 분류 안에서 겹치면 안 됩니다. 주소는 /archive/<분류>/<슬러그>'),
+      t(ARCHIVE.category, 'select', true, '취업', Object.keys(ARCHIVE_CATEGORY_LABELS).join(' / '), Object.keys(ARCHIVE_CATEGORY_LABELS)),
+      t(
+        ARCHIVE.topic,
+        'select',
+        false,
+        '자격증',
+        '취업: 채용공고·취업후기·자격증·대외활동·특강 / 병영: 입대준비·복무·전역·병역특례·예비군 (새 주제를 만들어도 됩니다)',
+        [...ARCHIVE_TOPICS.career, ...ARCHIVE_TOPICS.military],
+      ),
+      t(ARCHIVE.date, 'date', true, '2026-10-20', '게시일'),
+      t(ARCHIVE.summary, 'rich_text', false, '준비 순서를 한눈에 정리했어요.', '목록에 보이는 1~2줄'),
+      t(ARCHIVE.files, 'files', false, '(PDF·이미지 여러 개 업로드)', '최대 20개. 상세 페이지에서 내려받기'),
+      t(ARCHIVE.link, 'url', false, 'https://www.mma.go.kr/', '외부 원문(채용공고, 병무청 등) 링크'),
+      t(ARCHIVE.pinned, 'checkbox', false, '체크', '목록 맨 위에 고정'),
       pub,
     ],
   },

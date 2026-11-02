@@ -2,8 +2,10 @@
  * 노션 DB 자동 생성(`npm run notion:setup`)에 쓰는 순수 함수들 (네트워크 없음).
  * 스키마(notion-schema.ts)로 속성 payload 를 만들고, 시드용으로 기존 매퍼의 역변환을 제공한다.
  */
-import type { Banner, Contest, DocCategory, DocItem, FaqItem, Notice, Partner, Popup, SuggestAnswer } from '../types';
+import type { ArchivePost, Banner, ContentBlock, Contest, DocCategory, DocItem, FaqItem, Notice, Partner, Popup, SuggestAnswer } from '../types';
 import {
+  ARCHIVE,
+  ARCHIVE_CATEGORY_LABELS,
   BANNER,
   CONTEST,
   DOC,
@@ -106,7 +108,7 @@ function putUrl(props: Record<string, unknown>, name: string, v: string | undefi
   put(props, name, { url: href }, !!href);
 }
 
-export type SeedKind = 'notices' | 'contests' | 'partners' | 'faq' | 'docs' | 'banners' | 'popups' | 'suggest';
+export type SeedKind = 'notices' | 'contests' | 'partners' | 'faq' | 'docs' | 'archive' | 'banners' | 'popups' | 'suggest';
 
 export interface SeedItems {
   notices: Notice;
@@ -114,6 +116,7 @@ export interface SeedItems {
   partners: Partner;
   faq: FaqItem;
   docs: { category: DocCategory; item: DocItem };
+  archive: ArchivePost;
   banners: Banner;
   popups: Popup;
   suggest: SuggestAnswer;
@@ -121,11 +124,43 @@ export interface SeedItems {
 
 const CATEGORY_LABEL = Object.fromEntries(Object.entries(DOC_CATEGORY_LABELS).map(([label, code]) => [code, label]));
 
+const ARCHIVE_LABEL = Object.fromEntries(Object.entries(ARCHIVE_CATEGORY_LABELS).map(([label, code]) => [code, label]));
+
 const para = (content: string) => ({
   object: 'block',
   type: 'paragraph',
   paragraph: { rich_text: rich(content) },
 });
+
+const textBlock = (type: string, content: string, extra: Record<string, unknown> = {}) => ({
+  object: 'block',
+  type,
+  [type]: { rich_text: rich(content), ...extra },
+});
+
+/** 도메인 본문 블록 -> 노션 블록 payload (`blocksToContent` 의 역변환). 목록은 항목마다 블록 하나 */
+export function contentToNotionBlocks(blocks: ContentBlock[]): unknown[] {
+  return blocks.flatMap((b): unknown[] => {
+    switch (b.type) {
+      case 'paragraph':
+        return [para(b.text)];
+      case 'heading':
+        return [textBlock(`heading_${b.level}`, b.text)];
+      case 'list':
+        return b.items.map((it) => textBlock(b.ordered ? 'numbered_list_item' : 'bulleted_list_item', it));
+      case 'quote':
+        return [textBlock('quote', b.text)];
+      case 'callout':
+        return [textBlock('callout', b.text, b.icon ? { icon: { type: 'emoji', emoji: b.icon } } : {})];
+      case 'divider':
+        return [{ object: 'block', type: 'divider', divider: {} }];
+      case 'todo':
+        return [textBlock('to_do', b.text, { checked: b.checked })];
+      case 'image':
+        return []; // 외부 이미지 블록은 시드하지 않는다
+    }
+  });
+}
 
 type Builder<K extends SeedKind> = (item: SeedItems[K], order?: number) => PagePayload;
 
@@ -202,6 +237,19 @@ const BUILDERS: { [K in SeedKind]: Builder<K> } = {
     putLines(props, DOC.summary, d.summary);
     putUrl(props, DOC.file, d.file);
     return { properties: props };
+  },
+  archive: (a) => {
+    // 첨부 파일은 업로드가 필요해 시드하지 않는다
+    const props = base();
+    props[ARCHIVE.title] = title(a.title);
+    props[ARCHIVE.slug] = richText(a.id);
+    props[ARCHIVE.category] = { select: { name: ARCHIVE_LABEL[a.category] } };
+    put(props, ARCHIVE.topic, { select: { name: a.topic } }, !!a.topic);
+    props[ARCHIVE.date] = date(a.date);
+    putText(props, ARCHIVE.summary, a.summary);
+    putUrl(props, ARCHIVE.link, a.link);
+    put(props, ARCHIVE.pinned, checkbox(true), a.pinned);
+    return { properties: props, children: contentToNotionBlocks(a.blocks) };
   },
   banners: (b, order) => {
     // 이미지는 파일 업로드가 필요해 시드하지 않는다 (글자 배너로 표시됨)

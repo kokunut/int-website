@@ -6,6 +6,7 @@
  * 각 로더는 React cache() 로 한 요청 안에서 중복 호출을 합친다.
  */
 import { academic } from '@/content/academic';
+import { archive } from '@/content/archive';
 import { banners } from '@/content/banners';
 import { contests } from '@/content/contests';
 import { departments } from '@/content/departments';
@@ -20,7 +21,10 @@ import { popups } from '@/content/popups';
 import { siteLinks } from '@/content/site';
 import { cache } from 'react';
 import { buildEvents } from '../events';
+import { sortArchive } from '../archive';
 import type {
+  ArchiveCategory,
+  ArchivePost,
   AboutPage,
   DepartmentsPage,
   AcademicEvent,
@@ -48,8 +52,10 @@ import type {
 import { BANNER, FAQ, PARTNER, POPUP } from './notion-schema';
 import {
   DB,
+  blocksToContent,
   blocksToLines,
   dedupeBy,
+  mapArchive,
   mapBanner,
   mapContest,
   mapDoc,
@@ -182,6 +188,40 @@ const loadDocs = cache(async (): Promise<Record<DocCategory, DocItem[]>> => {
   );
 });
 
+/** 목록은 속성만 읽는다(본문 비움). 본문은 getArchivePost 에서 그 페이지 블록만 읽는다. pageIds: `분류/슬러그` -> 노션 페이지 id */
+interface ArchiveIndex {
+  list: ArchivePost[];
+  pageIds: Map<string, string>;
+}
+
+const archiveKey = (category: ArchiveCategory, id: string): string => `${category}/${id}`;
+
+async function fetchArchive(dbId: string): Promise<ArchiveIndex> {
+  const pages = await listRows(DB.archive, dbId);
+  const list: ArchivePost[] = [];
+  const pageIds = new Map<string, string>();
+  for (const p of pages) {
+    const post = mapArchive(p);
+    if (!post) continue;
+    const key = archiveKey(post.category, post.id);
+    if (pageIds.has(key)) {
+      console.warn(`[data] ${DB.archive} 중복 건너뜀: ${key} (먼저 나온 행만 사용)`);
+      continue;
+    }
+    list.push(post);
+    pageIds.set(key, p.id);
+  }
+  return { list, pageIds };
+}
+
+const loadArchiveIndex = cache(async (): Promise<ArchiveIndex> => {
+  const id = notionDb(DB.archive);
+  return withFallback(DB.archive, id ? () => fetchArchive(id) : null, () => ({
+    list: [...archive],
+    pageIds: new Map<string, string>(),
+  }));
+});
+
 const loadFaq = cache(async (): Promise<FaqItem[]> => {
   const id = notionDb(DB.faq);
   return withFallback(DB.faq, id ? () => notionRows(DB.faq, id, mapFaq, FAQ.order) : null, () => [...faq]);
@@ -224,7 +264,8 @@ export async function getNotice(id: number): Promise<Notice | undefined> {
   const pageId = pageIds.get(id);
   if (!n || !pageId) return n;
   try {
-    return { ...n, body: blocksToLines(await fetchBlocks(pageId)) };
+    const blocks = await fetchBlocks(pageId);
+    return { ...n, body: blocksToLines(blocks), blocks: blocksToContent(blocks) };
   } catch (err) {
     warnOnce(`${DB.notices} 본문`, err);
     return n;
@@ -286,7 +327,25 @@ export async function getDoc(category: DocCategory, id: string): Promise<DocItem
   return (await loadDocs())[category].find((d) => d.id === id);
 }
 
-export async function getFaq(): Promise<FaqItem[]> {
+/** 고정 글 먼저, 그다음 날짜 최신순 (목록은 본문 없음) */
+export async function getArchive(category: ArchiveCategory): Promise<ArchivePost[]> {
+  return sortArchive((await loadArchiveIndex()).list.filter((p) => p.category === category));
+}
+
+export async function getArchivePost(category: ArchiveCategory, id: string): Promise<ArchivePost | undefined> {
+  const { list, pageIds } = await loadArchiveIndex();
+  const post = list.find((p) => p.category === category && p.id === id);
+  const pageId = pageIds.get(archiveKey(category, id));
+  if (!post || !pageId) return post;
+  try {
+    return { ...post, blocks: blocksToContent(await fetchBlocks(pageId)) };
+  } catch (err) {
+    warnOnce(`${DB.archive} 본문`, err);
+    return post;
+  }
+}
+
+export async function getFaq():Promise<FaqItem[]> {
   return loadFaq();
 }
 

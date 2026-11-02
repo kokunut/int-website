@@ -40,6 +40,17 @@ export interface AcademicEvent {
   end: DateString;
 }
 
+/** 노션 본문 블록을 구조 그대로 옮긴 것. 텍스트는 서식 없는 일반 글자 */
+export type ContentBlock =
+  | { type: 'paragraph'; text: string }
+  | { type: 'heading'; level: 2 | 3; text: string }
+  | { type: 'list'; ordered: boolean; items: string[] }
+  | { type: 'quote'; text: string }
+  | { type: 'callout'; text: string; icon?: string }
+  | { type: 'divider' }
+  | { type: 'image'; src: string; caption: string }
+  | { type: 'todo'; text: string; checked: boolean };
+
 export type NoticeType = '일반' | '행사' | '카드뉴스';
 
 export interface Notice {
@@ -50,6 +61,8 @@ export interface Notice {
   /** 있으면 캘린더에도 표시된다 */
   event?: DateRange;
   body: string[];
+  /** 노션 본문 구조(상세에서만 채워진다). 없으면 body 를 문단으로 그린다 */
+  blocks?: ContentBlock[];
   /** 카드뉴스 이미지(순서대로, https 또는 /api/notion-file/… 또는 /mock/…). 없으면 생략 */
   cards?: string[];
   /** 인스타그램 원본 게시물 링크 */
@@ -258,4 +271,29 @@ export interface DepartmentsPage {
 export interface FaqPage {
   contactTitle: string;
   contactDesc: string;
+}
+
+export type ArchiveCategory = 'career' | 'military';
+
+export interface ArchiveAttachment {
+  name: string;
+  /** /api/notion-file/… 또는 https 또는 /mock/… */
+  href: string;
+}
+
+export interface ArchivePost {
+  /** 슬러그. 주소는 /archive/<분류>/<id> */
+  id: string;
+  category: ArchiveCategory;
+  title: string;
+  /** 주제(자유 입력). 없으면 '' */
+  topic: string;
+  date: DateString;
+  summary: string;
+  attachments: ArchiveAttachment[];
+  /** 외부 원문 링크. 없으면 '' */
+  link: string;
+  pinned: boolean;
+  /** 상세에서만 채워진다 */
+  blocks: ContentBlock[];
 }

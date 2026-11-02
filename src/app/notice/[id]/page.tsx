@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import NotionBlocks, { linesToBlocks } from '@/components/NotionBlocks';
 import Pager from '@/components/Pager';
 import { getNotice, getNotices } from '@/lib/data';
 import CardSlider from '@/components/CardSlider';
@@ -69,11 +70,7 @@ export default async function NoticeDetailPage({ params }: Props) {
         {notice.cards && notice.cards.length > 0 && (
           <CardSlider title={notice.title} images={notice.cards} instagram={notice.instagram} />
         )}
-        <div className="body">
-          {notice.body.map((p, k) => (
-            <p key={k}>{p}</p>
-          ))}
-        </div>
+        <NotionBlocks blocks={notice.blocks ?? linesToBlocks(notice.body)} />
         <Pager prev={newer && toItem(newer)} next={older && toItem(older)} labels={['최신 글', '이전 글']} />
       </div>
     </section>

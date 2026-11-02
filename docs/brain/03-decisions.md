@@ -72,6 +72,12 @@
 - 결정: 인스타그램 카드뉴스와 같은 내용을 공지로 게시하기 위해 공지 DB에 `카드뉴스`(files, 여러 장)·`인스타그램`(url) 속성과 `유형`의 **카드뉴스** 옵션을 추가한다(`DB_SPECS` → `notion:setup`·`content:check` 자동 반영). 업로드 파일은 `/api/notion-file/[pageId]/notice-images/[index]`(ADR-012, 인덱스 0~19)로, 외부 링크는 https만 원래 URL로 내보내며 순서를 유지한다. 인스타그램 링크는 `https://instagram.com`·`*.instagram.com`만 허용(`safeInstagramUrl`). 공지 상세는 본문 위에 슬라이더(`CardSlider`: scroll-snap 스와이프·이전/다음·점·"2 / 6"·←/→, 4:5 상자 + `contain`, 최대 560px, 첫 장 외 `loading="lazy"`)를 보여주고, 목록은 "카드뉴스" 배지·장수와 유형 탭을 제공한다(`isCardNews`: 유형이 카드뉴스이거나 이미지가 있는 공지). 첫 장은 `openGraph.images`(내부 경로는 절대 URL)로 쓴다. 버튼·키로 넘기는 중에는 목표 장을 ref로 들고 있어 애니메이션 중간 스크롤 위치가 현재 장을 덮어쓰지 않게 한다.
 - 이유: 관리자가 노션에서 이미지만 올려 인스타그램과 같은 내용을 사이트에도 게시하게 하려는 것(활용 방식 c). 이미지 속 글은 검색·스크린리더가 읽지 못하므로 매뉴얼에서 본문 요약을 안내한다. 한계: 시드(`notion:setup --seed`)는 이미지 업로드가 필요해 카드뉴스 이미지를 넣지 않는다. 기존 DB는 속성·옵션을 수동 추가해야 한다.
 
+## ADR-016 아카이브 메뉴: 취업 아카이브·병영 길라잡이, 노션 아카이브 DB, 공용 블록 렌더링
+- 2026-11-02 · 채택
+- 결정: 새 상위 메뉴 **아카이브**(자료실 옆)에 "취업 아카이브"(`/archive/career`)와 "병영 길라잡이"(`/archive/military`)를 둔다. 복지 메뉴의 "군입대 백서"(외부 링크)는 제거하고, 같은 사이트 링크 설정(`notionMilitary`)으로 병영 길라잡이 목록 상단의 링크 카드와 메인 바로가기(→ 병영 길라잡이)에 쓴다. 콘텐츠는 노션 "아카이브" DB(`NOTION_DB_ARCHIVE`, `DB_SPECS` 포함 → `notion:setup`·`content:check` 자동)에서 CRUD 하며 `분류`(취업/병영)로 나눈다. 슬러그는 분류 안에서 유일, 첨부(files)는 `archive-files` 안정 경로(ADR-012, 인덱스 0~19), 링크는 `safeHref`. 목록은 속성만 읽고 본문 블록은 상세에서만 요청한다(공지와 동일). 주제 탭은 정해 둔 주제 순서 → 새 주제 순이며 글이 없는 주제는 숨긴다.
+- 블록 렌더링: 본문은 `ContentBlock`(문단·제목·목록·인용·콜아웃·구분선·이미지·체크리스트)으로 변환(`blocksToContent`, 연속 목록 항목은 하나로 묶음)해 공지·아카이브가 `NotionBlocks` 하나로 그린다. `heading_1`은 페이지 `h1`과 겹치지 않도록 `h2`로 그린다. 공지의 `body: string[]`는 캘린더 등 기존 사용처를 위해 그대로 두고 `blocks`를 더한다. 하위(중첩) 블록은 요청하지 않는다.
+- 이유: 취업·병영 정보를 코드 수정 없이 올리고(활용 방식 d), 지금까지 텍스트 줄만 보이던 본문을 구조 그대로 보여 주기 위함. 한계: 업로드 이미지 블록은 서명 URL이 만료돼 아직 지원하지 않는다(외부 https 이미지만, 업로드 이미지는 후속). 글자 서식(굵게·링크)은 일반 글자로 표시된다. 기존 노션에는 아카이브 DB를 새로 만들어야 한다.
+
 ## ADR-011 방문 통계: Vercel Analytics·Speed Insights, 운영 배포에서만 렌더
 - 2026-11-01 · 채택
 - 결정: `@vercel/analytics`, `@vercel/speed-insights`를 쓰고 `layout.tsx`(서버 컴포넌트)에서 `isVercelProduction()`(`process.env.VERCEL_ENV === "production"`)일 때만 `<Analytics />`, `<SpeedInsights />`를 렌더한다. 커스텀 이벤트(`popup_detail`, `payback_apply`, `kakao_fab`)는 `src/lib/analytics.ts`의 `EVENTS`로 상수화하고, 클라이언트에서는 `next.config.ts`가 주입한 `NEXT_PUBLIC_ANALYTICS`가 `1`일 때만 전송한다(그 외 no-op). `track`은 이벤트 발생 시 동적 import 해 초기 JS에 포함하지 않는다.

@@ -5,6 +5,7 @@ export interface NotionRichText {
 }
 
 export interface NotionFile {
+  name?: string;
   file?: { url: string };
   external?: { url: string };
 }

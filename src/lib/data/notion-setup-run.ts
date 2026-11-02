@@ -2,6 +2,7 @@
  * `npm run notion:setup` 의 실행 흐름. 노션 호출(`api`)·대기(`sleep`)·출력·파일 입출력을 주입받아
  * 인메모리 가짜 노션으로 테스트할 수 있다.
  */
+import { archive } from '../../content/archive';
 import { banners } from '../../content/banners';
 import { popups } from '../../content/popups';
 import { contests } from '../../content/contests';
@@ -93,6 +94,8 @@ export function seedRows(key: string): PagePayload[] {
       return (Object.entries(docs) as [DocCategory, (typeof docs)[DocCategory]][]).flatMap(([category, items]) =>
         items.map((item) => toNotionPage('docs', { category, item })),
       );
+    case 'archive':
+      return archive.map((a) => toNotionPage('archive', a));
     case 'banners':
       return ordered('banners', banners);
     case 'popups':

@@ -43,7 +43,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <a className="skip-link" href="#app">
           본문 바로가기
         </a>
-        <Header nav={buildNav(links)} />
+        <Header nav={buildNav()} />
         <main id="app" tabIndex={-1}>{children}</main>
         <Footer links={links} />
         <KakaoFab href={links.kakao} />

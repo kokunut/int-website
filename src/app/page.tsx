@@ -72,13 +72,13 @@ export default async function HomePage() {
         </div>
       </section>
       <section className="section quick" aria-label="바로가기">
-        <AppLink className="qk" href={links.notionMilitary}>
+        <Link className="qk" href="/archive/military">
           <div>
-            <small>노션 바로가기</small>
-            <strong>군입대 백서</strong>
+            <small>아카이브</small>
+            <strong>병영 길라잡이</strong>
           </div>
-          <span className="arr">↗</span>
-        </AppLink>
+          <span className="arr">→</span>
+        </Link>
         <AppLink className="qk" href={links.notionContest}>
           <div>
             <small>노션 바로가기</small>

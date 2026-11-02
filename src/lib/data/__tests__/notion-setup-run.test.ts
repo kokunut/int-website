@@ -104,7 +104,7 @@ function setup(notion: ReturnType<typeof createFakeNotion>) {
 const totalRows = (n: ReturnType<typeof createFakeNotion>): number => [...n.dbs.values()].reduce((s, d) => s + d.rows.length, 0);
 
 describe('runSetup (가짜 노션)', () => {
-  it('첫 실행: DB 7개 생성 + --seed 시 행 생성', async () => {
+  it('첫 실행: DB 전체 생성 + --seed 시 행 생성', async () => {
     const notion = createFakeNotion();
     const { run } = setup(notion);
     const ids = await run({ seed: true });
