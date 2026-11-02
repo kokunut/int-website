@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { allowedDbIdsFor, parseFileProxyParams, resolveFileUrl } from '@/lib/data/file-proxy';
-import { FILE_REVALIDATE_SECONDS, fetchPage, queryDatabase } from '@/lib/data/notion';
+import { FILE_FIELDS, allowedDbIdsFor, parseFileProxyParams, resolveFileUrl } from '@/lib/data/file-proxy';
+import { FILE_REVALIDATE_SECONDS, fetchPage, listRows } from '@/lib/data/notion';
 
 /** 거절 이유는 노출하지 않는다 */
 const notFound = (): NextResponse => new NextResponse('Not Found', { status: 404, headers: { 'Cache-Control': 'no-store' } });
@@ -16,8 +16,9 @@ export async function GET(
   const allowed = allowedDbIdsFor(parsed.field, process.env);
   if (allowed.length === 0) return notFound();
   try {
-    // 목록 캐시(배너 로더와 동일 요청)에 없는 id 는 노션 호출 없이 404
-    const url = await resolveFileUrl(parsed, allowed, { listPages: (id) => queryDatabase(id), fetchPage });
+    // 목록 캐시(로더와 같은 listRows 호출)에 없는 id 는 노션 호출 없이 404
+    const dbKey = FILE_FIELDS[parsed.field].dbEnv;
+    const url = await resolveFileUrl(parsed, allowed, { listPages: (id) => listRows(dbKey, id), fetchPage });
     if (!url) return notFound();
     const age = FILE_REVALIDATE_SECONDS;
     return NextResponse.redirect(url, {

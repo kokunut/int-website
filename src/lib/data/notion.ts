@@ -3,7 +3,7 @@
  * 서버 전용. 실패하면 throw 하고, 폴백은 index.ts 가 처리한다.
  */
 import type { NotionBlock, NotionPage } from './notion-types';
-import { P_PUBLIC } from './notion-schema';
+import { DB_QUERY, P_PUBLIC } from './notion-schema';
 
 const API = 'https://api.notion.com/v1';
 const NOTION_VERSION = '2022-06-28';
@@ -68,6 +68,11 @@ export async function queryDatabase(dbId: string, sorts: NotionSort[] = []): Pro
     cursor = res.has_more && res.next_cursor ? res.next_cursor : undefined;
   } while (cursor);
   return pages;
+}
+
+/** DB 환경변수 이름(dbKey)에 정해진 조회 인자(`DB_QUERY`)로 공개 행 목록을 가져온다. 로더와 이미지 프록시가 공유 */
+export function listRows(dbKey: string, dbId: string): Promise<NotionPage[]> {
+  return queryDatabase(dbId, DB_QUERY[dbKey]?.sorts ?? []);
 }
 
 /** 페이지 본문 블록 (최상위만) */
