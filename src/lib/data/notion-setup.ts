@@ -17,7 +17,7 @@ import {
   type DbSpec,
   type PropSpec,
 } from './notion-schema';
-import { safeHref } from './notion-map';
+import { safeHref, safeInstagramUrl } from './notion-map';
 
 /** 노션 속성 한 개의 생성 payload */
 function propertyPayload(p: PropSpec): unknown {
@@ -145,6 +145,9 @@ const BUILDERS: { [K in SeedKind]: Builder<K> } = {
     props[NOTICE.type] = { select: { name: n.type } };
     props[NOTICE.date] = date(n.date);
     put(props, NOTICE.event, date(n.event?.start ?? '', n.event?.end), !!n.event);
+    // 카드뉴스 이미지는 파일 업로드가 필요해 시드하지 않는다
+    const instagram = safeInstagramUrl(n.instagram);
+    put(props, NOTICE.instagram, { url: instagram }, !!instagram);
     return { properties: props, children: n.body.map(para) };
   },
   contests: (c) => {

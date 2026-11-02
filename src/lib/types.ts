@@ -40,7 +40,7 @@ export interface AcademicEvent {
   end: DateString;
 }
 
-export type NoticeType = '일반' | '행사';
+export type NoticeType = '일반' | '행사' | '카드뉴스';
 
 export interface Notice {
   id: number;
@@ -50,6 +50,10 @@ export interface Notice {
   /** 있으면 캘린더에도 표시된다 */
   event?: DateRange;
   body: string[];
+  /** 카드뉴스 이미지(순서대로, https 또는 /api/notion-file/… 또는 /mock/…). 없으면 생략 */
+  cards?: string[];
+  /** 인스타그램 원본 게시물 링크 */
+  instagram?: string;
 }
 
 export interface ContestPrize {

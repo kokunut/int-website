@@ -58,7 +58,9 @@ describe('buildDatabaseProperties', () => {
 
   it('select 는 옵션을 미리 만든다', () => {
     const notice = buildDatabaseProperties(DB_SPECS.find((s) => s.key === 'notices')!);
-    expect(notice['유형']).toEqual({ select: { options: [{ name: '일반' }, { name: '행사' }] } });
+    expect(notice['유형']).toEqual({ select: { options: [{ name: '일반' }, { name: '행사' }, { name: '카드뉴스' }] } });
+    expect(notice['카드뉴스']).toEqual({ files: {} });
+    expect(notice['인스타그램']).toEqual({ url: {} });
     const doc = buildDatabaseProperties(DB_SPECS.find((s) => s.key === 'docs')!);
     expect((doc['분류'] as { select: { options: { name: string }[] } }).select.options.map((o) => o.name)).toEqual([
       '회칙',
@@ -107,7 +109,9 @@ describe('toNotionPage 왕복 (매퍼의 역변환)', () => {
   it('공지(본문 포함)', () => {
     for (const n of notices) {
       const payload = toNotionPage('notices', n);
-      expect(mapNotice(fakePage(payload), blocksToLines(fakeBlocks(payload)))).toEqual(n);
+      // 카드뉴스 이미지는 파일 업로드가 필요해 시드하지 않는다
+      const expected = { ...n, cards: undefined };
+      expect(mapNotice(fakePage(payload), blocksToLines(fakeBlocks(payload)))).toEqual(expected);
     }
   });
 

@@ -32,7 +32,7 @@ import {
   SUGGEST,
 } from './notion-schema';
 import { POPUP_DEFAULT_CTA } from '../popup';
-import { fileProxyPath, type FileField } from './file-proxy';
+import { fileProxyPath, MAX_FILE_INDEX, type FileField } from './file-proxy';
 import type { NotionBlock, NotionFile, NotionPage, NotionProperty, NotionRichText } from './notion-types';
 
 const SLUG_RE = /^[a-z0-9-]+$/;
@@ -110,6 +110,29 @@ function fileUrl(page: NotionPage, name: string, field: FileField): string | nul
   const f: NotionFile | undefined = prop(page, name)?.files?.[0];
   if (f?.file?.url) return fileProxyPath(page.id, field, 0) ?? safeImageSrc(f.file.url);
   return safeImageSrc(f?.external?.url);
+}
+
+/** 여러 장 파일 -> 이미지 경로 배열(순서 유지, 최대 20장). 업로드 파일은 인덱스별 안정 경로, 외부 링크는 https 만 */
+function fileUrls(page: NotionPage, name: string, field: FileField): string[] {
+  const files = (prop(page, name)?.files ?? []).slice(0, MAX_FILE_INDEX + 1);
+  const out: string[] = [];
+  files.forEach((f, i) => {
+    const src = f.file?.url ? (fileProxyPath(page.id, field, i) ?? safeImageSrc(f.file.url)) : safeImageSrc(f.external?.url);
+    if (src) out.push(src);
+  });
+  return out;
+}
+
+/** 인스타그램 링크: https 이고 호스트가 instagram.com(또는 하위 도메인)일 때만. 아니면 '' */
+export function safeInstagramUrl(v: string | null | undefined): string {
+  const s = (v ?? '').trim();
+  try {
+    const u = new URL(s);
+    const host = u.hostname.toLowerCase();
+    return u.protocol === 'https:' && (host === 'instagram.com' || host.endsWith('.instagram.com')) ? s : '';
+  } catch {
+    return '';
+  }
 }
 
 /** '순서' 숫자 속성 오름차순 (비어 있으면 맨 뒤, 같으면 원래 순서 유지) */
@@ -206,11 +229,22 @@ export function mapNotice(page: NotionPage, body: string[] = []): Notice | null 
   if (!title) return skip(db, page, `${NOTICE.title} 없음`);
   const typeName = select(page, NOTICE.type);
   const type = NOTICE_TYPES.find((t) => t === typeName);
-  if (!type) return skip(db, page, `${NOTICE.type} 는 일반/행사 중 하나여야 함 (${typeName || '비어 있음'})`);
+  if (!type) return skip(db, page, `${NOTICE.type} 는 일반/행사/카드뉴스 중 하나여야 함 (${typeName || '비어 있음'})`);
   const date = singleDate(page, NOTICE.date);
   if (!date) return skip(db, page, `${NOTICE.date} 없음/잘못됨`);
   const event = dateRange(page, NOTICE.event);
-  return { id, type, title, date, ...(event ? { event } : {}), body };
+  const cards = fileUrls(page, NOTICE.cards, 'notice-images');
+  const instagram = safeInstagramUrl(prop(page, NOTICE.instagram)?.url);
+  return {
+    id,
+    type,
+    title,
+    date,
+    ...(event ? { event } : {}),
+    body,
+    ...(cards.length ? { cards } : {}),
+    ...(instagram ? { instagram } : {}),
+  };
 }
 
 export function mapContest(page: NotionPage): Contest | null {

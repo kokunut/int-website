@@ -12,6 +12,7 @@ import {
   mapSuggest,
   safeHref,
   safeImageSrc,
+  safeInstagramUrl,
   sortByOrder,
 } from '../notion-map';
 import type { NotionBlock, NotionPage } from '../notion-types';
@@ -54,6 +55,49 @@ describe('notion mappers', () => {
   it('mapNotice: 행사기간 없으면 event 키 없음', () => {
     const p = pg({ id: 'x', properties: { ...notice.properties, 행사기간: { type: 'date', date: null } } });
     expect(mapNotice(p)).not.toHaveProperty('event');
+  });
+
+  const PAGE_ID = '0123456789abcdef0123456789abcdef';
+  const withCards = (files: unknown[], instagram?: string) =>
+    pg({
+      id: PAGE_ID,
+      properties: {
+        ...notice.properties,
+        유형: { type: 'select', select: { name: '카드뉴스' } },
+        카드뉴스: { type: 'files', files },
+        ...(instagram !== undefined ? { 인스타그램: { type: 'url', url: instagram } } : {}),
+      },
+    });
+  const upload = { type: 'file', file: { url: 'https://s3.example/a.png?sig=1' } };
+  const external = (url: string) => ({ type: 'external', external: { url } });
+
+  it('mapNotice: 카드뉴스 — 업로드는 인덱스별 안정 경로, 외부 링크는 https 만, 순서 유지', () => {
+    const n = mapNotice(withCards([upload, external('https://img.example/b.png'), external('http://img.example/c.png'), upload]));
+    expect(n?.type).toBe('카드뉴스');
+    expect(n?.cards).toEqual([
+      `/api/notion-file/${PAGE_ID}/notice-images/0`,
+      'https://img.example/b.png',
+      `/api/notion-file/${PAGE_ID}/notice-images/3`,
+    ]);
+  });
+
+  it('mapNotice: 카드뉴스 최대 20장, 파일 없으면 cards 키 없음', () => {
+    expect(mapNotice(withCards(Array.from({ length: 25 }, () => upload)))?.cards).toHaveLength(20);
+    expect(mapNotice(withCards([]))).not.toHaveProperty('cards');
+    expect(mapNotice(pg(notice))).not.toHaveProperty('instagram');
+  });
+
+  it('mapNotice: 인스타그램 링크는 instagram.com 만', () => {
+    expect(mapNotice(withCards([], 'https://www.instagram.com/p/abc/'))?.instagram).toBe('https://www.instagram.com/p/abc/');
+    expect(mapNotice(withCards([], 'https://evil.example/instagram.com'))).not.toHaveProperty('instagram');
+  });
+
+  it('safeInstagramUrl', () => {
+    expect(safeInstagramUrl('https://instagram.com/int')).toBe('https://instagram.com/int');
+    expect(safeInstagramUrl('https://www.instagram.com/p/x')).toBe('https://www.instagram.com/p/x');
+    for (const bad of ['http://www.instagram.com/p/x', 'https://notinstagram.com/', 'https://instagram.com.evil.example/', 'javascript:alert(1)', '/notice', '', null, undefined]) {
+      expect(safeInstagramUrl(bad)).toBe('');
+    }
   });
 
   it('mapContest', () => {
