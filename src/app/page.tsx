@@ -79,10 +79,10 @@ export default async function HomePage() {
           </div>
           <span className="arr">→</span>
         </Link>
-        <AppLink className="qk" href={links.notionContest}>
+        <AppLink className="qk" href={links.notionInterview}>
           <div>
             <small>노션 바로가기</small>
-            <strong>공모전 정보</strong>
+            <strong>인융 인터뷰 아카이브</strong>
           </div>
           <span className="arr">↗</span>
         </AppLink>

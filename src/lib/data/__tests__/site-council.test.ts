@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { org } from '@/content/council';
 import { aboutPage } from '@/content/pages';
 import { siteLinks } from '@/content/site';
-import { DB_SPECS, SETTING_KEYS } from '../notion-schema';
+import { DB_SPECS, SETTING_KEYS, findSettingKey, legacySettingMessage, withRo } from '../notion-schema';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import Footer from '@/components/Footer';
@@ -113,6 +113,33 @@ describe('설정 스키마·시드', () => {
   it('항목 이름과 id 는 겹치지 않는다', () => {
     expect(new Set(SETTING_KEYS.map((k) => k.label)).size).toBe(SETTING_KEYS.length);
     expect(new Set(SETTING_KEYS.map((k) => k.id)).size).toBe(SETTING_KEYS.length);
+  });
+
+  it('옛 이름(군입대 백서·공모전 정보)으로 만든 행도 새 항목으로 인식한다', () => {
+    const url = 'https://www.notion.so/abc';
+    const out = mapSettings([setting('군입대 백서', { url: { 링크: url } }), setting('공모전 정보', { url: { 링크: url } })]);
+    expect(out).toEqual({ notionMilitaryGuide: url, notionInterview: url });
+    expect(findSettingKey('군입대 백서')).toMatchObject({ legacy: true, def: { id: 'notionMilitaryGuide' } });
+    expect(findSettingKey('병역 길라잡이')).toMatchObject({ legacy: false });
+    expect(legacySettingMessage('군입대 백서', '병역 길라잡이')).toBe(
+      "노션 '사이트 설정'의 '군입대 백서' 행 이름을 '병역 길라잡이'로 바꿔 주세요 (지금은 옛 이름도 그대로 인식됩니다)",
+    );
+    expect(findSettingKey('인융 인터뷰 아카이브')).toMatchObject({ legacy: false, def: { id: 'notionInterview' } });
+    expect(findSettingKey('없는 이름')).toBeNull();
+  });
+
+  it('withRo: 받침 없음·ㄹ받침은 "로", 그 외는 "으로", 한글이 아니면 "(으)로"', () => {
+    expect(withRo('길라잡이')).toBe('로');
+    expect(withRo('서울')).toBe('로');
+    expect(withRo('인터뷰 아카이브')).toBe('로');
+    expect(withRo('백서')).toBe('로');
+    expect(withRo('집행부 명단')).toBe('으로');
+    expect(withRo('Notion')).toBe('(으)로');
+  });
+
+  it('별칭은 다른 항목 이름·별칭과 겹치지 않는다', () => {
+    const names = SETTING_KEYS.flatMap((k) => [k.label, ...('aliases' in k ? k.aliases : [])]);
+    expect(new Set(names).size).toBe(names.length);
   });
 
   it('시드는 모든 항목 행을 만들고 매퍼로 되읽으면 기본값이 나온다', () => {

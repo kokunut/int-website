@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import AppLink from '@/components/AppLink';
 import ContestList from '@/components/ContestList';
-import { getContests, getSiteLinks } from '@/lib/data';
+import { getContests } from '@/lib/data';
 import { contestStatus, dday, full } from '@/lib/date';
 
 export const revalidate = 600;
@@ -10,7 +10,7 @@ export const revalidate = 600;
 export const metadata: Metadata = { title: '공모전' };
 
 export default async function ContestPage() {
-  const [contests, links] = await Promise.all([getContests(), getSiteLinks()]);
+  const contests = await getContests();
   const live = contests.filter((c) => contestStatus(c) !== '마감');
   const past = contests.filter((c) => contestStatus(c) === '마감');
 
@@ -63,13 +63,6 @@ export default async function ContestPage() {
         </div>
         <ContestList items={past} emptyText="지난 공모전이 없어요" />
       </div>
-      <p className="note mt-24">
-        외부 공모전 정보는{' '}
-        <AppLink className="link-btn" href={links.notionContest}>
-          노션 공모전 정보
-        </AppLink>
-        에서 확인하세요.
-      </p>
     </section>
   );
 }
