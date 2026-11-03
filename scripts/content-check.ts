@@ -19,9 +19,10 @@ import {
   mapSetting,
   mapSuggest,
   mapUnit,
+  text as pageText,
   unknownUnitNames,
 } from '../src/lib/data/notion-map';
-import { DB_SPECS, P_PUBLIC, type PropSpec } from '../src/lib/data/notion-schema';
+import { DB_SPECS, P_PUBLIC, SETTING, findSettingKey, legacySettingMessage, type PropSpec } from '../src/lib/data/notion-schema';
 import { queryDatabase } from '../src/lib/data/notion';
 import type { NotionPage } from '../src/lib/data/notion-types';
 
@@ -94,6 +95,13 @@ async function checkNotion(): Promise<void> {
       const pages = await queryDatabase(id);
       const mapper = MAPPERS[spec.key];
       const valid = pages.filter((p) => mapper(p) !== null).length;
+      if (spec.key === 'settings') {
+        for (const p of pages) {
+          const label = pageText(p, SETTING.key);
+          const f = findSettingKey(label);
+          if (f?.legacy) warn(legacySettingMessage(label, f.def.label));
+        }
+      }
       (valid === pages.length ? ok : warn)(
         `${P_PUBLIC} 체크된 행 ${pages.length}개 중 유효 ${valid}개` + (valid < pages.length ? ' (건너뛴 행 이유는 위 [data] 경고)' : ''),
       );

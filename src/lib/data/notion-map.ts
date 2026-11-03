@@ -30,6 +30,7 @@ import {
   COUNCIL,
   SETTING,
   SETTING_KEYS,
+  findSettingKey,
   UNIT,
   UNIT_FALLBACK,
   type SettingId,
@@ -532,10 +533,11 @@ export type SettingValues = Partial<Record<SettingId, string | string[]>>;
 /** 설정 행 하나 -> 항목 id 와 값. 모르는 항목은 경고 후 null, 값이 비어 있으면 조용히 null(기본값 사용) */
 export function mapSetting(page: NotionPage): { id: SettingId; value: string | string[] } | null {
   const label = text(page, SETTING.key);
-  const def = SETTING_KEYS.find((k) => k.label === label);
-  if (!def) {
+  const found = findSettingKey(label);
+  if (!found) {
     return skip(DB.settings, page, `모르는 항목 이름 (${label || '비어 있음'}) — 정해진 이름만 사용: ${SETTING_KEYS.map((k) => k.label).join(', ')}`);
   }
+  const { def } = found;
   let value: string | string[] | null;
   switch (def.kind) {
     case 'link':

@@ -5,8 +5,8 @@ export interface SiteLinks {
   kakao: string;
   instagram: string;
   instagramId: string;
-  notionMilitary: string;
-  notionContest: string;
+  notionMilitaryGuide: string;
+  notionInterview: string;
   suggestForm: string;
   paybackForm: string;
   gcalSubscribe: string;

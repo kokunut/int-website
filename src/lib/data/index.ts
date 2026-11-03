@@ -249,7 +249,7 @@ const loadSettings = cache(async (): Promise<SettingValues> => {
   return withFallback(DB.settings, id ? async () => mapSettings(await listRows(DB.settings, id)) : null, () => ({}));
 });
 
-const SITE_LINK_IDS = ['kakao', 'instagram', 'instagramId', 'email', 'address', 'suggestForm', 'paybackForm', 'notionMilitary', 'notionContest', 'gcalSubscribe'] as const;
+const SITE_LINK_IDS = ['kakao', 'instagram', 'instagramId', 'email', 'address', 'suggestForm', 'paybackForm', 'notionMilitaryGuide', 'notionInterview', 'gcalSubscribe'] as const;
 
 /** 노션 값이 있는 항목만 기본값 위에 덮어쓴다 */
 export async function getSiteLinks(): Promise<SiteLinks> {

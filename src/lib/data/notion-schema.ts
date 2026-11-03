@@ -175,15 +175,39 @@ export const SETTING_KEYS = [
   { id: 'address', label: '학생회실 주소', kind: 'text', note: '푸터 주소' },
   { id: 'suggestForm', label: '건의함 폼', kind: 'link', note: '건의함 구글폼' },
   { id: 'paybackForm', label: '페이백 신청 폼', kind: 'link', note: '검정비 페이백 신청 구글폼' },
-  { id: 'notionMilitary', label: '군입대 백서', kind: 'link', note: '병영 길라잡이 링크 카드·메인 바로가기' },
-  { id: 'notionContest', label: '공모전 정보', kind: 'link', note: '공모전 정보 노션 링크' },
+  { id: 'notionMilitaryGuide', label: '병역 길라잡이', kind: 'link', note: '병영 길라잡이 목록 위 링크 카드(노션)', aliases: ['군입대 백서'] },
+  { id: 'notionInterview', label: '인융 인터뷰 아카이브', kind: 'link', note: '취업 아카이브 목록 위 링크 카드(노션)·메인 바로가기', aliases: ['공모전 정보'] },
   { id: 'gcalSubscribe', label: '구글 캘린더 구독', kind: 'link', note: '캘린더 구독 버튼' },
   { id: 'greeting', label: '인사말', kind: 'lines', note: '학생회 소개 인사말. 여러 문단 가능(줄을 바꿀 때마다 새 문단)' },
   { id: 'signer', label: '인사말 서명', kind: 'text', note: '인사말 아래 서명(예: 학생회장 OOO)' },
   { id: 'photo', label: '단체 사진', kind: 'file', note: '학생회 소개 단체 사진(첫 번째 파일)' },
-] as const satisfies readonly { id: string; label: string; kind: SettingKind; note: string }[];
+] as const satisfies readonly { id: string; label: string; kind: SettingKind; note: string; aliases?: readonly string[] }[];
 
 export type SettingId = (typeof SETTING_KEYS)[number]['id'];
+
+type SettingDef = { id: SettingId; label: string; kind: SettingKind; note: string; aliases?: readonly string[] };
+
+/** 노션 `항목` 칸의 글자로 설정 항목을 찾는다. 옛 이름(별칭)도 인식하며 `legacy` 로 알려 준다 */
+export function findSettingKey(label: string): { def: SettingDef; legacy: boolean } | null {
+  for (const def of SETTING_KEYS as readonly SettingDef[]) {
+    if (def.label === label) return { def, legacy: false };
+    if (def.aliases?.includes(label)) return { def, legacy: true };
+  }
+  return null;
+}
+
+/** 마지막 글자의 받침에 맞는 조사 "로/으로" 를 돌려준다 (받침 없음·ㄹ받침 → 로). 한글이 아니면 "(으)로" */
+export function withRo(word: string): string {
+  const code = word.trim().slice(-1).charCodeAt(0);
+  if (!(code >= 0xac00 && code <= 0xd7a3)) return '(으)로';
+  const jong = (code - 0xac00) % 28;
+  return jong === 0 || jong === 8 ? '로' : '으로';
+}
+
+/** 옛 이름 행을 발견했을 때 비개발자도 따라 할 수 있는 안내 문구 */
+export function legacySettingMessage(oldLabel: string, newLabel: string): string {
+  return `노션 '사이트 설정'의 '${oldLabel}' 행 이름을 '${newLabel}'${withRo(newLabel)} 바꿔 주세요 (지금은 옛 이름도 그대로 인식됩니다)`;
+}
 
 /** 부서 (집행부 명단의 묶음) */
 export const UNIT = {
