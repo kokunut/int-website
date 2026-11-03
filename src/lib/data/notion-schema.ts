@@ -196,9 +196,17 @@ export function findSettingKey(label: string): { def: SettingDef; legacy: boolea
   return null;
 }
 
+/** 마지막 글자의 받침에 맞는 조사 "로/으로" 를 돌려준다 (받침 없음·ㄹ받침 → 로). 한글이 아니면 "(으)로" */
+export function withRo(word: string): string {
+  const code = word.trim().slice(-1).charCodeAt(0);
+  if (!(code >= 0xac00 && code <= 0xd7a3)) return '(으)로';
+  const jong = (code - 0xac00) % 28;
+  return jong === 0 || jong === 8 ? '로' : '으로';
+}
+
 /** 옛 이름 행을 발견했을 때 비개발자도 따라 할 수 있는 안내 문구 */
 export function legacySettingMessage(oldLabel: string, newLabel: string): string {
-  return `노션 '사이트 설정'의 '${oldLabel}' 행 이름을 '${newLabel}'(으)로 바꿔 주세요 (지금은 옛 이름도 그대로 인식됩니다)`;
+  return `노션 '사이트 설정'의 '${oldLabel}' 행 이름을 '${newLabel}'${withRo(newLabel)} 바꿔 주세요 (지금은 옛 이름도 그대로 인식됩니다)`;
 }
 
 /** 부서 (집행부 명단의 묶음) */
