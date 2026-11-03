@@ -175,15 +175,26 @@ export const SETTING_KEYS = [
   { id: 'address', label: '학생회실 주소', kind: 'text', note: '푸터 주소' },
   { id: 'suggestForm', label: '건의함 폼', kind: 'link', note: '건의함 구글폼' },
   { id: 'paybackForm', label: '페이백 신청 폼', kind: 'link', note: '검정비 페이백 신청 구글폼' },
-  { id: 'notionMilitary', label: '군입대 백서', kind: 'link', note: '병영 길라잡이 링크 카드·메인 바로가기' },
-  { id: 'notionContest', label: '공모전 정보', kind: 'link', note: '공모전 정보 노션 링크' },
+  { id: 'notionMilitaryGuide', label: '병역 길라잡이', kind: 'link', note: '병영 길라잡이 목록 위 링크 카드(노션)', aliases: ['군입대 백서'] },
+  { id: 'notionInterview', label: '인융 인터뷰 아카이브', kind: 'link', note: '취업 아카이브 목록 위 링크 카드(노션)·메인 바로가기', aliases: ['공모전 정보'] },
   { id: 'gcalSubscribe', label: '구글 캘린더 구독', kind: 'link', note: '캘린더 구독 버튼' },
   { id: 'greeting', label: '인사말', kind: 'lines', note: '학생회 소개 인사말. 여러 문단 가능(줄을 바꿀 때마다 새 문단)' },
   { id: 'signer', label: '인사말 서명', kind: 'text', note: '인사말 아래 서명(예: 학생회장 OOO)' },
   { id: 'photo', label: '단체 사진', kind: 'file', note: '학생회 소개 단체 사진(첫 번째 파일)' },
-] as const satisfies readonly { id: string; label: string; kind: SettingKind; note: string }[];
+] as const satisfies readonly { id: string; label: string; kind: SettingKind; note: string; aliases?: readonly string[] }[];
 
 export type SettingId = (typeof SETTING_KEYS)[number]['id'];
+
+type SettingDef = { id: SettingId; label: string; kind: SettingKind; note: string; aliases?: readonly string[] };
+
+/** 노션 `항목` 칸의 글자로 설정 항목을 찾는다. 옛 이름(별칭)도 인식하며 `legacy` 로 알려 준다 */
+export function findSettingKey(label: string): { def: SettingDef; legacy: boolean } | null {
+  for (const def of SETTING_KEYS as readonly SettingDef[]) {
+    if (def.label === label) return { def, legacy: false };
+    if (def.aliases?.includes(label)) return { def, legacy: true };
+  }
+  return null;
+}
 
 /** 부서 (집행부 명단의 묶음) */
 export const UNIT = {

@@ -25,6 +25,11 @@ export default async function ArchiveListPage({ params }: Props) {
   if (!isArchiveCategory(category)) notFound();
   const [posts, links] = await Promise.all([getArchive(category), getSiteLinks()]);
 
+  const notionCard =
+    category === 'military'
+      ? { href: links.notionMilitaryGuide, title: '병역 길라잡이(노션)' }
+      : { href: links.notionInterview, title: '인융 인터뷰 아카이브(노션)' };
+
   return (
     <section className="container page">
       <div className="page-head">
@@ -34,15 +39,13 @@ export default async function ArchiveListPage({ params }: Props) {
           {category === 'career' ? '채용공고, 취업 후기, 자격증 정보를 모아 두었어요.' : '입대 준비부터 전역, 병역특례까지 필요한 정보를 모아 두었어요.'}
         </p>
       </div>
-      {category === 'military' && (
-        <AppLink className="qk archive-ext" href={links.notionMilitary}>
-          <div>
-            <small>노션 바로가기</small>
-            <strong>군입대 백서(노션)</strong>
-          </div>
-          <span className="arr">↗</span>
-        </AppLink>
-      )}
+      <AppLink className="qk archive-ext" href={notionCard.href}>
+        <div>
+          <small>노션 바로가기</small>
+          <strong>{notionCard.title}</strong>
+        </div>
+        <span className="arr">↗</span>
+      </AppLink>
       <ArchiveBrowser posts={posts} presetTopics={ARCHIVE_TOPICS[category]} />
     </section>
   );

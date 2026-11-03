@@ -19,9 +19,9 @@ test.describe('메뉴 이동', () => {
     await expect(page).toHaveURL(/\/archive\/military$/);
   });
 
-  test('복지 메뉴에는 군입대 백서가 없다', async ({ page }) => {
+  test('복지 메뉴에는 병역 길라잡이 외부 링크가 없다', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('navigation', { name: '주 메뉴' }).getByRole('link', { name: '군입대 백서' })).toHaveCount(0);
+    await expect(page.getByRole('navigation', { name: '주 메뉴' }).getByRole('link', { name: '병역 길라잡이' })).toHaveCount(0);
   });
 });
 
@@ -59,9 +59,32 @@ test('주제 탭과 제목 검색', async ({ page }) => {
   await expect(page.getByText('검색 결과가 없어요')).toBeVisible();
 });
 
-test('병영 길라잡이: 군입대 백서(노션) 링크 카드가 목록 위에 있다', async ({ page }) => {
+test('취업 아카이브: 인융 인터뷰 아카이브(노션) 링크 카드가 목록 위에 있다', async ({ page }) => {
+  await page.goto('/archive/career');
+  const card = page.getByRole('link', { name: /인융 인터뷰 아카이브\(노션\)/ });
+  await expect(card).toBeVisible();
+  await expect(card).toHaveAttribute('href', /^https:\/\/www\.notion\.so\//);
+  await expect(card).toHaveAttribute('target', '_blank');
+  await expect(page.locator('.list li')).toHaveCount(3);
   await page.goto('/archive/military');
-  const card = page.getByRole('link', { name: /군입대 백서\(노션\)/ });
+  await expect(page.getByRole('link', { name: /인융 인터뷰 아카이브\(노션\)/ })).toHaveCount(0);
+});
+
+test('공모전 페이지에 외부 공모전 정보 노션 안내 문장이 없다', async ({ page }) => {
+  await page.goto('/contest');
+  await expect(page.getByText('외부 공모전 정보는')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: '노션 공모전 정보' })).toHaveCount(0);
+});
+
+test('메인 바로가기에 인융 인터뷰 아카이브 카드가 있다', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: /인융 인터뷰 아카이브/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /공모전 정보/ })).toHaveCount(0);
+});
+
+test('병영 길라잡이: 병역 길라잡이(노션) 링크 카드가 목록 위에 있다', async ({ page }) => {
+  await page.goto('/archive/military');
+  const card = page.getByRole('link', { name: /병역 길라잡이\(노션\)/ });
   await expect(card).toBeVisible();
   await expect(card).toHaveAttribute('href', /^https:\/\/www\.notion\.so\//);
   await expect(card).toHaveAttribute('target', '_blank');
