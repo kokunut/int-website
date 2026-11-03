@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { org } from '@/content/council';
 import { aboutPage } from '@/content/pages';
 import { siteLinks } from '@/content/site';
-import { DB_SPECS, SETTING_KEYS, findSettingKey } from '../notion-schema';
+import { DB_SPECS, SETTING_KEYS, findSettingKey, legacySettingMessage } from '../notion-schema';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import Footer from '@/components/Footer';
@@ -121,6 +121,9 @@ describe('설정 스키마·시드', () => {
     expect(out).toEqual({ notionMilitaryGuide: url, notionInterview: url });
     expect(findSettingKey('군입대 백서')).toMatchObject({ legacy: true, def: { id: 'notionMilitaryGuide' } });
     expect(findSettingKey('병역 길라잡이')).toMatchObject({ legacy: false });
+    expect(legacySettingMessage('군입대 백서', '병역 길라잡이')).toBe(
+      "노션 '사이트 설정'의 '군입대 백서' 행 이름을 '병역 길라잡이'(으)로 바꿔 주세요 (지금은 옛 이름도 그대로 인식됩니다)",
+    );
     expect(findSettingKey('인융 인터뷰 아카이브')).toMatchObject({ legacy: false, def: { id: 'notionInterview' } });
     expect(findSettingKey('없는 이름')).toBeNull();
   });

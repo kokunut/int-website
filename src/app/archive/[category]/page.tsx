@@ -27,8 +27,8 @@ export default async function ArchiveListPage({ params }: Props) {
 
   const notionCard =
     category === 'military'
-      ? { href: links.notionMilitaryGuide, title: '병역 길라잡이(노션)' }
-      : { href: links.notionInterview, title: '인융 인터뷰 아카이브(노션)' };
+      ? { href: links.notionMilitaryGuide, title: '병역 길라잡이' }
+      : { href: links.notionInterview, title: '인융 인터뷰 아카이브' };
 
   return (
     <section className="container page">
@@ -42,7 +42,10 @@ export default async function ArchiveListPage({ params }: Props) {
       <AppLink className="qk archive-ext" href={notionCard.href}>
         <div>
           <small>노션 바로가기</small>
-          <strong>{notionCard.title}</strong>
+          <strong>
+            {notionCard.title}
+            <span className="sr-only"> (새 창)</span>
+          </strong>
         </div>
         <span className="arr">↗</span>
       </AppLink>

@@ -196,6 +196,11 @@ export function findSettingKey(label: string): { def: SettingDef; legacy: boolea
   return null;
 }
 
+/** 옛 이름 행을 발견했을 때 비개발자도 따라 할 수 있는 안내 문구 */
+export function legacySettingMessage(oldLabel: string, newLabel: string): string {
+  return `노션 '사이트 설정'의 '${oldLabel}' 행 이름을 '${newLabel}'(으)로 바꿔 주세요 (지금은 옛 이름도 그대로 인식됩니다)`;
+}
+
 /** 부서 (집행부 명단의 묶음) */
 export const UNIT = {
   name: '이름',

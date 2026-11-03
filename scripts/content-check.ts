@@ -22,7 +22,7 @@ import {
   text as pageText,
   unknownUnitNames,
 } from '../src/lib/data/notion-map';
-import { DB_SPECS, P_PUBLIC, SETTING, findSettingKey, type PropSpec } from '../src/lib/data/notion-schema';
+import { DB_SPECS, P_PUBLIC, SETTING, findSettingKey, legacySettingMessage, type PropSpec } from '../src/lib/data/notion-schema';
 import { queryDatabase } from '../src/lib/data/notion';
 import type { NotionPage } from '../src/lib/data/notion-types';
 
@@ -99,7 +99,7 @@ async function checkNotion(): Promise<void> {
         for (const p of pages) {
           const label = pageText(p, SETTING.key);
           const f = findSettingKey(label);
-          if (f?.legacy) warn(`옛 항목 이름 '${label}' -> 새 이름 '${f.def.label}' 으로 바꿔 주세요 (지금은 그대로 인식됨)`);
+          if (f?.legacy) warn(legacySettingMessage(label, f.def.label));
         }
       }
       (valid === pages.length ? ok : warn)(
