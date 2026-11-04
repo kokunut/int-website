@@ -24,34 +24,41 @@ export function blocksText(blocks: ContentBlock[] | undefined): string {
 
 const ORG = '세종대학교 인공지능융합대학 학생회';
 
-/** 정적 페이지 설명 (80~120자, 서로 다르게). 테스트가 길이와 중복을 확인한다. */
+/** 정적 페이지 설명 (50~120자, 서로 다르게). 테스트가 길이와 중복을 확인한다. */
 export const PAGE_DESCRIPTIONS = {
   home: `${ORG} 인트의 공식 웹사이트입니다. 공지사항, 학사·행사 일정, 공모전, 검정비 페이백과 제휴 혜택을 한곳에서 확인하세요.`,
   about: `${ORG} 인트의 인사말과 조직도, 부서별 집행부 구성을 소개합니다. 학생회가 어떤 일을 하는지, 누가 함께하는지 한곳에서 확인하세요.`,
   notice: `${ORG} 인트의 공지사항과 행사·카드뉴스 소식을 모았습니다. 학생회가 전하는 최신 안내와 지난 소식을 놓치지 말고 한곳에서 확인하세요.`,
   calendar: `${ORG} 인트가 정리한 학사일정과 학생회 행사, 공모전 일정을 달력으로 한눈에 확인하고 내 캘린더에 손쉽게 구독할 수 있습니다.`,
-  contest: `${ORG} 인트가 진행하는 공모전의 접수 기간, 대상, 시상 내역과 참가 방법을 안내합니다. 지난 공모전 결과도 볼 수 있어요.`,
+  contest: `${ORG} 인트가 진행하는 공모전의 접수 기간, 대상, 시상 내역과 참가 방법을 안내합니다. 마감된 공모전도 목록에서 볼 수 있어요.`,
   payback: `${ORG} 인트의 검정비 페이백 제도입니다. 자격증 응시료 지원 대상과 신청 방법, 예산 집행 현황과 다음 지급일을 한눈에 안내합니다.`,
-  partners: `${ORG} 인트와 제휴한 매장 목록입니다. 학생증을 보여주면 받을 수 있는 혜택과 이용 조건, 위치를 미리 확인하고 방문해 보세요.`,
-  suggest: `${ORG} 인트에 학교생활 불편 사항과 바라는 점을 익명으로 건의하세요. 접수된 건의와 학생회의 답변도 이 사이트에 투명하게 공개합니다.`,
+  partners: `${ORG} 인트와 제휴한 매장 목록입니다. 매장별 혜택과 이용 조건, 위치를 미리 확인하고 방문해 보세요.`,
+  suggest: `${ORG} 인트에 학교생활 불편 사항과 바라는 점을 건의하세요. 접수된 건의와 학생회의 답변도 확인할 수 있습니다.`,
   faq: `${ORG} 인트에 자주 들어오는 질문과 답변을 모았습니다. 원하는 답이 없다면 학생회 카카오톡 채널로 언제든 편하게 문의해 주세요.`,
-  departments: `세종대학교 인공지능융합대학에 속한 학과를 소개합니다. 학생회 인트가 학과별 교육과정과 졸업 후 진로, 연락처를 한곳에 정리했어요. 학과를 알아볼 때 참고하세요.`,
+  departments: `세종대학교 인공지능융합대학에 속한 학과를 소개합니다. 학생회 인트가 학과별 교육과정과 졸업 후 진로를 한곳에 정리했어요.`,
 } as const;
 
 export const DOC_DESCRIPTIONS: Record<DocCategory, string> = {
   rules: `${ORG} 인트의 회칙을 공개합니다. 학생회 운영의 근거가 되는 규정을 학생 누구나 언제든 문서로 확인하고 내려받을 수 있습니다.`,
   minutes: `${ORG} 인트의 회의록을 공개합니다. 정기 회의에서 논의하고 결정한 내용을 날짜별 문서로 누구나 언제든 확인할 수 있습니다.`,
   plans: `${ORG} 인트의 활동계획서와 결산 문서를 공개합니다. 예산이 어떻게 계획되고 쓰였는지 누구나 투명하게 확인하고 내려받을 수 있습니다.`,
-  forms: `${ORG} 인트가 사용하는 각종 서식을 모았습니다. 필요한 양식을 내려받아 학생회 업무와 신청에 활용하세요. 서식은 자료실에서 바로 내려받을 수 있어요.`,
+  forms: `${ORG} 인트가 사용하는 각종 서식을 모았습니다. 필요한 양식을 내려받아 학생회 업무와 신청에 활용하세요.`,
 };
 
 export const ARCHIVE_DESCRIPTIONS: Record<ArchiveCategory, string> = {
-  career: `${ORG} 인트의 취업 아카이브입니다. 선배들의 취업 후기와 준비 자료, 인터뷰를 주제별로 모아 한곳에서 편하게 확인할 수 있습니다.`,
-  military: `${ORG} 인트의 병영 길라잡이입니다. 입대 전 알아둘 병역 제도와 준비 사항을 학생 눈높이에 맞춰 정리했습니다. 입대를 앞둔 학생에게 도움이 되길 바랍니다.`,
+  career: `${ORG} 인트의 취업 아카이브입니다. 선배들의 취업 후기와 준비 자료를 주제별로 모아 한곳에서 편하게 확인할 수 있습니다.`,
+  military: `${ORG} 인트의 병영 길라잡이입니다. 입대 전 알아둘 병역 제도와 준비 사항을 학생 눈높이에 맞춰 정리했습니다.`,
 };
 
-/** 상세 페이지 설명: 본문 요약이 비면 `fallback` 을 쓴다. */
-export const detailDescription = (text: string | null | undefined, fallback: string): string => summarize(text) || summarize(fallback);
+const DETAIL_MIN = 40;
+
+/** 상세 페이지 설명: 본문 요약이 비면 `fallback`, 40자 미만이면 "{요약} · {fallback}" 로 이어 붙인다(최대 120자). */
+export function detailDescription(text: string | null | undefined, fallback: string): string {
+  const body = summarize(text);
+  if (!body) return summarize(fallback);
+  if (Array.from(body).length >= DETAIL_MIN) return body;
+  return summarize(`${body} · ${fallback}`);
+}
 
 /** 기본 공유 이미지(`src/app/opengraph-image.tsx`). 페이지가 openGraph 를 지정하면 루트의 파일 규칙 이미지가 상속되지 않으므로 직접 넣는다. */
 const DEFAULT_OG_IMAGE = { url: '/opengraph-image', width: 1200, height: 630 };

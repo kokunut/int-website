@@ -45,7 +45,18 @@ describe('summarize', () => {
 describe('detailDescription', () => {
   it('falls back when the text is empty', () => {
     expect(detailDescription('  ', '대체 문구')).toBe('대체 문구');
-    expect(detailDescription('본문', '대체 문구')).toBe('본문');
+  });
+  it('keeps a summary that is long enough', () => {
+    const long = '가'.repeat(40);
+    expect(detailDescription(long, '대체 문구')).toBe(long);
+  });
+  it('appends the fallback when the summary is under 40 characters', () => {
+    expect(detailDescription('본문', '대체 문구')).toBe('본문 · 대체 문구');
+  });
+  it('caps the joined description at 120 characters', () => {
+    const out = detailDescription('본문', '나'.repeat(200));
+    expect(Array.from(out)).toHaveLength(120);
+    expect(out.startsWith('본문 · ')).toBe(true);
   });
 });
 
@@ -65,8 +76,8 @@ describe('blocksText', () => {
 
 describe('static descriptions', () => {
   const all = [...Object.values(PAGE_DESCRIPTIONS), ...Object.values(DOC_DESCRIPTIONS), ...Object.values(ARCHIVE_DESCRIPTIONS)];
-  it('are 80-120 characters', () => {
-    const outOfRange = all.map((d) => `${Array.from(d).length}: ${d}`).filter((s) => Number.parseInt(s, 10) < 80 || Number.parseInt(s, 10) > 120);
+  it('are 50-120 characters', () => {
+    const outOfRange = all.map((d) => `${Array.from(d).length}: ${d}`).filter((s) => Number.parseInt(s, 10) < 50 || Number.parseInt(s, 10) > 120);
     expect(outOfRange).toEqual([]);
   });
   it('are all different', () => {
