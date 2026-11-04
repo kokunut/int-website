@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { full, won } from '@/lib/date';
 import type { Payback } from '@/lib/types';
 import { EVENTS } from '@/lib/analytics';
@@ -22,6 +23,7 @@ export default function PaybackCard({ payback: p, formUrl }: { payback: Payback;
         <div
           className="meter"
           data-state={state}
+          style={{ '--fill': `${rate}%` } as CSSProperties}
           role="meter"
           tabIndex={0}
           aria-valuenow={Number(shown)}
