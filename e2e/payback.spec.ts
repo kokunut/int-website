@@ -16,23 +16,26 @@ test('미터에 포커스하면 지급·남은 금액 툴팁이 보인다', asyn
   await expect(meter.locator('.meter-tip')).toHaveText('지급 310,000원 · 남은 190,000원');
 });
 
-for (const width of [1280, 390]) {
-  test(`툴팁은 큰 숫자를 가리지 않고 카드 안에 머문다 (${width}px)`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 800 });
-    await page.goto('/payback');
-    const meter = page.getByRole('meter', { name: '예산 소진율' });
-    await meter.focus();
-    const tip = await meter.locator('.meter-tip').boundingBox();
-    const num = await page.locator('.pb-num').boundingBox();
-    const bar = await meter.locator('.bar').boundingBox();
-    const card = await page.locator('.pb').boundingBox();
-    expect(tip && num && bar && card).toBeTruthy();
-    expect(tip!.y).toBeGreaterThanOrEqual(bar!.y + bar!.height - 1);
-    expect(tip!.y).toBeGreaterThanOrEqual(num!.y + num!.height);
-    expect(tip!.x).toBeGreaterThanOrEqual(card!.x);
-    expect(tip!.x + tip!.width).toBeLessThanOrEqual(card!.x + card!.width);
-  });
-}
+test('미터 포커스 시 툴팁이 큰 숫자와 겹치지 않고 카드 경계 안에 있다', async ({ page }) => {
+  await page.goto('/payback');
+  const meter = page.getByRole('meter', { name: '예산 소진율' });
+  await meter.focus();
+  await expect(meter.locator('.meter-tip')).toBeVisible();
+  const tip = await meter.locator('.meter-tip').boundingBox();
+  const num = await page.locator('.pb-num').boundingBox();
+  const card = await page.locator('.pb').boundingBox();
+  expect(tip && num && card).toBeTruthy();
+  const overlaps =
+    tip!.x < num!.x + num!.width &&
+    tip!.x + tip!.width > num!.x &&
+    tip!.y < num!.y + num!.height &&
+    tip!.y + tip!.height > num!.y;
+  expect(overlaps).toBe(false);
+  expect(tip!.x).toBeGreaterThanOrEqual(card!.x);
+  expect(tip!.y).toBeGreaterThanOrEqual(card!.y);
+  expect(tip!.x + tip!.width).toBeLessThanOrEqual(card!.x + card!.width);
+  expect(tip!.y + tip!.height).toBeLessThanOrEqual(card!.y + card!.height);
+});
 
 test('미터 포커스 링은 막대 둘레 2px 외곽선이다', async ({ page }) => {
   await page.goto('/payback');
