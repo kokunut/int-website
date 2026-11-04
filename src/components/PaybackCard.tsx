@@ -1,10 +1,17 @@
+import type { CSSProperties } from 'react';
 import { full, won } from '@/lib/date';
 import type { Payback } from '@/lib/types';
 import { EVENTS } from '@/lib/analytics';
+import { PAYBACK_STATE_LABEL, paybackState } from '@/lib/payback';
 import TrackedLink from './TrackedLink';
 
 export default function PaybackCard({ payback: p, formUrl }: { payback: Payback; formUrl: string }) {
   const rate = p.budget > 0 ? Math.min(100, (p.paid / p.budget) * 100) : 0;
+  const shown = rate.toFixed(1);
+  const state = paybackState(Number(shown));
+  const stateLabel = PAYBACK_STATE_LABEL[state];
+  const remain = p.budget - p.paid;
+  const valueText = `${shown}%, ${won(p.budget)} 중 ${won(p.paid)} 지급${stateLabel ? `, ${stateLabel}` : ''}`;
   return (
     <div className="card pb">
       <div>
@@ -14,15 +21,25 @@ export default function PaybackCard({ payback: p, formUrl }: { payback: Payback;
           <span className="pb-unit">%</span>
         </div>
         <div
-          className="bar"
-          role="progressbar"
-          aria-valuenow={Number(rate.toFixed(1))}
+          className="meter"
+          data-state={state}
+          style={{ '--fill': `${rate}%` } as CSSProperties}
+          role="meter"
+          tabIndex={0}
+          aria-valuenow={Number(shown)}
           aria-valuemin={0}
           aria-valuemax={100}
+          aria-valuetext={valueText}
           aria-label="예산 소진율"
         >
-          <i style={{ width: `${rate}%` }}></i>
+          <div className="bar">
+            <i style={{ width: `${rate}%` }}></i>
+          </div>
+          <span className="meter-tip" aria-hidden="true">
+            지급 {won(p.paid)} · 남은 {won(remain)}
+          </span>
         </div>
+        {stateLabel && <p className="pb-state">{stateLabel}</p>}
         <div className="pb-scale">
           <span>0원</span>
           <span>총 예산 {won(p.budget)}</span>
@@ -36,7 +53,7 @@ export default function PaybackCard({ payback: p, formUrl }: { payback: Payback;
         </div>
         <div>
           <dt>남은 예산</dt>
-          <dd>{won(p.budget - p.paid)}</dd>
+          <dd>{won(remain)}</dd>
           <dd className="pb-sub">소진 시 조기 마감</dd>
         </div>
         <div>
