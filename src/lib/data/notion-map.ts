@@ -46,6 +46,7 @@ import {
   SUGGEST,
 } from './notion-schema';
 import { POPUP_DEFAULT_CTA } from '../popup';
+import { cleanUrlText, isInternalPath } from '../url';
 import { fileProxyPath, MAX_FILE_INDEX, type FileField } from './file-proxy';
 import type { NotionBlock, NotionFile, NotionPage, NotionProperty, NotionRichText } from './notion-types';
 
@@ -101,8 +102,8 @@ const select = (page: NotionPage, name: string): string => prop(page, name)?.sel
 const checked = (page: NotionPage, name: string): boolean => prop(page, name)?.checkbox === true;
 /** 링크 허용: http(s) 절대 URL, 또는 `/` 한 개로 시작하는 사이트 내부 경로. 그 외(javascript:, data:, //host)는 '' */
 export function safeHref(v: string | null | undefined): string {
-  const s = (v ?? '').trim();
-  if (/^\/(?![/\\])/.test(s)) return s;
+  const s = cleanUrlText(v);
+  if (isInternalPath(s)) return s;
   try {
     const u = new URL(s);
     return u.protocol === 'https:' || u.protocol === 'http:' ? s : '';
@@ -560,17 +561,30 @@ export function mapSetting(page: NotionPage): { id: SettingId; value: string | s
   return value ? { id: def.id, value } : null;
 }
 
-/** 설정 행들 -> 항목별 값. 같은 항목이 여러 행이면 먼저 나온 값만 쓴다 */
+/**
+ * 설정 행들 -> 항목별 값. 같은 항목이 여러 행이면 정식 이름 행이 옛 이름(별칭) 행보다 항상 우선하고,
+ * 같은 종류끼리는 먼저 나온 값만 쓴다.
+ */
 export function mapSettings(pages: NotionPage[]): SettingValues {
   const out: SettingValues = {};
+  const fromAlias = new Set<string>();
   for (const p of pages) {
     const s = mapSetting(p);
     if (!s) continue;
+    const alias = findSettingKey(text(p, SETTING.key))?.legacy === true;
     if (out[s.id] !== undefined) {
-      console.warn(`[data] ${DB.settings} 중복 건너뜀: ${text(p, SETTING.key)} (먼저 나온 행만 사용)`);
+      if (fromAlias.has(s.id) && !alias) {
+        // 먼저 읽은 값이 별칭 행이면 정식 행이 덮어쓴다
+        console.warn(`[data] ${DB.settings} 중복 건너뜀: ${text(p, SETTING.key)} 의 옛 이름 행 (정식 이름 행 사용)`);
+        out[s.id] = s.value;
+        fromAlias.delete(s.id);
+      } else {
+        console.warn(`[data] ${DB.settings} 중복 건너뜀: ${text(p, SETTING.key)} (먼저 나온 행만 사용)`);
+      }
       continue;
     }
     out[s.id] = s.value;
+    if (alias) fromAlias.add(s.id);
   }
   return out;
 }

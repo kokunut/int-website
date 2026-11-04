@@ -16,6 +16,10 @@
   --accent:#181A16;
   --accent-ink:#ffffff;
   --brand-grad:linear-gradient(90deg,#181A16 0%,#548AEC 100%);
+  --meter-track:#95b4f1;  /* 미터: 같은 계열의 밝은 트랙 (dataviz --ordinal 검증) */
+  --meter-fill:#2f64c9;
+  --meter-warning:#fab219;
+  --meter-critical:#d03b3b;
   --sun:var(--text);
   --sat:var(--text);
   --cat-academic:#181A16;
@@ -43,7 +47,7 @@ img{display:block;max-width:100%}
 .logo-svg{display:inline-flex;align-items:center;color:var(--brand)}
 .logo-svg svg{height:30px;width:auto;display:block}
 .logo-sub{font-family:var(--font-display);font-size:13px;color:var(--text-2)}
-h1,h2,.bn-word,.pb-num{font-family:var(--font-display)}
+h1,h2,.bn-word{font-family:var(--font-display)}
 h1,h2{letter-spacing:-.02em}
 :focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 .menu{display:flex;gap:2px}
@@ -216,7 +220,7 @@ a.ev:hover p{color:var(--text);text-decoration:underline;text-underline-offset:3
 @media (min-width:1081px){
   .home-pb .pb{flex:1;grid-template-columns:minmax(0,1fr);align-content:space-between;gap:18px;padding:22px 24px}
   .home-pb .pb-num{font-size:46px}
-  .home-pb .bar{margin-top:12px}
+  .home-pb .meter{margin-top:2px}
   .home-pb .pb-stats{gap:12px 16px}
   .home-pb .pb-stats dd{font-size:14px;white-space:nowrap}
   .home-pb .pb-cta{align-items:stretch}
@@ -233,10 +237,18 @@ a.ev:hover p{color:var(--text);text-decoration:underline;text-underline-offset:3
 .pb{display:grid;grid-template-columns:1.25fr 1fr auto;gap:36px;align-items:center;padding:32px 36px}
 .pb-label{font-size:15px;font-weight:700;color:var(--text-2)}
 .pb-rate{display:flex;align-items:baseline;gap:4px;margin-top:2px}
-.pb-num{font-size:60px;font-weight:900;letter-spacing:-.05em;line-height:1.05;font-variant-numeric:tabular-nums}
+.pb-num{font-size:60px;font-weight:800;letter-spacing:-.04em;line-height:1.05}
 .pb-unit{font-size:26px;font-weight:800}
-.bar{height:14px;background:var(--surface-2);border-radius:999px;overflow:hidden;margin-top:16px}
-.bar i{display:block;height:100%;width:0;background:var(--brand-grad);border-radius:inherit;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+.meter{position:relative;padding:10px 0;margin-top:6px;border-radius:8px}
+.bar{height:14px;background:var(--meter-track);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--meter-fill);border-radius:inherit;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+.meter[data-state=warning] .bar i{background:var(--meter-warning)}
+.meter[data-state=critical] .bar i{background:var(--meter-critical)}
+.meter:focus-visible{outline:none}
+.meter:focus-visible .bar{outline:2px solid var(--brand);outline-offset:3px}
+.meter-tip{--tip-w:220px;position:absolute;top:calc(100% - 6px);left:clamp(calc(var(--tip-w) / 2), var(--fill,0%), calc(100% - var(--tip-w) / 2));transform:translateX(-50%);width:var(--tip-w);box-sizing:border-box;padding:6px 10px;border-radius:8px;background:var(--text);color:#fff;font-size:13px;font-weight:700;text-align:center;opacity:0;pointer-events:none;transition:opacity .15s;z-index:2}
+.meter:hover .meter-tip,.meter:focus-visible .meter-tip{opacity:1}
+.pb-state{margin-top:2px;font-size:14px;font-weight:700;color:var(--text)}
 .pb-scale{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--text-3)}
 .pb-stats{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px 24px}
 .pb-stats dt{font-size:13px;color:var(--text-3)}
@@ -424,6 +436,8 @@ a.ev:hover p{color:var(--text);text-decoration:underline;text-underline-offset:3
 .modal-box{width:min(420px,100%);max-height:calc(100vh - max(24px,8vh) - 20px);max-height:calc(100dvh - max(24px,8vh) - 20px);display:flex;flex-direction:column;overflow:hidden;background:var(--bg);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.25)}
 .modal-scroll{flex:1 1 auto;min-height:0;overflow:auto}
 .modal-nav,.modal-foot{flex:none}
+/* 하이드레이션 전: 첫 슬라이드만 보인다. 일부가 숨김이면 인라인 스크립트(popupHideScript)가 숨김이 아닌 첫 슬라이드로 바꾼다 */
+.modal:not([data-ready]) .modal-slide:not(:first-child){display:none}
 .modal-photo{display:block;width:100%;aspect-ratio:4/5;max-height:min(44vh,520px);object-fit:contain;background:var(--surface-2)}
 .modal-nav{display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 16px;border-top:1px solid var(--line);font-size:14px;color:var(--text-2)}
 .modal-nav .nav-btn{width:32px;height:32px;border-radius:999px;border:1px solid var(--line);font-size:20px;line-height:1;color:var(--text)}

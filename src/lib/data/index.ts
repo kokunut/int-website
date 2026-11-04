@@ -71,6 +71,7 @@ import {
   sortByOrder,
   type SettingValues,
 } from './notion-map';
+import { buildIndex } from './build-index';
 import { fetchBlocks, listRows } from './notion';
 import type { NotionPage } from './notion-types';
 import { fetchAcademic, fetchPayback } from './remote';
@@ -138,20 +139,7 @@ interface NoticeIndex {
 }
 
 async function fetchNotices(dbId: string): Promise<NoticeIndex> {
-  const pages = await listRows(DB.notices, dbId);
-  const list: Notice[] = [];
-  const pageIds = new Map<number, string>();
-  for (const p of pages) {
-    const n = mapNotice(p);
-    if (!n) continue;
-    if (pageIds.has(n.id)) {
-      console.warn(`[data] ${DB.notices} 중복 건너뜀: 번호 ${n.id} (먼저 나온 행만 사용)`);
-      continue;
-    }
-    list.push(n);
-    pageIds.set(n.id, p.id);
-  }
-  return { list, pageIds };
+  return buildIndex(await listRows(DB.notices, dbId), mapNotice, (n) => n.id, DB.notices, (id) => `번호 ${id}`);
 }
 
 const loadNoticeIndex = cache(async (): Promise<NoticeIndex> => {
@@ -204,21 +192,7 @@ interface ArchiveIndex {
 const archiveKey = (category: ArchiveCategory, id: string): string => `${category}/${id}`;
 
 async function fetchArchive(dbId: string): Promise<ArchiveIndex> {
-  const pages = await listRows(DB.archive, dbId);
-  const list: ArchivePost[] = [];
-  const pageIds = new Map<string, string>();
-  for (const p of pages) {
-    const post = mapArchive(p);
-    if (!post) continue;
-    const key = archiveKey(post.category, post.id);
-    if (pageIds.has(key)) {
-      console.warn(`[data] ${DB.archive} 중복 건너뜀: ${key} (먼저 나온 행만 사용)`);
-      continue;
-    }
-    list.push(post);
-    pageIds.set(key, p.id);
-  }
-  return { list, pageIds };
+  return buildIndex(await listRows(DB.archive, dbId), mapArchive, (a) => archiveKey(a.category, a.id), DB.archive);
 }
 
 const loadArchiveIndex = cache(async (): Promise<ArchiveIndex> => {

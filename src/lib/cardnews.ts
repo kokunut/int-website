@@ -1,4 +1,5 @@
 import type { Notice } from './types';
+import { cleanUrlText, isInternalPath } from './url';
 
 /** 카드뉴스 공지 판정: 유형이 카드뉴스이거나 이미지가 있는 공지 */
 export const isCardNews = (n: Pick<Notice, 'type' | 'cards'>): boolean => n.type === '카드뉴스' || (n.cards?.length ?? 0) > 0;
@@ -18,6 +19,15 @@ export function indexFromScroll(scrollLeft: number, width: number, total: number
   return clampIndex(scrollLeft / width, total);
 }
 
+/**
+ * 목표 장으로 스크롤하는 중인지 판정(true 면 도착). 슬라이드 너비가 소수 픽셀이면 `scrollLeft` 가 목표 위치와
+ * 정확히 같아지지 않을 수 있어, 한 장 너비의 절반 미만이면 도착으로 본다.
+ */
+export function hasReachedTarget(scrollLeft: number, width: number, target: number): boolean {
+  if (width <= 0) return true;
+  return Math.abs(scrollLeft - target * width) < width / 2;
+}
+
 /** "2 / 6" 표시 */
 export const counterText = (index: number, total: number): string => `${index + 1} / ${total}`;
 
@@ -26,7 +36,8 @@ export const cardAlt = (title: string, index: number, total: number): string => 
 
 /** OG 이미지용 절대 URL. 사이트 내부 경로(/…)는 기준 URL 을 붙이고, https 는 그대로, 그 외는 null */
 export function ogImageUrl(src: string | undefined, absolute: (path: string) => string): string | null {
-  if (!src) return null;
-  if (/^\/(?![/\\])/.test(src)) return absolute(src);
-  return src.startsWith('https://') ? src : null;
+  const s = cleanUrlText(src);
+  if (!s) return null;
+  if (isInternalPath(s)) return absolute(s);
+  return s.startsWith('https://') ? s : null;
 }

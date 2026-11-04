@@ -1,5 +1,5 @@
 import type { Contest, DateString, Popup } from './types';
-import { toDate, ymd } from './date';
+import { addDays } from './date';
 
 export type PopupContest = Pick<Contest, 'id' | 'title' | 'desc' | 'start' | 'end' | 'popup'>;
 
@@ -47,12 +47,6 @@ export function activePopups<T extends Pick<Popup, 'id' | 'start' | 'end'>>(
   return items.filter((p) => p.start <= today && today <= p.end && !isHidden?.(p));
 }
 
-/** today 로부터 days 일 뒤 날짜 */
-export function addDays(today: DateString, days: number): DateString {
-  const d = toDate(today);
-  return ymd(new Date(d.getFullYear(), d.getMonth(), d.getDate() + days));
-}
-
 /** "오늘 하루" = 1, "일주일간" = 7. 저장 값은 팝업을 다시 보여줄 첫 날짜(만료일). */
 export function suppressUntil(today: DateString, days: number): DateString {
   return addDays(today, days);
@@ -74,7 +68,9 @@ export function mergeSuppress(stored: string | null | undefined, until: DateStri
 /**
  * 팝업 앞에 두는 인라인 스크립트 본문 (ADR-010, ADR-014). ids 는 서버가 오늘 노출 대상으로 고른 팝업 슬러그들(묶음).
  * 1) 첫 페인트 전: 묶음의 **모든** 슬러그가 `isSuppressed`·`todayKST` 와 같은 규칙(저장값 형식 검사, KST 날짜, today < 만료일)으로
- *    숨김이면 `<html data-popup-hidden="<id>,<id>…">` 를 표시한다. 일부만 숨김이면 그대로 두고 하이드레이션 후 컴포넌트가 걸러낸다.
+ *    숨김이면 `<html data-popup-hidden="<id>,<id>…">` 를 표시해 모달 전체를 숨긴다. 일부만 숨김이면 그 슬러그들을
+ *    `<html data-popup-hidden-ids>` 에 쉼표로 기록하고, 하이드레이션 전(`data-ready` 없음)에는 숨김 슬라이드를 감추고
+ *    숨김이 아닌 첫 슬라이드(`.modal-slide[data-popup-id]`)만 보이도록 `<style>` 을 덧붙인다. 이후는 컴포넌트가 걸러낸다.
  * 2) 하이드레이션 전: 모달에 `data-ready` 가 붙기 전까지 "닫기"·배경 클릭·Esc 를 위임 이벤트로 처리한다.
  *    `.modal input[data-hide]:checked` 값(day=1일, week=7일)이 있으면 묶음의 모든 슬러그에 `suppressUntil` 과 같은 규칙으로
  *    저장(더 늦은 만료일이 이미 있으면 유지, `mergeSuppress`)하고 `data-popup-hidden` 을 표시해 CSS 가 즉시 숨긴다. 이후는 컴포넌트가 이어받는다.
@@ -86,8 +82,14 @@ export function popupHideScript(ids: string[]): string {
     `(function(){var D=document,H=D.documentElement,I=${lit(ids)},P=${lit(popupStorageKey(''))},R=/^\\d{4}-\\d{2}-\\d{2}$/;` +
     "function kst(){return new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}" +
     'function sup(i){try{var s=localStorage.getItem(P+i);return!!s&&R.test(s)&&kst()<s}catch(e){return false}}' +
-    'function all(){for(var j=0;j<I.length;j++)if(!sup(I[j]))return false;return I.length>0}' +
-    'if(all())H.dataset.popupHidden=I.join(",");' +
+    'var X=[],F=null;for(var j=0;j<I.length;j++){if(sup(I[j]))X.push(I[j]);else if(F===null)F=I[j]}' +
+    'if(I.length>0&&X.length===I.length)H.dataset.popupHidden=I.join(",");' +
+    'else if(X.length>0){H.dataset.popupHiddenIds=X.join(",");' +
+    'function q(v){return\'"\'+v.replace(/[\\\\"]/g,"\\\\$&")+\'"\'}' +
+    'var S=".modal:not([data-ready]) .modal-slide",c="";' +
+    'for(var j=0;j<X.length;j++)c+=S+"[data-popup-id="+q(X[j])+"]{display:none}";' +
+    'c+=S+"[data-popup-id="+q(F)+"]{display:block}";' +
+    'var e=D.createElement("style");e.textContent=c;(D.head||H).appendChild(e)}' +
     'function hide(){try{var c=D.querySelector(".modal input[data-hide]:checked");' +
     'if(c){var d=new Date(kst()+"T00:00:00Z");d.setUTCDate(d.getUTCDate()+(c.getAttribute("data-hide")==="week"?7:1));' +
     'var v=d.toISOString().slice(0,10);' +
