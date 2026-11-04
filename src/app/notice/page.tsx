@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import NoticeBrowser from '@/components/NoticeBrowser';
 import { getNotices } from '@/lib/data';
+import { PAGE_DESCRIPTIONS, pageMetadata } from '@/lib/seo';
 
 export const revalidate = 600;
 
-export const metadata: Metadata = { title: '공지사항' };
+export const metadata: Metadata = pageMetadata({ title: '공지사항', description: PAGE_DESCRIPTIONS.notice, path: '/notice' });
 
 export default async function NoticePage() {
   const notices = await getNotices();

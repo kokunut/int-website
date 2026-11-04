@@ -2,10 +2,11 @@ import type { Metadata } from 'next';
 import AppLink from '@/components/AppLink';
 import { getSiteLinks, getSuggestAnswers, getSuggestPage } from '@/lib/data';
 import { full } from '@/lib/date';
+import { PAGE_DESCRIPTIONS, pageMetadata } from '@/lib/seo';
 
 export const revalidate = 600;
 
-export const metadata: Metadata = { title: '건의함' };
+export const metadata: Metadata = pageMetadata({ title: '건의함', description: PAGE_DESCRIPTIONS.suggest, path: '/suggest' });
 
 export default async function SuggestPage() {
   const [links, answers, page] = await Promise.all([getSiteLinks(), getSuggestAnswers(), getSuggestPage()]);

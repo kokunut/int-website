@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import PartnerBrowser from '@/components/PartnerBrowser';
 import { getPartners, getPartnersPage } from '@/lib/data';
+import { PAGE_DESCRIPTIONS, pageMetadata } from '@/lib/seo';
 
 export const revalidate = 600;
 
-export const metadata: Metadata = { title: '제휴' };
+export const metadata: Metadata = pageMetadata({ title: '제휴', description: PAGE_DESCRIPTIONS.partners, path: '/partners' });
 
 export default async function PartnersPage() {
   const [partners, page] = await Promise.all([getPartners(), getPartnersPage()]);

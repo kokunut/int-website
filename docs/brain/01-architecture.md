@@ -70,6 +70,15 @@ public/                   # 정적 파일 (로고, 이미지)
   - ③ 매퍼에서 `fileProxyPath(page.id, '영문-키', index)` 로 경로를 만든다. DB 조회 인자(정렬)는 `notion-schema.ts` 의 `DB_QUERY` 한 곳에 두고, 로더·프록시 모두 `listRows(dbKey, dbId)` 를 써서 데이터 캐시를 공유한다.
 - API 키는 서버 전용 환경변수(`NEXT_PUBLIC_` 접두사 금지).
 
+## SEO
+- 공용 로직은 `src/lib/seo.ts`: `pageMetadata({ title, description, path })`(설명·canonical·OG·트위터), `summarize(text, max)`(공백 정리 후 120자 이내로 자르고 "…"), 정적 페이지 설명 표(`PAGE_DESCRIPTIONS`·`DOC_DESCRIPTIONS`·`ARCHIVE_DESCRIPTIONS`, 80~120자·서로 다름·테스트로 보장), JSON-LD 빌더.
+- 모든 페이지는 `alternates.canonical` 을 경로로 넣는다(`metadataBase` 로 절대 URL). 페이지가 `openGraph` 를 지정하면 layout 값이 통째로 대체되므로 반드시 `pageMetadata` 를 거친다. 새 페이지를 만들 때도 같은 방식으로.
+- 상세 페이지 설명은 본문·`desc` 등 기존 필드를 `detailDescription` 으로 요약, 비면 대체 문구.
+- 기본 공유 이미지: `src/app/opengraph-image.tsx`(1200×630, `next/og`, Pretendard Bold `.otf` 를 `readFile` — satori 는 woff2 미지원). 카드뉴스 공지는 첫 장 이미지를 계속 쓴다.
+- JSON-LD: 공용 `JsonLd` 컴포넌트(서버 렌더, `<` 를 `<` 로 이스케이프). layout 에 `Organization`·`WebSite`, `/faq` 에 `FAQPage`, `/contest/[id]` 에 `Event`. `sameAs` 는 자리표시자(호스트만 있는 주소)를 제외한 실제 주소만.
+- 미리보기 noindex: `isPreviewDeploy()`(`VERCEL_ENV` 가 있고 production 이 아님)일 때 `robots.txt` 는 `disallow: /`, layout 은 `robots: { index: false, follow: false }`.
+- 소유 확인: `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`·`NEXT_PUBLIC_NAVER_SITE_VERIFICATION` 이 있을 때만 `verification` 메타(`verificationMeta`). 등록 방법은 [06-content-ops.md](06-content-ops.md) 4-2.
+
 ## 날짜 규칙
 - 날짜 문자열은 `YYYY-MM-DD`(KST 기준 날짜) 고정.
 - "오늘"은 **KST 기준**으로 계산(`src/lib/date.ts`의 `todayKST()`). 서버(UTC)에서 날짜가 하루 밀리지 않게.

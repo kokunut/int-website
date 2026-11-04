@@ -7,6 +7,7 @@ import { getNotice, getNotices } from '@/lib/data';
 import CardSlider from '@/components/CardSlider';
 import { isCardNews, ogImageUrl } from '@/lib/cardnews';
 import { full } from '@/lib/date';
+import { blocksText, detailDescription, pageMetadata } from '@/lib/seo';
 import { absoluteUrl } from '@/lib/site';
 
 export const revalidate = 600;
@@ -26,10 +27,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const notice = id === null ? undefined : await getNotice(id);
   if (!notice) return { title: '공지사항' };
   const og = ogImageUrl(notice.cards?.[0], absoluteUrl);
-  return {
+  return pageMetadata({
     title: notice.title,
-    ...(og ? { openGraph: { title: notice.title, images: [{ url: og, width: 1080, height: 1350 }] }, twitter: { card: 'summary_large_image' as const, images: [og] } } : {}),
-  };
+    description: detailDescription(notice.body.join(' ') || blocksText(notice.blocks), `${notice.title} - 세종대학교 인공지능융합대학 학생회 인트의 공지사항입니다.`),
+    path: `/notice/${notice.id}`,
+    // 카드뉴스 공지는 첫 장을 공유 이미지로, 나머지는 기본 공유 이미지(opengraph-image)
+    ...(og ? { image: { url: og, width: 1080, height: 1350 } } : {}),
+  });
 }
 
 export default async function NoticeDetailPage({ params }: Props) {

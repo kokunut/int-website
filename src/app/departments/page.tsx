@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import AppLink from '@/components/AppLink';
 import { getDepartments, getDepartmentsPage } from '@/lib/data';
+import { PAGE_DESCRIPTIONS, pageMetadata } from '@/lib/seo';
 
 const SOURCE_HOME = 'https://www.sejong.ac.kr/kor/college/college-of-software-convergence.do';
 
 export const revalidate = 600;
 
-export const metadata: Metadata = { title: '소속 학과' };
+export const metadata: Metadata = pageMetadata({ title: '소속 학과', description: PAGE_DESCRIPTIONS.departments, path: '/departments' });
 
 export default async function DepartmentsPage() {
   const [departments, page] = await Promise.all([getDepartments(), getDepartmentsPage()]);

@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { getDocs } from '@/lib/data';
 import { full } from '@/lib/date';
 import { DOC_CATEGORIES, DOC_TABS, isDocCategory } from '@/lib/docs';
+import { DOC_DESCRIPTIONS, pageMetadata } from '@/lib/seo';
 
 export const revalidate = 600;
 export const dynamicParams = false;
@@ -16,7 +17,8 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params;
-  return { title: isDocCategory(category) ? `자료실 · ${DOC_TABS[category]}` : '자료실' };
+  if (!isDocCategory(category)) return { title: '자료실' };
+  return pageMetadata({ title: `자료실 · ${DOC_TABS[category]}`, description: DOC_DESCRIPTIONS[category], path: `/docs/${category}` });
 }
 
 export default async function DocsCategoryPage({ params }: Props) {

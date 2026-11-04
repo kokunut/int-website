@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import { majorNames } from '@/content/council';
 import { getAboutPage, getCouncilSummary, getOrg } from '@/lib/data';
+import { PAGE_DESCRIPTIONS, pageMetadata } from '@/lib/seo';
 
 export const revalidate = 600;
 
-export const metadata: Metadata = { title: '학생회 소개' };
+export const metadata: Metadata = pageMetadata({ title: '학생회 소개', description: PAGE_DESCRIPTIONS.about, path: '/about' });
 
 export default async function AboutPage() {
   const [page, org, summary] = await Promise.all([getAboutPage(), getOrg(), getCouncilSummary()]);
