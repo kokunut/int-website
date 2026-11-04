@@ -2,9 +2,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import AppLink, { isPlaceholderHref } from '@/components/AppLink';
+import JsonLd from '@/components/JsonLd';
 import Pager from '@/components/Pager';
 import { getContest, getContests } from '@/lib/data';
 import { contestStatus, dday, full } from '@/lib/date';
+import { contestJsonLd, detailDescription, pageMetadata } from '@/lib/seo';
 import type { ReactNode } from 'react';
 
 export const revalidate = 600;
@@ -18,7 +20,12 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const contest = await getContest((await params).id);
-  return { title: contest ? contest.title : '공모전' };
+  if (!contest) return { title: '공모전' };
+  return pageMetadata({
+    title: contest.title,
+    description: detailDescription(contest.desc, `${contest.title} - 세종대학교 인공지능융합대학 학생회 인트의 공모전입니다.`),
+    path: `/contest/${contest.id}`,
+  });
 }
 
 const Section = ({ title, children }: { title: string; children: ReactNode }) => (
@@ -45,6 +52,7 @@ export default async function ContestDetailPage({ params }: Props) {
 
   return (
     <section className="container page">
+      <JsonLd data={contestJsonLd(c)} />
       <Link className="more back" href="/contest">
         ← 공모전 목록
       </Link>

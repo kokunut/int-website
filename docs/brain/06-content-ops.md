@@ -357,6 +357,17 @@ Vercel Web Analytics·Speed Insights를 씁니다. **쿠키를 쓰지 않고 개
 
 **커스텀 이벤트**: 공모전 팝업 "자세히 보기"(`popup_detail`), 페이백 "신청하기"(`payback_apply`), 카카오톡 FAB(`kakao_fab`) 클릭을 기록합니다. 이벤트 이름은 `src/lib/analytics.ts`의 `EVENTS`에 있어요. 커스텀 이벤트는 Vercel 유료 플랜 기능일 수 있어, 무료 플랜에서는 페이지뷰만 보일 수 있습니다. (확인 필요)
 
+## 4-2. 검색 엔진 등록
+
+사이트를 구글·네이버 검색에 등록하려면 소유 확인 코드를 환경변수로 넣습니다. 값이 없으면 아무것도 추가되지 않아요.
+
+1. **구글**: [Search Console](https://search.google.com/search-console) → 속성 추가 → URL 접두어 → 소유권 확인 방법 **HTML 태그**. `content="..."` 안의 값만 `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` 에 넣습니다.
+2. **네이버**: [서치어드바이저](https://searchadvisor.naver.com) → 사이트 등록 → **HTML 태그**. `content="..."` 안의 값만 `NEXT_PUBLIC_NAVER_SITE_VERIFICATION` 에 넣습니다.
+3. Vercel 환경변수(Production)에 넣고 다시 배포한 뒤 각 사이트에서 "확인"을 누릅니다.
+4. 확인되면 사이트맵 주소 `<사이트주소>/sitemap.xml` 을 제출합니다.
+
+참고: Vercel **미리보기(Preview) 배포**는 `robots.txt` 가 전체 차단이고 페이지에 `noindex` 가 들어가 검색에 노출되지 않습니다. 운영(Production)만 색인됩니다.
+
 ## 5. 문제 해결
 
 먼저 **설정 점검 명령**을 실행해 보세요. (`.env.local` 에 환경변수를 넣고, 저장소 폴더에서 실행)

@@ -6,6 +6,7 @@ import DetailSection from '@/components/DetailSection';
 import Pager from '@/components/Pager';
 import { getPartner, getPartners, getPartnersPage } from '@/lib/data';
 import { partnerMapUrl } from '@/lib/partners';
+import { detailDescription, pageMetadata } from '@/lib/seo';
 
 export const revalidate = 600;
 
@@ -18,7 +19,12 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const p = await getPartner((await params).id);
-  return { title: p ? p.name : '제휴' };
+  if (!p) return { title: '제휴' };
+  return pageMetadata({
+    title: p.name,
+    description: detailDescription(`${p.name} 제휴 혜택: ${p.benefit}${p.place ? ` (${p.place})` : ''}`, `${p.name} 제휴 혜택을 확인하세요.`),
+    path: `/partners/${p.id}`,
+  });
 }
 
 export default async function PartnerDetailPage({ params }: Props) {

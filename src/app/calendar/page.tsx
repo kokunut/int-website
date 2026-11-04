@@ -2,10 +2,11 @@ import type { Metadata } from 'next';
 import Calendar from '@/components/Calendar';
 import { getCalendarEvents, getSiteLinks } from '@/lib/data';
 import { todayKST } from '@/lib/date';
+import { PAGE_DESCRIPTIONS, pageMetadata } from '@/lib/seo';
 
 export const revalidate = 600;
 
-export const metadata: Metadata = { title: '캘린더' };
+export const metadata: Metadata = pageMetadata({ title: '캘린더', description: PAGE_DESCRIPTIONS.calendar, path: '/calendar' });
 
 export default async function CalendarPage() {
   const [events, links] = await Promise.all([getCalendarEvents(), getSiteLinks()]);

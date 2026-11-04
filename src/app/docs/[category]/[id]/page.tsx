@@ -7,6 +7,8 @@ import Pager from '@/components/Pager';
 import { getDoc, getDocs } from '@/lib/data';
 import { full } from '@/lib/date';
 import { DOC_CATEGORIES, DOC_TABS, driveDownloadUrl, drivePreviewUrl, isDocCategory } from '@/lib/docs';
+import { DOC_DESCRIPTIONS, detailDescription, pageMetadata } from '@/lib/seo';
+import type { DocCategory } from '@/lib/types';
 
 export const revalidate = 600;
 export const dynamicParams = false;
@@ -21,7 +23,12 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category, id } = await params;
   const doc = isDocCategory(category) ? await getDoc(category, id) : undefined;
-  return { title: doc ? doc.title : '자료실' };
+  if (!doc) return { title: '자료실' };
+  return pageMetadata({
+    title: doc.title,
+    description: detailDescription(doc.summary.join(' '), `${doc.title} - ${DOC_DESCRIPTIONS[category as DocCategory]}`),
+    path: `/docs/${category}/${id}`,
+  });
 }
 
 export default async function DocDetailPage({ params }: Props) {

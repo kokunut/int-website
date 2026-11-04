@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import PaybackCard from '@/components/PaybackCard';
 import { getPayback, getPaybackPage, getSiteLinks } from '@/lib/data';
+import { PAGE_DESCRIPTIONS, pageMetadata } from '@/lib/seo';
 
 export const revalidate = 600;
 
-export const metadata: Metadata = { title: '검정비 페이백' };
+export const metadata: Metadata = pageMetadata({ title: '검정비 페이백', description: PAGE_DESCRIPTIONS.payback, path: '/payback' });
 
 export default async function PaybackPage() {
   const [payback, page, links] = await Promise.all([getPayback(), getPaybackPage(), getSiteLinks()]);
