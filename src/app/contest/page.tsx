@@ -4,10 +4,11 @@ import AppLink from '@/components/AppLink';
 import ContestList from '@/components/ContestList';
 import { getContests } from '@/lib/data';
 import { contestStatus, dday, full } from '@/lib/date';
+import { PAGE_DESCRIPTIONS, pageMetadata } from '@/lib/seo';
 
 export const revalidate = 600;
 
-export const metadata: Metadata = { title: '공모전' };
+export const metadata: Metadata = pageMetadata({ title: '공모전', description: PAGE_DESCRIPTIONS.contest, path: '/contest' });
 
 export default async function ContestPage() {
   const contests = await getContests();

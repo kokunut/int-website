@@ -5,6 +5,7 @@ import ArchiveBrowser from '@/components/ArchiveBrowser';
 import { ARCHIVE_CATEGORIES, ARCHIVE_LABELS, isArchiveCategory } from '@/lib/archive';
 import { getArchive, getSiteLinks } from '@/lib/data';
 import { ARCHIVE_TOPICS } from '@/lib/data/notion-schema';
+import { ARCHIVE_DESCRIPTIONS, pageMetadata } from '@/lib/seo';
 
 export const revalidate = 600;
 export const dynamicParams = false;
@@ -17,7 +18,8 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params;
-  return { title: isArchiveCategory(category) ? ARCHIVE_LABELS[category] : '아카이브' };
+  if (!isArchiveCategory(category)) return { title: '아카이브' };
+  return pageMetadata({ title: ARCHIVE_LABELS[category], description: ARCHIVE_DESCRIPTIONS[category], path: `/archive/${category}` });
 }
 
 export default async function ArchiveListPage({ params }: Props) {

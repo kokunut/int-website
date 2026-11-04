@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { absoluteUrl, getSiteUrl, isVercelProduction } from '../site';
+import { absoluteUrl, getSiteUrl, isPreviewDeploy, isVercelProduction } from '../site';
+
+describe('isPreviewDeploy', () => {
+  it('is true only when VERCEL_ENV is set and not production', () => {
+    for (const v of ['preview', 'development']) expect(isPreviewDeploy(v)).toBe(true);
+    for (const v of [undefined, '', 'production']) expect(isPreviewDeploy(v)).toBe(false);
+  });
+});
 
 describe('isVercelProduction', () => {
   it('is true only for VERCEL_ENV=production', () => {

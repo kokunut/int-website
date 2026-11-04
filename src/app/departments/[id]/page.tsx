@@ -6,6 +6,7 @@ import DetailSection from '@/components/DetailSection';
 import Pager from '@/components/Pager';
 import { getDepartment, getDepartments } from '@/lib/data';
 import { departmentSections } from '@/lib/departments';
+import { detailDescription, pageMetadata } from '@/lib/seo';
 
 export const revalidate = 600;
 
@@ -18,7 +19,12 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const d = await getDepartment((await params).id);
-  return { title: d ? d.name : '소속 학과' };
+  if (!d) return { title: '소속 학과' };
+  return pageMetadata({
+    title: d.name,
+    description: detailDescription(d.intro || d.body.join(' '), `세종대학교 인공지능융합대학 ${d.name}을 소개합니다.`),
+    path: `/departments/${d.id}`,
+  });
 }
 
 export default async function DepartmentDetailPage({ params }: Props) {

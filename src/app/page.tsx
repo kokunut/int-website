@@ -10,10 +10,11 @@ import Link from 'next/link';
 import { getBanners, getCalendarEvents, getContests, getNotices, getPayback, getPopups, getSiteLinks } from '@/lib/data';
 import { todayKST } from '@/lib/date';
 import { activePopups, buildPopups, popupHideScript } from '@/lib/popup';
+import { PAGE_DESCRIPTIONS, pageMetadata } from '@/lib/seo';
 
 export const revalidate = 600;
 
-export const metadata: Metadata = { title: { absolute: '인트 | 인공지능융합대학 학생회' } };
+export const metadata: Metadata = pageMetadata({ title: { absolute: '인트 | 인공지능융합대학 학생회' }, description: PAGE_DESCRIPTIONS.home, path: '/' });
 
 export default async function HomePage() {
   const [banners, events, contests, popupRows, notices, payback, links] = await Promise.all([

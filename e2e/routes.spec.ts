@@ -15,6 +15,19 @@ for (const path of ROUTES) {
   });
 }
 
+test('페이지마다 canonical 과 서로 다른 description 이 있다', async ({ page }) => {
+  const descriptions = new Set<string>();
+  for (const path of ['/about', '/notice', '/calendar', '/contest', '/payback', '/partners', '/suggest', '/faq', '/departments']) {
+    await page.goto(path);
+    const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
+    expect(new URL(canonical!).pathname).toBe(path);
+    const description = await page.locator('meta[name="description"]').getAttribute('content');
+    expect(description!.length).toBeGreaterThan(40);
+    descriptions.add(description!);
+  }
+  expect(descriptions.size).toBe(9);
+});
+
 test('없는 주소는 404 화면을 보여 준다', async ({ page }) => {
   const res = await page.goto('/no-such-page');
   expect(res?.status()).toBe(404);

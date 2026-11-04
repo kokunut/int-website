@@ -18,6 +18,11 @@ export function isVercelProduction(raw: string | undefined = process.env.VERCEL_
   return raw === 'production';
 }
 
+/** Vercel 미리보기·개발 배포 여부(`VERCEL_ENV` 가 있고 production 이 아님). 이 경우 검색 엔진 색인을 막는다. 로컬·CI 는 값이 없어 false. */
+export function isPreviewDeploy(raw: string | undefined = process.env.VERCEL_ENV): boolean {
+  return !!raw && raw !== 'production';
+}
+
 /** 경로를 절대 URL 로 (`/` -> 기준 URL + '/') */
 export function absoluteUrl(path: string, base: string = getSiteUrl()): string {
   return `${base}${path.startsWith('/') ? path : `/${path}`}`;

@@ -7,6 +7,7 @@ import Pager from '@/components/Pager';
 import { ARCHIVE_BADGES, ARCHIVE_CATEGORIES, ARCHIVE_LABELS, isArchiveCategory } from '@/lib/archive';
 import { getArchive, getArchivePost } from '@/lib/data';
 import { full } from '@/lib/date';
+import { ARCHIVE_DESCRIPTIONS, blocksText, detailDescription, pageMetadata } from '@/lib/seo';
 
 export const revalidate = 600;
 export const dynamicParams = false;
@@ -21,7 +22,12 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category, id } = await params;
   const post = isArchiveCategory(category) ? await getArchivePost(category, id) : undefined;
-  return { title: post ? post.title : '아카이브' };
+  if (!post) return { title: '아카이브' };
+  return pageMetadata({
+    title: post.title,
+    description: detailDescription(post.summary || blocksText(post.blocks), `${post.title} - ${ARCHIVE_DESCRIPTIONS[post.category]}`),
+    path: `/archive/${category}/${id}`,
+  });
 }
 
 export default async function ArchiveDetailPage({ params }: Props) {
