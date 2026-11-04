@@ -135,7 +135,8 @@ export default function PopupModal({ popups, serverToday }: { popups: Popup[]; s
   if (!shown) return null;
   const { items, today, index } = shown;
   const p = items[index];
-  const dd = dday(p.end, today);
+  // 하이드레이션 후(ready)에는 보이는 한 장만 그린다. ready 는 첫 렌더에서 false 라 서버 HTML 과 같다
+  const slides = items.map((it, i) => ({ it, i })).filter(({ i }) => !ready || i === index);
   const toggle = (v: Exclude<HideChoice, null>) => setHide((cur) => (cur === v ? null : v));
 
   return (
@@ -144,41 +145,46 @@ export default function PopupModal({ popups, serverToday }: { popups: Popup[]; s
       data-ready={ready ? 'true' : undefined}
       role="dialog"
       aria-modal="true"
-      aria-labelledby="popup-title"
+      aria-labelledby={`popup-title-${p.id}`}
       onClick={(e) => {
         if (e.target === e.currentTarget) close();
       }}
     >
       <div className="modal-box" ref={boxRef}>
         <div className="modal-scroll">
-        {p.image && (
-          // 노션 이미지(안정 경로·외부 URL)라 next/image 최적화 대상이 아니다
-          // eslint-disable-next-line @next/next/no-img-element
-          <img className="modal-photo" src={p.image} alt={`${p.title} 포스터`} />
-        )}
-        <div className="modal-body">
-          <span className="badge solid">
-            {p.cat} · {dd === 0 ? 'D-DAY' : `D-${dd}`}
-          </span>
-          <h2 id="popup-title">{p.title}</h2>
-          {p.desc && <p>{p.desc}</p>}
-          <p className="note">
-            {p.cat === '공모전' ? '접수' : '기간'} {full(p.start)} ~ {full(p.end)}
-          </p>
-          {p.href && (
-            <AppLink
-              className="btn"
-              href={p.href}
-              onClick={() => {
-                trackEvent(EVENTS.popupDetail);
-                close();
-              }}
-            >
-              {p.cta}
-              <span className="sr-only"> · {p.title}</span>
-            </AppLink>
-          )}
-        </div>
+        {/* 하이드레이션 전(서버 HTML 포함)에는 묶음의 모든 슬라이드를 그려 CSS 가 숨긴 팝업을 건너뛰고 첫 페인트에 보일 슬라이드를 고르게 한다 */}
+        {slides.map(({ it, i }) => (
+          <div className="modal-slide" data-popup-id={it.id} key={it.id}>
+            {it.image && (
+              // 노션 이미지(안정 경로·외부 URL)라 next/image 최적화 대상이 아니다
+              // eslint-disable-next-line @next/next/no-img-element
+              <img className="modal-photo" src={it.image} alt={`${it.title} 포스터`} loading={i === 0 ? undefined : 'lazy'} />
+            )}
+            <div className="modal-body">
+              <span className="badge solid">
+                {it.cat} · {dday(it.end, today) === 0 ? 'D-DAY' : `D-${dday(it.end, today)}`}
+              </span>
+              <h2 id={`popup-title-${it.id}`}>{it.title}</h2>
+              {it.desc && <p>{it.desc}</p>}
+              <p className="note">
+                {it.cat === '공모전' ? '접수' : '기간'} {full(it.start)} ~ {full(it.end)}
+              </p>
+              {it.href && (
+                <AppLink
+                  className="btn"
+                  href={it.href}
+                  onClick={() => {
+                    trackEvent(EVENTS.popupDetail);
+                    close();
+                  }}
+                >
+                  {it.cta}
+                  <span className="sr-only"> · {it.title}</span>
+                </AppLink>
+              )}
+            </div>
+          </div>
+        ))}
         </div>
         {total > 1 && (
           <div className="modal-nav">

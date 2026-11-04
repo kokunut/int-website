@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { contestStatus, dday, full, md, range, todayKST, won, ymd, toDate } from '../date';
+import { addDays, contestStatus, dday, full, md, range, todayKST, won, ymd, toDate } from '../date';
 
 afterEach(() => {
   vi.useRealTimers();
@@ -28,6 +28,17 @@ describe('todayKST', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-11-01T14:59:59Z'));
     expect(todayKST()).toBe('2026-11-01');
+  });
+});
+
+describe('addDays', () => {
+  it('월·연·윤년을 넘기고 음수도 된다', () => {
+    expect(addDays('2026-11-30', 1)).toBe('2026-12-01');
+    expect(addDays('2026-12-31', 1)).toBe('2027-01-01');
+    expect(addDays('2028-02-28', 1)).toBe('2028-02-29');
+    expect(addDays('2026-01-01', -1)).toBe('2025-12-31');
+    expect(addDays('2026-11-01', 0)).toBe('2026-11-01');
+    expect(addDays('2026-11-01', 7)).toBe('2026-11-08');
   });
 });
 

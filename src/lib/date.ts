@@ -22,6 +22,12 @@ export function toDate(s: DateString): Date {
   return new Date(y, m - 1, d);
 }
 
+/** `YYYY-MM-DD` 에 n 일을 더한 날짜. UTC 기준이라 실행 환경의 시간대·서머타임과 무관하다 */
+export function addDays(s: DateString, n: number): DateString {
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d) + n * DAY_MS).toISOString().slice(0, 10);
+}
+
 /** Date -> `YYYY-MM-DD` (로컬 기준) */
 export function ymd(d: Date): DateString {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;

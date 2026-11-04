@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   activePopups,
-  addDays,
   buildPopups,
   contestToPopup,
   isSuppressed,
@@ -77,14 +76,14 @@ describe('activePopups', () => {
   });
 });
 
-describe('suppressUntil / addDays', () => {
+describe('suppressUntil', () => {
   it('하루 / 일주일', () => {
     expect(suppressUntil('2026-11-01', 1)).toBe('2026-11-02');
     expect(suppressUntil('2026-11-01', 7)).toBe('2026-11-08');
   });
   it('월·연 넘김', () => {
-    expect(addDays('2026-11-30', 1)).toBe('2026-12-01');
-    expect(addDays('2026-12-31', 1)).toBe('2027-01-01');
+    expect(suppressUntil('2026-11-30', 1)).toBe('2026-12-01');
+    expect(suppressUntil('2026-12-31', 1)).toBe('2027-01-01');
   });
 });
 
@@ -131,7 +130,13 @@ describe('popupHideScript', () => {
       },
     };
     const noop = () => {};
-    new Function('localStorage', 'document', popupHideScript(ids))(storage, { ...doc, addEventListener: noop });
+    const style = { appendChild: noop };
+    new Function('localStorage', 'document', popupHideScript(ids))(storage, {
+      ...doc,
+      head: style,
+      createElement: () => ({}),
+      addEventListener: noop,
+    });
     vi.useRealTimers();
     return doc.documentElement.dataset.popupHidden;
   };
@@ -167,6 +172,60 @@ describe('popupHideScript', () => {
   });
 });
 
+describe('popupHideScript — 묶음 일부만 숨김', () => {
+  const run = (ids: string[], stored: Record<string, string>) => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-01T03:00:00Z')); // KST 2026-11-01
+    const styles: { textContent: string }[] = [];
+    const dataset: Record<string, string> = {};
+    const doc = {
+      documentElement: { dataset },
+      head: { appendChild: (el: { textContent: string }) => styles.push(el) },
+      createElement: () => ({ textContent: '' }),
+      addEventListener: () => {},
+    };
+    const storage = { getItem: (k: string) => stored[k.replace('int_popup_hide_', '')] ?? null };
+    new Function('localStorage', 'document', popupHideScript(ids))(storage, doc);
+    vi.useRealTimers();
+    return { dataset, css: styles.map((s) => s.textContent).join('') };
+  };
+  afterEach(() => vi.useRealTimers());
+
+  it('일부만 숨김이면 data-popup-hidden-ids 에 기록하고 모달 전체는 숨기지 않는다', () => {
+    const { dataset } = run(['a', 'b', 'c'], { a: '2026-11-02' });
+    expect(dataset.popupHiddenIds).toBe('a');
+    expect(dataset.popupHidden).toBeUndefined();
+  });
+  it('숨김 슬라이드는 감추고 숨김이 아닌 첫 슬라이드만 보이게 하는 규칙을 만든다', () => {
+    const { css } = run(['a', 'b', 'c'], { a: '2026-11-02' });
+    const S = '.modal:not([data-ready]) .modal-slide';
+    expect(css).toContain(`${S}[data-popup-id="a"]{display:none}`);
+    expect(css).toContain(`${S}[data-popup-id="b"]{display:block}`);
+    expect(css).not.toContain('[data-popup-id="c"]');
+  });
+  it('가운데·마지막이 숨김이어도 첫 번째 숨김 아닌 슬라이드를 고른다', () => {
+    const { css, dataset } = run(['a', 'b', 'c'], { a: '2026-11-02', b: '2026-11-02' });
+    expect(dataset.popupHiddenIds).toBe('a,b');
+    expect(css).toContain('[data-popup-id="c"]{display:block}');
+  });
+  it('슬러그의 따옴표·역슬래시는 CSS 문자열로 이스케이프한다', () => {
+    const { css } = run(['a"b', 'c\\d'], { 'a"b': '2026-11-02' });
+    expect(css).toContain('[data-popup-id="a\\"b"]{display:none}');
+    expect(css).toContain('[data-popup-id="c\\\\d"]{display:block}');
+  });
+  it('아무것도 숨김이 아니면 아무 것도 표시하지 않는다', () => {
+    const { dataset, css } = run(['a', 'b'], {});
+    expect(dataset.popupHiddenIds).toBeUndefined();
+    expect(css).toBe('');
+  });
+  it('모두 숨김이면 모달 전체 표시(data-popup-hidden)만 쓴다', () => {
+    const { dataset, css } = run(['a', 'b'], { a: '2026-11-02', b: '2026-11-02' });
+    expect(dataset.popupHidden).toBe('a,b');
+    expect(dataset.popupHiddenIds).toBeUndefined();
+    expect(css).toBe('');
+  });
+});
+
 describe('popupHideScript — 하이드레이션 전 닫기', () => {
   type Handler = (e: unknown) => void;
   const setup = (opts: { ready?: boolean; checked?: 'day' | 'week' | null; stored?: Record<string, string> } = {}) => {
@@ -176,6 +235,8 @@ describe('popupHideScript — 하이드레이션 전 닫기', () => {
     const saved: Record<string, string> = { ...(opts.stored ?? {}) };
     const doc = {
       documentElement: { dataset: {} as Record<string, string> },
+      head: { appendChild: () => {} },
+      createElement: () => ({}),
       addEventListener: (type: string, fn: Handler) => {
         handlers[type] = fn;
       },

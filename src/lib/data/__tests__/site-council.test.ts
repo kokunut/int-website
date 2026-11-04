@@ -115,6 +115,17 @@ describe('설정 스키마·시드', () => {
     expect(new Set(SETTING_KEYS.map((k) => k.id)).size).toBe(SETTING_KEYS.length);
   });
 
+  it('별칭 행이 먼저 와도 정식 이름 행이 이긴다 (반대 순서도 같다)', () => {
+    const oldUrl = 'https://www.notion.so/old';
+    const newUrl = 'https://www.notion.so/new';
+    const oldRow = () => setting('군입대 백서', { url: { 링크: oldUrl } });
+    const newRow = () => setting('병역 길라잡이', { url: { 링크: newUrl } });
+    expect(mapSettings([oldRow(), newRow()])).toEqual({ notionMilitaryGuide: newUrl });
+    expect(mapSettings([newRow(), oldRow()])).toEqual({ notionMilitaryGuide: newUrl });
+    // 별칭 행끼리는 먼저 나온 값
+    expect(mapSettings([oldRow(), setting('군입대 백서', { url: { 링크: newUrl } })])).toEqual({ notionMilitaryGuide: oldUrl });
+  });
+
   it('옛 이름(군입대 백서·공모전 정보)으로 만든 행도 새 항목으로 인식한다', () => {
     const url = 'https://www.notion.so/abc';
     const out = mapSettings([setting('군입대 백서', { url: { 링크: url } }), setting('공모전 정보', { url: { 링크: url } })]);

@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { mapPayback, parseCsv } from '../csv';
-import { addDays, parseIcs, unescapeText } from '../ics';
+import { addDays } from '../../date';
+import { parseIcs, unescapeText } from '../ics';
 
 const fixture = (name: string): string => readFileSync(join(__dirname, 'fixtures', name), 'utf8');
 
@@ -47,6 +48,26 @@ describe('parseIcs', () => {
   it('유틸', () => {
     expect(unescapeText('a\\,b\;c\\nd\\\\e')).toBe('a,b;c\nd\\e');
     expect(addDays('2026-12-31', 1)).toBe('2027-01-01');
+  });
+
+  it('RECURRENCE-ID 가 있는 수정 회차는 건너뛰고 원본만 남긴다', () => {
+    const ics = [
+      'BEGIN:VEVENT',
+      'UID:a@x',
+      'DTSTART;VALUE=DATE:20261110',
+      'DTEND;VALUE=DATE:20261111',
+      'RRULE:FREQ=WEEKLY',
+      'SUMMARY:정기 행사',
+      'END:VEVENT',
+      'BEGIN:VEVENT',
+      'UID:a@x',
+      'RECURRENCE-ID;VALUE=DATE:20261117',
+      'DTSTART;VALUE=DATE:20261118',
+      'DTEND;VALUE=DATE:20261119',
+      'SUMMARY:정기 행사 (수정)',
+      'END:VEVENT',
+    ].join('\n');
+    expect(parseIcs(ics, '2026-11-01')).toEqual([{ title: '정기 행사', start: '2026-11-10', end: '2026-11-10' }]);
   });
 });
 
