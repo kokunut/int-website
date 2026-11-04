@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FILE_FIELDS } from '../file-proxy';
 import { listRows } from '../notion';
 import { DB } from '../notion-map';
-import { DB_QUERY } from '../notion-schema';
+import { DB_QUERY, DEFAULT_SORTS } from '../notion-schema';
 
 const DB_ID = 'fedcba9876543210fedcba9876543210';
 
@@ -32,9 +32,12 @@ describe('listRows / DB_QUERY', () => {
     }
   });
 
-  it('DB_QUERY 의 정렬을 요청에 그대로 싣는다', async () => {
-    await listRows(DB.notices, DB_ID);
-    expect(bodyOf(0)).toMatchObject({ sorts: DB_QUERY[DB.notices].sorts });
+  it('DB_QUERY 의 정렬 뒤에 만든 시각 오름차순을 보조 정렬로 붙인다', async () => {
+    for (const dbKey of Object.keys(DB_QUERY)) {
+      fetchMock.mockClear();
+      await listRows(dbKey, DB_ID);
+      expect(bodyOf(0)).toEqual(expect.objectContaining({ sorts: [...DB_QUERY[dbKey].sorts, ...DEFAULT_SORTS] }));
+    }
   });
 
   it('정의가 없는 DB 는 만든 시각 오름차순(timestamp 정렬)으로 조회한다', async () => {

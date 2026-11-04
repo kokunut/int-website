@@ -70,7 +70,8 @@ export async function queryDatabase(dbId: string, sorts: NotionSort[] = []): Pro
 
 /** DB 환경변수 이름(dbKey)에 정해진 조회 인자(`DB_QUERY`)로 공개 행 목록을 가져온다. 로더와 이미지 프록시가 공유 */
 export function listRows(dbKey: string, dbId: string): Promise<NotionPage[]> {
-  return queryDatabase(dbId, DB_QUERY[dbKey]?.sorts ?? DEFAULT_SORTS);
+  // 정렬 기준이 같은 행끼리의 순서도 고정하도록 먼저 만든 행 먼저(`DEFAULT_SORTS`)를 보조 정렬로 붙인다
+  return queryDatabase(dbId, [...(DB_QUERY[dbKey]?.sorts ?? []), ...DEFAULT_SORTS]);
 }
 
 /** 페이지 본문 블록 (최상위만) */

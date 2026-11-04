@@ -240,8 +240,8 @@ export const NOTICE_TYPES = ['일반', '행사', '카드뉴스'] as const;
 
 /**
  * DB 환경변수 이름별 노션 조회 인자(정렬). 데이터 로더와 이미지 프록시가 같은 값을 써야
- * 요청 본문이 같아져 Next 데이터 캐시를 공유한다. 여기에 없는 DB 는 `DEFAULT_SORTS`(먼저 만든 행 먼저)로 조회해,
- * 슬러그가 중복일 때 어느 행이 쓰일지가 실행마다 바뀌지 않게 한다.
+ * 요청 본문이 같아져 Next 데이터 캐시를 공유한다. `listRows` 가 여기 정렬 뒤에 항상 `DEFAULT_SORTS`(먼저 만든 행 먼저)를
+ * 보조 정렬로 붙여, 정렬 값이 같거나 슬러그가 중복일 때 어느 행이 쓰일지가 실행마다 바뀌지 않게 한다.
  */
 export type NotionSort =
   | { property: string; direction: 'ascending' | 'descending' }
