@@ -37,9 +37,9 @@ describe('listRows / DB_QUERY', () => {
     expect(bodyOf(0)).toMatchObject({ sorts: DB_QUERY[DB.notices].sorts });
   });
 
-  it('정의가 없는 DB 는 정렬 없이 조회한다', async () => {
+  it('정의가 없는 DB 는 만든 시각 오름차순(timestamp 정렬)으로 조회한다', async () => {
     await listRows(DB.banners, DB_ID);
-    expect(bodyOf(0)).not.toHaveProperty('sorts');
+    expect(bodyOf(0)).toMatchObject({ sorts: [{ timestamp: 'created_time', direction: 'ascending' }] });
   });
 
   it('DB_QUERY 키는 모두 알려진 DB 환경변수다', () => {

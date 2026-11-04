@@ -3,7 +3,8 @@
  * 서버 전용. 실패하면 throw 하고, 폴백은 index.ts 가 처리한다.
  */
 import type { NotionBlock, NotionPage } from './notion-types';
-import { DB_QUERY, P_PUBLIC } from './notion-schema';
+import { DB_QUERY, DEFAULT_SORTS, P_PUBLIC } from './notion-schema';
+import type { NotionSort } from './notion-schema';
 
 const API = 'https://api.notion.com/v1';
 const NOTION_VERSION = '2022-06-28';
@@ -13,10 +14,7 @@ const TIMEOUT_MS = 10_000;
 export const REMOTE_TAG = 'notion';
 export const REVALIDATE_SECONDS = 600;
 
-export interface NotionSort {
-  property: string;
-  direction: 'ascending' | 'descending';
-}
+export type { NotionSort };
 
 interface ListResponse<T> {
   results: T[];
@@ -72,7 +70,7 @@ export async function queryDatabase(dbId: string, sorts: NotionSort[] = []): Pro
 
 /** DB 환경변수 이름(dbKey)에 정해진 조회 인자(`DB_QUERY`)로 공개 행 목록을 가져온다. 로더와 이미지 프록시가 공유 */
 export function listRows(dbKey: string, dbId: string): Promise<NotionPage[]> {
-  return queryDatabase(dbId, DB_QUERY[dbKey]?.sorts ?? []);
+  return queryDatabase(dbId, DB_QUERY[dbKey]?.sorts ?? DEFAULT_SORTS);
 }
 
 /** 페이지 본문 블록 (최상위만) */

@@ -201,6 +201,14 @@ describe('notion mappers', () => {
     expect(safeHref('data:text/html,x')).toBe('');
     expect(safeHref('//evil.com')).toBe('');
     expect(safeHref('/\\evil.com')).toBe('');
+    // 브라우저는 URL 의 탭·개행을 지우므로 '/\t/evil' 은 '//evil' 이 된다
+    expect(safeHref('/\t/evil.example')).toBe('');
+    expect(safeHref('/\n/evil.example')).toBe('');
+    expect(safeHref('/\r/evil.example')).toBe('');
+    expect(safeHref('/\t\\evil.example')).toBe('');
+    expect(safeHref('/\\\tevil.example')).toBe('');
+    expect(safeHref('java\tscript:alert(1)')).toBe('');
+    expect(safeHref('/no\ttab')).toBe('/notab');
     expect(safeHref('/notice/1')).toBe('/notice/1');
     expect(safeHref('https://forms.gle/x')).toBe('https://forms.gle/x');
     expect(safeHref('http://a.b')).toBe('http://a.b');

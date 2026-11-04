@@ -193,6 +193,40 @@ test('새 팝업이 추가되면 숨긴 팝업은 그대로 두고 새 팝업만
   await expect(dialog.getByRole('button', { name: '다음 팝업' })).toHaveCount(0);
 });
 
+test('1번만 숨김 → 새로고침 → 첫 페인트(하이드레이션 전)부터 2번 팝업이 보이고 경고가 없다', async ({ page }) => {
+  const problems: string[] = [];
+  page.on('console', (m) => {
+    if (m.type() === 'error' || m.type() === 'warning') problems.push(m.text());
+  });
+  page.on('pageerror', (e) => problems.push(e.message));
+
+  await page.addInitScript(() => localStorage.setItem('int_popup_hide_p-partner-open', '2026-11-08'));
+  // JS 청크 응답을 붙잡아 하이드레이션 전 상태를 확인한다
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => (release = resolve));
+  await page.route(/\/_next\/static\/.*\.js/, async (route) => {
+    await gate;
+    await route.continue();
+  });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.modal[data-ready=true]')).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.dataset.popupHiddenIds)).toBe('p-partner-open');
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  // 숨긴 1번(제휴)은 보이지 않고, 숨김이 아닌 첫 슬라이드(행사)만 보인다
+  await expect(page.locator('.modal-slide[data-popup-id=p-partner-open]')).toBeHidden();
+  await expect(page.locator('.modal-slide[data-popup-id=p-event-lab]')).toBeVisible();
+  await expect(page.locator('.modal-slide[data-popup-id=c2026-ai]')).toBeHidden();
+  await expect(dialog.getByRole('heading', { name: EVENT_TITLE })).toBeVisible();
+  await expect(dialog.getByRole('heading', { name: PARTNER_TITLE })).toHaveCount(0);
+
+  release();
+  await page.locator('.modal[data-ready=true]').waitFor();
+  await expect(dialog.getByRole('heading', { name: EVENT_TITLE })).toBeVisible();
+  await expect(dialog.getByText('1 / 2')).toBeVisible();
+  expect(problems.filter((t) => /hydrat|did not match|mismatch/i.test(t))).toEqual([]);
+});
+
 test('"오늘 하루"를 골라도 더 길게 숨긴 팝업의 기간을 줄이지 않는다', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('int_popup_hide_p-partner-open', '2026-11-08'));
   await page.goto('/');

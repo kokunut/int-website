@@ -2,12 +2,12 @@
  * iCal(.ics) 파서 — 구글 캘린더 학사일정용.
  *
  * 한계: 반복 일정(RRULE/RDATE/EXDATE)은 해석하지 않고 첫 발생만 사용한다.
- * 반복되는 학사일정이 필요하면 캘린더에서 각각 별도 일정으로 입력한다.
+ * 같은 이유로 반복 일정의 수정된 회차(RECURRENCE-ID 가 있는 VEVENT)는 건너뛴다 (원본과 따로 중복 표시되는 것을 막음).
+ * 반복되는 학사일정이 필요하거나 특정 회차를 바꾸려면 캘린더에서 각각 별도 일정으로 입력한다.
  */
 import type { AcademicEvent, DateString } from '../types';
-import { todayKST } from '../date';
+import { addDays, todayKST } from '../date';
 
-const DAY_MS = 864e5;
 const KST_OFFSET_MS = 9 * 3600e3;
 
 function pad(n: number, w = 2): string {
@@ -17,15 +17,6 @@ function pad(n: number, w = 2): string {
 function fromUtcMs(ms: number): DateString {
   const d = new Date(ms);
   return `${pad(d.getUTCFullYear(), 4)}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
-}
-
-function toUtcMs(s: DateString): number {
-  const [y, m, d] = s.split('-').map(Number);
-  return Date.UTC(y, m - 1, d);
-}
-
-export function addDays(s: DateString, n: number): DateString {
-  return fromUtcMs(toUtcMs(s) + n * DAY_MS);
 }
 
 /** 줄 이어쓰기(줄 앞 공백/탭) 해제 */
@@ -125,11 +116,13 @@ interface Draft {
   start?: ParsedDate;
   end?: ParsedDate;
   cancelled: boolean;
+  /** RECURRENCE-ID 가 있는 반복 일정의 수정 회차 */
+  override: boolean;
 }
 
 function finish(d: Draft): AcademicEvent | null {
   if (!d.start || !d.summary?.trim()) return null;
-  if (d.cancelled) return null;
+  if (d.cancelled || d.override) return null;
   const start = d.start.date;
   let end = start;
   if (d.end) {
@@ -157,7 +150,7 @@ export function parseIcs(text: string, today: DateString = todayKST()): Academic
     if (!line) continue;
     const upper = line.toUpperCase();
     if (upper === 'BEGIN:VEVENT') {
-      draft = { cancelled: false };
+      draft = { cancelled: false, override: false };
       alarmDepth = 0;
       continue;
     }
@@ -177,6 +170,7 @@ export function parseIcs(text: string, today: DateString = todayKST()): Academic
     if (cl.name === 'SUMMARY') draft.summary = unescapeText(cl.value);
     else if (cl.name === 'DTSTART') draft.start = parseDateValue(cl) ?? undefined;
     else if (cl.name === 'DTEND') draft.end = parseDateValue(cl) ?? undefined;
+    else if (cl.name === 'RECURRENCE-ID') draft.override = true;
     else if (cl.name === 'STATUS') draft.cancelled = cl.value.trim().toUpperCase() === 'CANCELLED';
   }
   return events.sort((a, b) => a.start.localeCompare(b.start) || a.end.localeCompare(b.end));

@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef, useState, type KeyboardEvent } from 'react';
-import { cardAlt, counterText, indexFromScroll, stepIndex } from '@/lib/cardnews';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { cardAlt, counterText, hasReachedTarget, indexFromScroll, stepIndex } from '@/lib/cardnews';
 
 /** 카드뉴스 이미지 슬라이더 — 가로 scroll-snap 스와이프·이전/다음·키보드 ←/→·점·"2 / 6" */
 export default function CardSlider({ title, images, instagram }: { title: string; images: string[]; instagram?: string }) {
@@ -24,7 +24,7 @@ export default function CardSlider({ title, images, instagram }: { title: string
     const t = target.current;
     if (t !== null) {
       // 애니메이션 중간 위치로 현재 장을 덮어쓰지 않는다
-      if (Math.abs(el.scrollLeft - t * el.clientWidth) < 2) target.current = null;
+      if (hasReachedTarget(el.scrollLeft, el.clientWidth, t)) target.current = null;
       return;
     }
     setIndex(indexFromScroll(el.scrollLeft, el.clientWidth, total));
@@ -32,6 +32,17 @@ export default function CardSlider({ title, images, instagram }: { title: string
   const release = () => {
     target.current = null;
   };
+
+  // scrollend 를 지원하는 브라우저는 스크롤이 멈추면 목표를 푼다 (미지원이면 onScroll 의 도착 판정이 대신한다)
+  useEffect(() => {
+    const el = track.current;
+    if (!el) return;
+    const done = () => {
+      target.current = null;
+    };
+    el.addEventListener('scrollend', done);
+    return () => el.removeEventListener('scrollend', done);
+  }, []);
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'ArrowLeft') {
