@@ -1,0 +1,27 @@
+name: 간단 작성
+description: 텍스트 상자 하나에 적는 기본 양식이에요. 처음이라면 이것을 고르세요.
+title: "[요청] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        아래 상자의 항목을 채워 주세요. 모르는 칸은 비워 둬도 됩니다.
+        사진은 상자 안으로 끌어다 놓거나 붙여 넣으면 첨부됩니다.
+  - type: textarea
+    id: content
+    attributes:
+      label: 내용
+      value: |
+        ## 무엇을
+        -
+
+        ## 왜
+        -
+
+        ## 어디에서 (페이지 주소나 메뉴 이름)
+        -
+
+        ## 참고 (사진·링크)
+        -
+    validations:
+      required: true
