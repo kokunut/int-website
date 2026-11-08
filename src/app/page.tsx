@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import AppLink from '@/components/AppLink';
 import BannerCarousel from '@/components/BannerCarousel';
+import RentalStatus from '@/components/RentalStatus';
 import Calendar from '@/components/Calendar';
-import ContestList from '@/components/ContestList';
 import NoticeList from '@/components/NoticeList';
 import PaybackCard from '@/components/PaybackCard';
 import PopupModal from '@/components/PopupModal';
 import Link from 'next/link';
-import { getBanners, getCalendarEvents, getContests, getNotices, getPayback, getPopups, getSiteLinks } from '@/lib/data';
-import { todayKST } from '@/lib/date';
+import { getBanners, getCalendarEvents, getContests, getNotices, getPayback, getPopups, getRental, getSiteLinks } from '@/lib/data';
+import { full, todayKST } from '@/lib/date';
 import { activePopups, buildPopups, popupHideScript } from '@/lib/popup';
 import { PAGE_DESCRIPTIONS, pageMetadata } from '@/lib/seo';
 
@@ -17,7 +17,7 @@ export const revalidate = 600;
 export const metadata: Metadata = pageMetadata({ title: { absolute: '인트 | 인공지능융합대학 학생회' }, description: PAGE_DESCRIPTIONS.home, path: '/' });
 
 export default async function HomePage() {
-  const [banners, events, contests, popupRows, notices, payback, links] = await Promise.all([
+  const [banners, events, contests, popupRows, notices, payback, links, rental] = await Promise.all([
     getBanners(),
     getCalendarEvents(),
     getContests(),
@@ -25,6 +25,7 @@ export default async function HomePage() {
     getNotices(),
     getPayback(),
     getSiteLinks(),
+    getRental(),
   ]);
   const today = todayKST();
   const popups = buildPopups(popupRows, contests);
@@ -52,16 +53,7 @@ export default async function HomePage() {
           <PaybackCard payback={payback} formUrl={links.paybackForm} />
         </div>
       </section>
-      <section className="section two">
-        <div>
-          <div className="sec-head">
-            <h2>공모전</h2>
-            <Link className="more" href="/contest">
-              더보기 →
-            </Link>
-          </div>
-          <ContestList items={contests.slice(0, 4)} />
-        </div>
+      <section className="section two home-notice">
         <div>
           <div className="sec-head">
             <h2>공지사항</h2>
@@ -70,6 +62,13 @@ export default async function HomePage() {
             </Link>
           </div>
           <NoticeList items={notices.slice(0, 5)} />
+        </div>
+        <div>
+          <div className="sec-head">
+            <h2>대여사업 현황</h2>
+            <span className="more">{full(rental.updatedAt)} 기준</span>
+          </div>
+          <RentalStatus rental={rental} />
         </div>
       </section>
       <section className="section quick" aria-label="바로가기">

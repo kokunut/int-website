@@ -17,6 +17,7 @@ import { notices } from '@/content/notices';
 import { aboutPage, departmentsPage, faqPage, partnersPage, paybackPage, suggestPage } from '@/content/pages';
 import { PARTNER_DEFAULT, partners } from '@/content/partners';
 import { payback } from '@/content/payback';
+import { rental } from '@/content/rental';
 import { popups } from '@/content/popups';
 import { siteLinks } from '@/content/site';
 import { cache } from 'react';
@@ -46,6 +47,7 @@ import type {
   SuggestPage,
   ResolvedPartner,
   Payback,
+  Rental,
   SiteLinks,
   SuggestAnswer,
 } from '../types';
@@ -74,7 +76,7 @@ import {
 import { buildIndex } from './build-index';
 import { fetchBlocks, listRows } from './notion';
 import type { NotionPage } from './notion-types';
-import { fetchAcademic, fetchPayback } from './remote';
+import { fetchAcademic, fetchPayback, fetchRental } from './remote';
 
 
 const PHOTO_ALT = '학생회 단체 사진';
@@ -275,6 +277,15 @@ export async function getContests(): Promise<Contest[]> {
 
 export async function getContest(id: string): Promise<Contest | undefined> {
   return (await loadContests()).find((c) => c.id === id);
+}
+
+const loadRental = cache(async (): Promise<Rental> => {
+  const url = process.env.RENTAL_CSV_URL;
+  return withFallback('RENTAL_CSV_URL', url ? () => fetchRental(url) : null, () => rental);
+});
+
+export async function getRental(): Promise<Rental> {
+  return loadRental();
 }
 
 export async function getPayback(): Promise<Payback> {

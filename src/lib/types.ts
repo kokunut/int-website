@@ -299,3 +299,15 @@ export interface ArchivePost {
   /** 상세에서만 채워진다 */
   blocks: ContentBlock[];
 }
+
+/** 대여사업 물품 한 줄 (수량만, 대여자 정보 X) */
+export interface RentalItem {
+  name: string;
+  total: number;
+  out: number;
+}
+
+export interface Rental {
+  items: RentalItem[];
+  updatedAt: DateString;
+}

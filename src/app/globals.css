@@ -101,6 +101,8 @@ h1,h2{letter-spacing:-.02em}
 .banner::after{content:'';position:absolute;left:0;right:0;bottom:0;height:6px;background:var(--brand-grad);pointer-events:none}
 .banner-track{display:flex;transition:transform .55s ease}
 .slide{flex:0 0 100%;display:block;aspect-ratio:4.1/1}
+/* 템플릿 배너는 글이 넘치지 않게 비율 대신 최소 높이 (이미지 배너만 비율 고정) */
+.slide:not(.is-img){aspect-ratio:auto;min-height:clamp(220px,24.4vw,300px)}
 .slide img{width:100%;height:100%;object-fit:cover}
 .bn-tpl{height:100%;display:flex;justify-content:space-between;gap:24px;padding:clamp(20px,3vw,40px) clamp(20px,3.2vw,44px)}
 .bn-left{flex:1;min-width:0;display:flex;flex-direction:column}
@@ -433,28 +435,31 @@ a.ev:hover p{color:var(--text);text-decoration:underline;text-underline-offset:3
 /* ---------- 공모전 팝업 ---------- */
 .modal{position:fixed;inset:0;z-index:100;display:grid;align-items:start;justify-items:center;padding:max(24px,8vh) 20px 20px;background:rgba(0,0,0,.45)}
 .modal[hidden],html[data-popup-hidden] .modal{display:none}
-.modal-box{width:min(420px,100%);max-height:calc(100vh - max(24px,8vh) - 20px);max-height:calc(100dvh - max(24px,8vh) - 20px);display:flex;flex-direction:column;overflow:hidden;background:var(--bg);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+.modal-box{width:min(380px,100%);max-height:calc(100vh - max(24px,8vh) - 20px);max-height:calc(100dvh - max(24px,8vh) - 20px);display:flex;flex-direction:column;overflow:hidden;background:var(--bg);border-radius:6px;box-shadow:0 8px 28px rgba(0,0,0,.18)}
 .modal-scroll{flex:1 1 auto;min-height:0;overflow:auto}
 .modal-nav,.modal-foot{flex:none}
 /* 하이드레이션 전: 첫 슬라이드만 보인다. 일부가 숨김이면 인라인 스크립트(popupHideScript)가 숨김이 아닌 첫 슬라이드로 바꾼다 */
 .modal:not([data-ready]) .modal-slide:not(:first-child){display:none}
-.modal-photo{display:block;width:100%;aspect-ratio:4/5;max-height:min(44vh,520px);object-fit:contain;background:var(--surface-2)}
-.modal-nav{display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 16px;border-top:1px solid var(--line);font-size:14px;color:var(--text-2)}
-.modal-nav .nav-btn{width:32px;height:32px;border-radius:999px;border:1px solid var(--line);font-size:20px;line-height:1;color:var(--text)}
-.modal-nav .nav-btn:disabled{opacity:.35;cursor:default}
-.modal-nav .dots{display:flex;gap:2px}
-.modal-nav .dot{position:relative;width:24px;height:24px}
-.modal-nav .dot::before{content:'';position:absolute;left:8px;top:8px;width:8px;height:8px;border-radius:999px;background:var(--line)}
-.modal-nav .dot[aria-current=true]::before{background:var(--brand)}
-.modal-nav .count{min-width:44px;text-align:center}
-.modal-body{padding:22px 24px 20px}
-.modal-body h2{font-size:21px;font-weight:800;letter-spacing:-.03em;margin-top:8px}
-.modal-body p{color:var(--text-2);margin-top:6px;font-size:15px}
-.modal-body .btn{width:100%;margin-top:18px}
-.modal-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:14px 20px;border-top:1px solid var(--line);background:var(--surface);font-size:14px}
-.modal-foot label{display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text-2)}
-.modal-foot input{width:16px;height:16px;accent-color:var(--accent)}
-.modal-foot .close{margin-left:auto;font-weight:700}
+.modal-photo{display:block;width:100%;aspect-ratio:4/5;max-height:min(44vh,480px);object-fit:cover;background:var(--surface-2)}
+.modal-body{padding:22px 22px 20px;border-top:4px solid var(--brand)}
+.modal-photo+.modal-body{border-top:0}
+.modal-cat{font-size:13px;font-weight:700;color:var(--brand)}
+.modal-body h2{font-size:20px;font-weight:800;letter-spacing:-.03em;margin-top:4px;line-height:1.35}
+.modal-body p:not(.modal-cat){color:var(--text-2);margin-top:8px;font-size:14.5px;line-height:1.6}
+.modal-body .modal-period{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);font-size:13px;color:var(--text-3)}
+.modal-body .btn{width:100%;height:44px;margin-top:16px;border-radius:4px;background:transparent;color:var(--text);border:1px solid var(--text);font-size:15px}
+.modal-body .btn:hover{background:var(--text);color:var(--bg)}
+.modal-nav{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-top:1px solid var(--line)}
+.modal-nav .nav-btn{width:32px;height:32px;font-size:22px;line-height:1;color:var(--text-2)}
+.modal-nav .nav-btn:disabled{opacity:.25;cursor:default}
+.modal-nav .dots{display:flex;gap:0}
+.modal-nav .dot{position:relative;width:20px;height:24px}
+.modal-nav .dot::before{content:'';position:absolute;left:4px;top:11px;width:12px;height:2px;background:var(--line)}
+.modal-nav .dot[aria-current=true]::before{background:var(--text)}
+.modal-foot{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:10px 14px;background:#181A16;color:#C9CED8;font-size:13px}
+.modal-foot label{display:flex;align-items:center;gap:5px;cursor:pointer}
+.modal-foot input{width:14px;height:14px;accent-color:var(--brand)}
+.modal-foot .close{margin-left:auto;color:#F8FAFD;font-weight:600}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 
@@ -548,3 +553,17 @@ body:has(.gnb.open) .fab{display:none}
 .cards-src a{color:var(--text-2);text-decoration:underline;text-underline-offset:3px}
 .list .cards-n{font-size:13px;color:var(--text-3);white-space:nowrap}
 @media (prefers-reduced-motion:no-preference){.cards-track{scroll-behavior:smooth}}
+
+/* ---------- 메인: 공지사항 + 대여사업 현황 ---------- */
+.home-notice{grid-template-columns:minmax(0,1fr) 340px}
+.rental{padding:20px 22px}
+.rental-list{display:grid;gap:12px}
+.rental-list li{display:grid;grid-template-columns:84px minmax(0,1fr) auto;align-items:center;gap:10px;font-size:15px}
+.rental-name{font-weight:600}
+.rental-bar{height:6px;border-radius:999px;background:var(--surface);overflow:hidden}
+.rental-bar i{display:block;height:100%;background:var(--brand)}
+.rental-left{font-variant-numeric:tabular-nums;color:var(--text-2);white-space:nowrap}
+.rental-left b{color:var(--text)}
+.rental-list li.none .rental-left{color:var(--text-3)}
+.rental-foot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;line-height:1.6;color:var(--text-3)}
+@media (max-width:860px){.home-notice{grid-template-columns:minmax(0,1fr)}}
