@@ -1,5 +1,5 @@
 /** RFC 4180 CSV 파서 + 페이백 집계 매핑 */
-import type { DateString, Payback } from '../types';
+import type { DateString, Payback, Rental, RentalItem } from '../types';
 
 export function parseCsv(input: string): string[][] {
   const text = input.replace(/^﻿/, '');
@@ -80,4 +80,23 @@ export function mapPayback(rows: string[][]): Payback | null {
     return null;
   }
   return { budget, paid, recipients, applyPeriod, nextPayDate, updatedAt };
+}
+
+/** 대여 현황 시트: 머리행에 `물품`, `총수량`, `대여중` 열. 갱신일 열(선택)은 첫 값만 쓴다 */
+export function mapRental(rows: string[][], today: DateString): Rental | null {
+  const head = rows[0]?.map((h) => h.trim());
+  if (!head) return null;
+  const [ni, ti, oi, ui] = ['물품', '총수량', '대여중', '갱신일'].map((k) => head.indexOf(k));
+  if (ni < 0 || ti < 0 || oi < 0) return null;
+  const items: RentalItem[] = [];
+  let updatedAt: DateString | null = null;
+  for (const r of rows.slice(1)) {
+    const name = r[ni]?.trim();
+    const total = toCount(r[ti]);
+    const out = toCount(r[oi]);
+    if (ui >= 0 && !updatedAt) updatedAt = toDate(r[ui]);
+    if (!name || total === null || out === null) continue;
+    items.push({ name, total, out: Math.min(out, total) });
+  }
+  return items.length ? { items, updatedAt: updatedAt ?? today } : null;
 }

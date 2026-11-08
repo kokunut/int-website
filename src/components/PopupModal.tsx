@@ -161,12 +161,12 @@ export default function PopupModal({ popups, serverToday }: { popups: Popup[]; s
               <img className="modal-photo" src={it.image} alt={`${it.title} 포스터`} loading={i === 0 ? undefined : 'lazy'} />
             )}
             <div className="modal-body">
-              <span className="badge solid">
+              <p className="modal-cat">
                 {it.cat} · {dday(it.end, today) === 0 ? 'D-DAY' : `D-${dday(it.end, today)}`}
-              </span>
+              </p>
               <h2 id={`popup-title-${it.id}`}>{it.title}</h2>
               {it.desc && <p>{it.desc}</p>}
-              <p className="note">
+              <p className="modal-period">
                 {it.cat === '공모전' ? '접수' : '기간'} {full(it.start)} ~ {full(it.end)}
               </p>
               {it.href && (
@@ -179,6 +179,7 @@ export default function PopupModal({ popups, serverToday }: { popups: Popup[]; s
                   }}
                 >
                   {it.cta}
+                  <span aria-hidden="true"> →</span>
                   <span className="sr-only"> · {it.title}</span>
                 </AppLink>
               )}
@@ -203,7 +204,7 @@ export default function PopupModal({ popups, serverToday }: { popups: Popup[]; s
                 />
               ))}
             </div>
-            <span className="count" aria-live="polite">
+            <span className="count sr-only" aria-live="polite">
               {index + 1} / {total}
             </span>
             <button type="button" className="nav-btn" onClick={() => go(index + 1)} disabled={index === total - 1} aria-label="다음 팝업">
